@@ -1,5 +1,5 @@
 // Domain adapter: order state machine + audit logging
-import { applyTransition, type OrderState, type OrderEvent, type AuditRecord } from "../../../kernel/dist/orders/stateMachine.js";
+import { applyTransition, type OrderState, type OrderEvent, type AuditRecord } from "@kernel/orders/stateMachine";
 import { db } from "@/lib/db";
 import { logger } from "@/lib/logger";
 

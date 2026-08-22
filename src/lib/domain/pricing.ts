@@ -1,7 +1,7 @@
 // Domain adapter: bridges kernel computeQuote with Prisma + app config
-import { computeQuote, PRICING_ENGINE_VERSION } from "../../../kernel/dist/pricing/engine.js";
-import { createPriceSnapshot, type PriceSnapshot } from "../../../kernel/dist/pricing/snapshot.js";
-import type { PriceQuote } from "../../../kernel/dist/pricing/types.js";
+import { computeQuote, PRICING_ENGINE_VERSION } from "@kernel/pricing/engine";
+import { createPriceSnapshot, type PriceSnapshot } from "@kernel/pricing/snapshot";
+import type { PriceQuote } from "@kernel/pricing/types";
 import { db } from "@/lib/db";
 
 export { PRICING_ENGINE_VERSION, createPriceSnapshot };

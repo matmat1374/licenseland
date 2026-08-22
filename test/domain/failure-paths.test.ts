@@ -1,10 +1,10 @@
 // Failure-path tests for the domain kernel integration.
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { computeQuote } from "../../kernel/dist/pricing/engine.js";
-import { applyTransition, type OrderState } from "../../kernel/dist/orders/stateMachine.js";
-import { assertBalanced, type LedgerTransaction } from "../../kernel/dist/wallet/ledger.js";
-import { runOnce, InMemoryIdempotencyStore, IdempotencyConflictError } from "../../kernel/dist/idempotency/store.js";
+import { computeQuote } from "../../kernel/src/pricing/engine.ts";
+import { applyTransition, type OrderState } from "../../kernel/src/orders/stateMachine.ts";
+import { assertBalanced, type LedgerTransaction } from "../../kernel/src/wallet/ledger.ts";
+import { runOnce, InMemoryIdempotencyStore, IdempotencyConflictError } from "../../kernel/src/idempotency/store.ts";
 
 // ─────────────────────────────────────────────────────────────
 // TEST 1: Duplicate callback (idempotency)

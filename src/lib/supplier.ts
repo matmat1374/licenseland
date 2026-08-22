@@ -6,7 +6,7 @@
 // Configuration is read from DB Setting table (editable in admin) with env fallbacks.
 
 import { db } from "@/lib/db";
-import { computeQuote } from "../../kernel/dist/pricing/engine.js";
+import { computeQuote } from "@kernel/pricing/engine";
 
 // irMarket API base URL — configurable via env for testing/alternative endpoints.
 // Declared at top so it's available to all functions below.

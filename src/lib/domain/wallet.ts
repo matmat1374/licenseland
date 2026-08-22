@@ -1,6 +1,6 @@
 // Domain adapter: double-entry wallet ledger
 // Balance is ALWAYS derived from the ledger, never stored.
-import { assertBalanced, type LedgerTransaction, type PostingLeg } from "../../../kernel/dist/wallet/ledger.js";
+import { assertBalanced, type LedgerTransaction, type PostingLeg } from "@kernel/wallet/ledger";
 import { db } from "@/lib/db";
 import { logger } from "@/lib/logger";
 

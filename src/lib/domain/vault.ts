@@ -1,5 +1,5 @@
 // Domain adapter: AES-256-GCM license encryption
-import { sealLicense, openLicense, assertMasterKey, type SealedLicense } from "../../../kernel/dist/security/licenseVault.js";
+import { sealLicense, openLicense, assertMasterKey, type SealedLicense } from "@kernel/security/licenseVault";
 
 const MASTER_KEY_B64 = process.env.LICENSE_VAULT_KEY || "";
 const KEY_VERSION = Number(process.env.LICENSE_VAULT_KEY_VERSION) || 1;
