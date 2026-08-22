@@ -1,6 +1,9 @@
 // ZarinPal payment gateway integration
 // Docs: https://docs.zarinpal.com
-// If ZARINPAL_MERCHANT is empty -> DEMO mode: simulate successful payment (for testing/preview)
+// DEMO mode simulates payment. It is DEV-ONLY by default (C4 fix):
+//  - active when MERCHANT is empty AND (NODE_ENV !== "production")
+//  - in production it requires BOTH an empty merchant AND ALLOW_DEMO_PAYMENTS=true
+//    (explicit opt-in for staging servers), otherwise requests fail loudly.
 
 const MERCHANT = process.env.ZARINPAL_MERCHANT || "";
 const SANDBOX = process.env.ZARINPAL_SANDBOX === "true";
@@ -9,7 +12,9 @@ const BASE = SANDBOX
   ? "https://sandbox.zarinpal.com"
   : "https://api.zarinpal.com";
 
-export const isDemoMode = !MERCHANT;
+const ALLOW_DEMO_IN_PROD = process.env.ALLOW_DEMO_PAYMENTS === "true";
+export const isDemoMode =
+  !MERCHANT && (process.env.NODE_ENV !== "production" || ALLOW_DEMO_IN_PROD);
 
 export interface ZarinPalRequestResult {
   authority: string;

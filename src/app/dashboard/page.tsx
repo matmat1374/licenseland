@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import { formatJalaliDate, toFa } from "@/lib/date";
 import { toToman } from "@/lib/format";
+import { openKeys } from "@/lib/licenses";
 import { DashboardTabs } from "@/components/site/dashboard-tabs";
 
 export const metadata = { title: "پنل کاربری", robots: { index: false } };
@@ -49,10 +50,24 @@ export default async function DashboardPage({
 
   const paidOrders = orders.filter((o) => o.status === "PAID");
   const totalSpent = paidOrders.reduce((s, o) => s + o.total, 0);
+  // decrypt sealed license keys (C5) — per product
+  const openedByItem = new Map<string, { id: string; key: string }[]>();
+  for (const o of paidOrders) {
+    for (const it of o.items) {
+      if (it.licenses.length) openedByItem.set(it.id, openKeys(it.productId, it.licenses));
+    }
+  }
   const allLicenses = paidOrders.flatMap((o) =>
-    o.items.flatMap((it) =>
-      it.licenses.map((l) => ({ ...l, productTitle: it.productTitle, orderCode: o.code, date: o.paidAt || o.createdAt }))
-    )
+    o.items.flatMap((it) => {
+      const opened = openedByItem.get(it.id) || [];
+      return it.licenses.map((l, i) => ({
+        ...l,
+        key: opened[i]?.key ?? "",
+        productTitle: it.productTitle,
+        orderCode: o.code,
+        date: o.paidAt || o.createdAt,
+      }));
+    })
   );
 
   const stats = [
@@ -62,7 +77,7 @@ export default async function DashboardPage({
     { label: "مجموع خرید", value: `${toFa(totalSpent.toLocaleString("en-US"))} ت`, icon: Wallet, color: "from-cyan-500 to-emerald-600" },
   ];
 
-  // serialize for client component
+  // serialize for client component — license keys ONLY for paid orders (decrypted)
   const serializableOrders = orders.map((o) => ({
     id: o.id,
     code: o.code,
@@ -70,14 +85,17 @@ export default async function DashboardPage({
     total: o.total,
     createdAt: o.createdAt.toISOString(),
     paidAt: o.paidAt?.toISOString() || null,
-    items: o.items.map((it) => ({
-      id: it.id,
-      productTitle: it.productTitle,
-      productSlug: it.productSlug,
-      quantity: it.quantity,
-      price: it.price,
-      licenses: it.licenses.map((l) => ({ id: l.id, key: l.key, note: l.note })),
-    })),
+    items: o.items.map((it) => {
+      const opened = o.status === "PAID" ? openedByItem.get(it.id) || [] : [];
+      return {
+        id: it.id,
+        productTitle: it.productTitle,
+        productSlug: it.productSlug,
+        quantity: it.quantity,
+        price: it.price,
+        licenses: it.licenses.map((l, i) => ({ id: l.id, key: opened[i]?.key ?? "", note: l.note })),
+      };
+    }),
   }));
   const serializableLicenses = allLicenses.map((l) => ({
     id: l.id,

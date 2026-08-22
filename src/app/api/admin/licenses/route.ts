@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { db } from "@/lib/db";
+import { sealKey, openKey } from "@/lib/licenses";
 
 async function requireAdmin() {
   const session = await getServerSession(authOptions);
@@ -31,7 +32,13 @@ export async function GET(req: NextRequest) {
     productId: l.productId,
     productTitle: l.product.title,
     productSlug: l.product.slug,
-    key: l.key,
+    key: (() => {
+      try {
+        return openKey(l.productId, l.key);
+      } catch {
+        return l.key; // corrupted sealed row — show raw for admin diagnosis
+      }
+    })(),
     note: l.note,
     status: l.status,
     source: l.source,
@@ -91,7 +98,7 @@ export async function POST(req: NextRequest) {
     await db.licenseKey.createMany({
       data: valid.map((v) => ({
         productId,
-        key: v.key,
+        key: sealKey(productId, v.key), // encrypted at rest (C5)
         note: v.note,
         status: "AVAILABLE",
         source: "manual",

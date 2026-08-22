@@ -1,7 +1,8 @@
 import { db } from "@/lib/db";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { SetupWizardForm, SETUP_FIELDS } from "@/components/admin/setup-wizard-form";
+import { SetupWizardForm } from "@/components/admin/setup-wizard-form";
+import { SETUP_FIELDS } from "@/lib/setup-fields";
 import { Rocket, CheckCircle2, AlertCircle } from "lucide-react";
 
 export const metadata = { title: "راه‌اندازی اولیه" };

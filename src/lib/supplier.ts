@@ -7,6 +7,7 @@
 
 import { db } from "@/lib/db";
 import { computeQuote } from "@kernel/pricing/engine";
+import { sealKey, openKey } from "@/lib/licenses";
 
 // irMarket API base URL — configurable via env for testing/alternative endpoints.
 // Declared at top so it's available to all functions below.
@@ -282,13 +283,25 @@ export async function receiveSupplierKeys(
   let added = 0;
   for (const k of keys) {
     if (!k.key || !k.key.trim()) continue;
-    // avoid duplicates
-    const exists = await db.licenseKey.findFirst({ where: { key: k.key.trim(), productId } });
-    if (exists) continue;
+    const plaintext = k.key.trim();
+    // avoid duplicates — compare by opening existing keys of this product
+    // (stored keys are sealed, so a plaintext equality query would never match)
+    const existing = await db.licenseKey.findMany({
+      where: { productId },
+      select: { key: true },
+    });
+    const dup = existing.some((row) => {
+      try {
+        return openKey(productId, row.key) === plaintext;
+      } catch {
+        return false;
+      }
+    });
+    if (dup) continue;
     await db.licenseKey.create({
       data: {
         productId,
-        key: k.key.trim(),
+        key: sealKey(productId, plaintext),
         note: k.note || null,
         status: "AVAILABLE",
         source: "supplier_api",
@@ -439,10 +452,12 @@ export async function importProductsFromSupplier(
   apiKey?: string,
   markupPercent = 200
 ): Promise<{ ok: boolean; imported: number; updated: number; skipped: number; message: string; details: string[] }> {
-  // irMarket default: if no URL, use irMarket products endpoint
+  // irMarket default: if no URL, use irMarket products endpoint.
+  // SUPPLIER_API_URL may be a bare host ("https://api.irmarket.store") — the
+  // products endpoint is host + /api/buyer/products (per the OpenAPI spec).
   const key = apiKey || (await getSupplierApiKey());
-  let url = apiUrl || process.env.SUPPLIER_API_URL || "";
-  if (!url) url = "https://api.irmarket.store/api/buyer/products";
+  let url = apiUrl || process.env.SUPPLIER_API_URL || "https://api.irmarket.store";
+  if (!/\/api(\/|$)/.test(url)) url = url.replace(/\/+$/, "") + "/api/buyer/products";
 
   const markup = markupPercent > 0 ? markupPercent : Number(process.env.SUPPLIER_MARKUP_PERCENT) || 200;
   const usdRate = await getUsdToTomanRate();
@@ -452,7 +467,9 @@ export async function importProductsFromSupplier(
     const res = await fetch(url, {
       headers: {
         "Content-Type": "application/json",
-        ...(key ? { "X-API-Key": key, "X-Api-Key": key, Authorization: `Bearer ${key}` } : {}),
+        // NOTE: send ONLY X-API-Key — adding X-Api-Key + Authorization: Bearer
+        // together makes the supplier API reject the request with 401
+        ...(key ? { "X-API-Key": key } : {}),
       },
       cache: "no-store",
     });
@@ -481,6 +498,18 @@ export async function importProductsFromSupplier(
     const priceUSD = pickPriceUSD(sp);
     if (!title || !priceUSD || priceUSD <= 0) {
       skipped++;
+      continue;
+    }
+
+    // Exclude products our checkout cannot fulfill (per irMarket OpenAPI):
+    //  - SMM services (pricing_unit='per_1000') are quoted per 1000 but ordered
+    //    in raw units and need a target link/comments we never collect
+    //  - requires_password / required_inputs products need credentials we never collect
+    const requiredInputs: string[] = Array.isArray(sp.required_inputs) ? sp.required_inputs : [];
+    if (sp.pricing_unit === "per_1000" || sp.requires_link || sp.requires_comments || sp.requires_password || requiredInputs.length > 0) {
+      skipped++;
+      const why = sp.pricing_unit === "per_1000" ? "سرویس SMM" : sp.requires_link ? "نیازمند لینک" : sp.requires_password ? "نیازمند رمز" : "ورودی خاص";
+      details.push(`رد شد (غیرقابل فروش خودکار): ${title} — ${why}`);
       continue;
     }
 
@@ -626,11 +655,15 @@ export async function purchaseFromSupplier(
 
   // get supplier product id from specifications
   let supplierProductId: number | undefined;
+  let requiresPassword = false;
   try {
     const specs = JSON.parse(product.specifications || "{}");
     supplierProductId = Number(specs.supplier_product_id);
+    requiresPassword = !!specs.requires_password;
   } catch {}
   if (!supplierProductId) return { ok: false, message: "شناسه محصول تأمین‌کننده یافت نشد" };
+  if (requiresPassword)
+    return { ok: false, message: "این محصول نیازمند رمز مشتری است و فعلاً قابل فروش خودکار نیست" };
 
   const body: any = {
     product_id: supplierProductId,
@@ -649,12 +682,30 @@ export async function purchaseFromSupplier(
     if (!res.ok || !data.success) {
       return { ok: false, message: data.detail || data.message || `خطای خرید (${res.status})` };
     }
-    return {
-      ok: true,
-      accounts: data.accounts || [],
-      orderId: data.order_id,
-      message: `خرید موفق — ${data.accounts?.length || 0} اکانت تحویل شد`,
-    };
+
+    // status can be 'processing' (still fulfilling) — poll the order a few
+    // times before giving up, per the API docs
+    let status: string = data.status || "delivered";
+    let accounts: string[] = data.accounts || [];
+    let orderId: number | undefined = data.order_id;
+    if (status === "processing" && accounts.length === 0 && orderId) {
+      for (let attempt = 0; attempt < 5 && status === "processing"; attempt++) {
+        await new Promise((r) => setTimeout(r, 3000));
+        const poll = await getSupplierOrder(orderId);
+        if (!poll.ok) break;
+        status = poll.status || status;
+        accounts = poll.accounts || accounts;
+      }
+    }
+
+    if (status === "delivered" && accounts.length > 0) {
+      return { ok: true, accounts, orderId, message: `خرید موفق — ${accounts.length} اکانت تحویل شد` };
+    }
+    if (status === "processing") {
+      return { ok: false, orderId, message: `سفارش ${orderId} نزد تأمین‌کننده در حال پردازش است — کلیدها بعداً از طریق وب‌هوک یا پنل ادمین تحویل داده می‌شود` };
+    }
+    // failed / cancelled / delivered-without-accounts
+    return { ok: false, orderId, message: `تحویل ناموفق بود (وضعیت: ${status})` };
   } catch (e: any) {
     return { ok: false, message: `ارتباط با تأمین‌کننده: ${e?.message || ""}` };
   }
@@ -720,7 +771,9 @@ export async function getSupplierMe(): Promise<{
 
 // ----------------------------- irMarket: Webhook registration -----------------------------
 // POST /api/buyer/webhook — body: { url }
-export async function registerSupplierWebhook(url: string): Promise<{ ok: boolean; message?: string }> {
+// NOTE: the signing secret is returned ONCE and re-registering rotates it,
+// so it must be persisted immediately.
+export async function registerSupplierWebhook(url: string): Promise<{ ok: boolean; secret?: string; message?: string }> {
   const key = await getSupplierApiKey();
   if (!key) return { ok: false, message: "کلید API تأمین‌کننده تنظیم نشده" };
   try {
@@ -734,7 +787,15 @@ export async function registerSupplierWebhook(url: string): Promise<{ ok: boolea
     if (!res.ok || !data.success) {
       return { ok: false, message: data.detail || data.message || `خطای API (${res.status})` };
     }
-    return { ok: true, message: "وب‌هوک ثبت شد" };
+    // persist the HMAC secret so /api/supplier/webhook can verify X-Signature
+    if (data.secret) {
+      await db.setting.upsert({
+        where: { key: "supplier_irmarket_webhook_secret" },
+        create: { key: "supplier_irmarket_webhook_secret", value: data.secret },
+        update: { value: data.secret },
+      });
+    }
+    return { ok: true, secret: data.secret, message: "وب‌هوک ثبت شد و رمز امضا ذخیره شد" };
   } catch (e: any) {
     return { ok: false, message: `ارتباط با تأمین‌کننده: ${e?.message || ""}` };
   }

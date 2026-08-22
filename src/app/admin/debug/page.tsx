@@ -9,6 +9,14 @@ import { Badge } from "@/components/ui/badge";
 export const metadata = { title: "دیباگ سیستم" };
 
 export default async function DebugPage() {
+  // dev-only page (M2 fix): it dumps .env contents and must not exist in production
+  if (process.env.NODE_ENV === "production") {
+    return (
+      <Card className="p-6">
+        <h1 className="text-xl font-black">صفحه دیباگ فقط در محیط توسعه در دسترس است</h1>
+      </Card>
+    );
+  }
   const session = await getServerSession(authOptions);
   if (!session?.user) redirect("/login?callbackUrl=/admin/debug");
   if (session.user.role !== "ADMIN") redirect("/dashboard");

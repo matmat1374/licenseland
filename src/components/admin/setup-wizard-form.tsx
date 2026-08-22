@@ -17,91 +17,23 @@ import {
   Send,
 } from "lucide-react";
 import { toast } from "sonner";
+import { SETUP_FIELDS, type SetupField } from "@/lib/setup-fields";
 
-export interface SetupField {
-  key: string;
-  label: string;
-  placeholder: string;
-  type?: "text" | "password" | "number";
-  help: string;
-  optional?: boolean;
-  ltr?: boolean;
-  icon: React.ComponentType<{ className?: string }>;
+// icons live client-side; mapped by field key (data itself is shared, see lib/setup-fields.ts)
+const FIELD_ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
+  site_name: Building2,
+  site_url: Globe,
+  email: Mail,
+  usd_to_toman_rate: DollarSign,
+  base_markup_percent: Percent,
+  supplier_api_key: KeyRound,
+  zarinpal_merchant: CreditCard,
+  telegram_bot_token: Send,
+};
+
+function fieldIcon(field: SetupField) {
+  return FIELD_ICONS[field.key] ?? Building2;
 }
-
-// Settings covered by the wizard — stored in the `Setting` table (key/value).
-// `base_markup_percent` is a new key introduced for the setup wizard (default 200%).
-export const SETUP_FIELDS: SetupField[] = [
-  {
-    key: "site_name",
-    label: "نام برند",
-    placeholder: "لیسانس‌لَند",
-    help: "نام تجاری سایت که در هدر، فوتر و نقشه سایت نمایش داده می‌شود.",
-    icon: Building2,
-  },
-  {
-    key: "site_url",
-    label: "آدرس دامنه (URL)",
-    placeholder: "https://licenseland.ir",
-    help: "دامنه اصلی سایت — برای ساخت لینک canonical و متادیتای سئو استفاده می‌شود. معادل NEXTAUTH_URL.",
-    ltr: true,
-    icon: Globe,
-  },
-  {
-    key: "email",
-    label: "ایمیل پشتیبانی",
-    placeholder: "support@licenseland.ir",
-    help: "ایمیلی که مشتریان برای پشتیبانی از آن استفاده می‌کنند. در فوتر و صفحه تماس نمایش داده می‌شود.",
-    ltr: true,
-    icon: Mail,
-  },
-  {
-    key: "usd_to_toman_rate",
-    label: "نرخ دلار به تومان",
-    placeholder: "60000",
-    type: "number",
-    help: "نرخ تبدیل هر دلار به تومان — برای محاسبه قیمت محصولات وارداتی از تأمین‌کننده. مثلاً ۶۰۰۰۰ یعنی هر دلار ۶۰٬۰۰۰ تومان.",
-    ltr: true,
-    icon: DollarSign,
-  },
-  {
-    key: "base_markup_percent",
-    label: "درصد حاشیه سود پایه",
-    placeholder: "200",
-    type: "number",
-    help: "درصدی که روی قیمت تمام‌شده اضافه می‌شود تا قیمت نهایی فروش محاسبه شود. پیش‌فرض: ۲۰۰٪ (یعنی قیمت نهایی = ۳ برابر قیمت تمام‌شده).",
-    ltr: true,
-    icon: Percent,
-  },
-  {
-    key: "supplier_api_key",
-    label: "کلید API تأمین‌کننده (irMarket)",
-    placeholder: "anb_...",
-    type: "password",
-    help: "کلید API از پنل irMarket — برای وارد کردن محصولات و خرید خودکار لایسنس. مستندات: api.irmarket.store/buyer/docs",
-    ltr: true,
-    icon: KeyRound,
-  },
-  {
-    key: "zarinpal_merchant",
-    label: "مرچنت زرین‌پال",
-    placeholder: "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-    type: "password",
-    help: "کد مرچنت زرین‌پال برای درگاه پرداخت واقعی. در حال حاضر پرداخت در حالت دمو فعال است. این مقدار صرفاً برای نمایش است؛ پرداخت واقعی با متغیر محیطی ZARINPAL_MERCHANT انجام می‌شود.",
-    ltr: true,
-    icon: CreditCard,
-  },
-  {
-    key: "telegram_bot_token",
-    label: "توکن بات تلگرام",
-    placeholder: "123456789:ABCdef...",
-    type: "password",
-    help: "برای خودکارسازی تأمین لایسنس و نوتیفیکیشن‌ها (آینده). اختیاری — در صورت تنظیم، سفارش‌های جدید و هشدار موجودی کم از طریق بات اطلاع‌رسانی می‌شود.",
-    optional: true,
-    ltr: true,
-    icon: Send,
-  },
-];
 
 export function SetupWizardForm({
   settings,
@@ -138,7 +70,7 @@ export function SetupWizardForm({
     <form onSubmit={handleSubmit} className="space-y-6">
       <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
         {SETUP_FIELDS.map((field) => {
-          const Icon = field.icon;
+          const Icon = fieldIcon(field);
           const filled = !!values[field.key]?.trim();
           return (
             <div key={field.key} className="space-y-2">

@@ -1,7 +1,9 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { db } from "@/lib/db";
-import { getOrderById, getCurrentUser } from "@/lib/queries";
+import { getCurrentUser } from "@/lib/queries";
+import { verifyOrderAccessToken } from "@/lib/order-access";
+import { openKeys } from "@/lib/licenses";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
@@ -30,29 +32,35 @@ export default async function OrderPage({
   searchParams,
 }: {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ paid?: string; failed?: string }>;
+  searchParams: Promise<{ paid?: string; failed?: string; token?: string }>;
 }) {
   const { id } = await params;
   const sp = await searchParams;
   const user = await getCurrentUser();
+
+  // C1 fix — authorization (was: public guest fallback by id/code, with
+  // sequential order codes this leaked every sold license key):
+  //   owner session | admin session | guest with valid signed token
   const order = await db.order.findFirst({
-    where: {
-      OR: [{ id }, { code: id }],
-      ...(user ? { userId: user.id } : {}),
-    },
-    include: {
-      items: {
-        include: {
-          licenses: true,
-        },
-      },
-    },
+    where: { OR: [{ id }, { code: id }] },
+    include: { items: { include: { licenses: true } } },
   });
+  if (!order) notFound();
 
-  // fallback: allow guest access by id (cuid is unguessable)
-  const finalOrder = order || (await getOrderById(id));
+  const isOwner = !!user && order.userId === user.id;
+  const isAdmin = user?.role === "ADMIN";
+  const hasToken = verifyOrderAccessToken(order.id, sp.token);
+  if (!isOwner && !isAdmin && !hasToken) notFound();
 
-  if (!finalOrder) notFound();
+  // decrypt sealed license keys for display (C5)
+  for (const it of order.items) {
+    (it as any).licenses = openKeys(it.productId, it.licenses).map((k, i) => ({
+      ...it.licenses[i],
+      key: k.key,
+    }));
+  }
+
+  const finalOrder = order;
 
   const paid = finalOrder.status === "PAID";
   const failed = finalOrder.status === "FAILED" || finalOrder.status === "CANCELLED" || sp.failed;

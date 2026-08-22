@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { db } from "@/lib/db";
+import { sealKey } from "@/lib/licenses";
 
 async function requireAdmin() {
   const session = await getServerSession(authOptions);
@@ -66,7 +67,11 @@ export async function PATCH(
     const data: Record<string, any> = {};
     if (typeof body.status === "string") data.status = body.status;
     if (typeof body.note === "string") data.note = body.note || null;
-    if (typeof body.key === "string") data.key = body.key;
+    if (typeof body.key === "string" && body.key.trim()) {
+      // re-seal when the admin replaces a key (C5)
+      const existing = await db.licenseKey.findUnique({ where: { id }, select: { productId: true } });
+      if (existing) data.key = sealKey(existing.productId, body.key.trim());
+    }
 
     const updated = await db.licenseKey.update({ where: { id }, data });
     return NextResponse.json({ ok: true, license: updated });

@@ -3,6 +3,8 @@ import { db } from "@/lib/db";
 import { zarinpalVerify, isDemoMode } from "@/lib/zarinpal";
 import { getBaseUrl } from "@/lib/url";
 import { purchaseFromSupplier } from "@/lib/supplier";
+import { signOrderAccessToken } from "@/lib/order-access";
+import { sealKey } from "@/lib/licenses";
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
@@ -20,16 +22,18 @@ export async function GET(req: NextRequest) {
     return NextResponse.redirect(new URL("/checkout?failed=1", base));
   }
 
-  // user cancelled
-  if (status !== "OK" && !authority.startsWith("DEMO")) {
+  // user cancelled — applies to demo AND real gateways (C3 fix: previously demo
+  // authorities skipped cancellation and were marked PAID anyway)
+  if (status !== "OK") {
     await releaseReservedKeys(order.id);
     await db.order.update({ where: { id: order.id }, data: { status: "CANCELLED" } });
     return NextResponse.redirect(new URL(`/checkout?failed=cancel`, base));
   }
 
-  // already paid (idempotency)
+  // already processed (idempotency fast-path)
   if (order.status === "PAID") {
-    return NextResponse.redirect(new URL(`/order/${order.id}?paid=1`, base));
+    const t = signOrderAccessToken(order.id);
+    return NextResponse.redirect(new URL(`/order/${order.id}?paid=1&token=${t}`, base));
   }
 
   const verify = await zarinpalVerify(order.total, authority);
@@ -37,23 +41,27 @@ export async function GET(req: NextRequest) {
   if (!verify.success) {
     await releaseReservedKeys(order.id);
     await db.order.update({ where: { id: order.id }, data: { status: "FAILED" } });
-    return NextResponse.redirect(new URL(`/order/${order.id}?failed=1`, base));
+    return NextResponse.redirect(new URL(`/order/${order.id}?failed=1&token=${signOrderAccessToken(order.id)}`, base));
   }
 
-  // success: mark paid, sell keys, update product stats
-  await db.$transaction(async (tx) => {
-    await tx.order.update({
-      where: { id: order.id },
-      data: { status: "PAID", zarinpalRefId: verify.refId || null, paidAt: new Date() },
-    });
+  // Atomically claim the PAID transition (H6 fix): concurrent callbacks race on
+  // a conditional update; the loser sees count=0 and just redirects.
+  const claimed = await db.order.updateMany({
+    where: { id: order.id, status: { not: "PAID" } },
+    data: { status: "PAID", zarinpalRefId: verify.refId || null, paidAt: new Date() },
+  });
+  if (claimed.count === 0) {
+    const t = signOrderAccessToken(order.id);
+    return NextResponse.redirect(new URL(`/order/${order.id}?paid=1&token=${t}`, base));
+  }
 
-    // mark reserved keys as SOLD (for non-supplier products)
+  // success: sell keys, update product stats — single transaction
+  await db.$transaction(async (tx) => {
     await tx.licenseKey.updateMany({
       where: { orderItem: { orderId: order.id } },
       data: { status: "SOLD", soldAt: new Date() },
     });
 
-    // decrement product stock + increment salesCount
     const items = await tx.orderItem.findMany({ where: { orderId: order.id } });
     for (const it of items) {
       const soldCount = await tx.licenseKey.count({ where: { orderItemId: it.id, status: "SOLD" } });
@@ -66,12 +74,10 @@ export async function GET(req: NextRequest) {
       });
     }
 
-    // increment discount code usage
     if (order.discountCode) {
-      await tx.discountCode.update({
-        where: { code: order.discountCode },
-        data: { usedCount: { increment: 1 } },
-      }).catch(() => {});
+      await tx.discountCode
+        .update({ where: { code: order.discountCode }, data: { usedCount: { increment: 1 } } })
+        .catch(() => {});
     }
   });
 
@@ -92,13 +98,19 @@ export async function GET(req: NextRequest) {
           order.guestEmail || undefined,
           `${order.code}-${it.id}`
         );
+        // trace irMarket's numeric order id on the item (webhook + polling match on it)
+        if (result.orderId) {
+          await db.orderItem.update({
+            where: { id: it.id },
+            data: { supplierOrderId: `irm:${result.orderId}`, fulfillmentStatus: result.ok ? "FULFILLED" : "PENDING_MANUAL" },
+          });
+        }
         if (result.ok && result.accounts && result.accounts.length > 0) {
-          // save each account as a license key
           for (const account of result.accounts) {
             await db.licenseKey.create({
               data: {
                 productId: it.productId,
-                key: account,
+                key: sealKey(it.productId, account), // C5 fix: sealed at rest
                 note: `سفارش ${order.code} | تأمین‌کننده: irMarket #${result.orderId || ""}`,
                 status: "SOLD",
                 source: "supplier_api",
@@ -108,7 +120,6 @@ export async function GET(req: NextRequest) {
             });
           }
         } else {
-          // log failure — customer will see "in processing" and admin can fulfill manually
           console.error(`[supplier] auto-fulfill failed for ${it.productTitle}: ${result.message}`);
         }
       }
@@ -117,12 +128,14 @@ export async function GET(req: NextRequest) {
     console.error("[supplier] auto-fulfill error:", e);
   }
 
-  return NextResponse.redirect(new URL(`/order/${order.id}?paid=1`, base));
+  const token = signOrderAccessToken(order.id);
+  return NextResponse.redirect(new URL(`/order/${order.id}?paid=1&token=${token}`, base));
 }
 
 async function releaseReservedKeys(orderId: string) {
+  // conditional updateMany is atomic: only RESERVED rows flip back to AVAILABLE
   await db.licenseKey.updateMany({
-    where: { orderItem: { orderId } },
+    where: { orderItem: { orderId }, status: "RESERVED" },
     data: { status: "AVAILABLE", orderItemId: null },
   });
 }

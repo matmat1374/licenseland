@@ -13,6 +13,7 @@ import { toast } from "sonner";
 import { SITE } from "@/lib/constants";
 
 const TEST_OTP = "123456";
+const IS_DEV = process.env.NODE_ENV !== "production";
 
 function LoginContent() {
   const router = useRouter();
@@ -32,7 +33,7 @@ function LoginContent() {
     await new Promise((r) => setTimeout(r, 500));
     setLoading(false);
     setStep("otp");
-    toast.success(`کد تستی ارسال شد: ${TEST_OTP}`);
+    if (IS_DEV) toast.success(`کد تستی ارسال شد: ${TEST_OTP}`);
   }
 
   async function verifyOtp(e: React.FormEvent) {

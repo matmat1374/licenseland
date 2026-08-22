@@ -1,4 +1,5 @@
 import { db } from "@/lib/db";
+import { openKey } from "@/lib/licenses";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { LicenseManager } from "@/components/admin/license-manager";
@@ -64,7 +65,13 @@ export default async function AdminLicensesPage({
 
   const serializableLicenses = licenses.map((l) => ({
     id: l.id,
-    key: l.key,
+    key: (() => {
+      try {
+        return openKey(selectedId!, l.key);
+      } catch {
+        return l.key;
+      }
+    })(),
     note: l.note,
     status: l.status,
     source: l.source,

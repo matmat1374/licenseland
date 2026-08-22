@@ -23,11 +23,62 @@ async function getDb() {
   return db;
 }
 
+// ---------------------------------------------------------------------------
+// C2 fix: the fixed test OTP was an authentication bypass — anyone could log
+// in as ANY user (including the admin phone). Now:
+//   - dev keeps the 123456 test code for local iteration
+//   - production requires explicit ALLOW_TEST_OTP=true (owner opt-in for a
+//     staging server), otherwise phone login is disabled
+//   - brute-force rate limit per phone AND per IP, in both environments
+// ---------------------------------------------------------------------------
 const TEST_OTP = "123456";
+const isTestOtpAllowed =
+  process.env.NODE_ENV !== "production" || process.env.ALLOW_TEST_OTP === "true";
+
+const PHONE_WINDOW_MS = 10 * 60 * 1000;
+const PHONE_MAX_ATTEMPTS = 5;
+const IP_WINDOW_MS = 10 * 60 * 1000;
+const IP_MAX_ATTEMPTS = 15;
+
+type Bucket = { count: number; resetAt: number };
+const phoneBuckets = new Map<string, Bucket>();
+const ipBuckets = new Map<string, Bucket>();
+
+function rateLimit(map: Map<string, Bucket>, key: string, max: number, windowMs: number): boolean {
+  const now = Date.now();
+  const b = map.get(key);
+  if (!b || b.resetAt < now) {
+    map.set(key, { count: 1, resetAt: now + windowMs });
+    // opportunistic cleanup
+    if (map.size > 5000) for (const [k, v] of map) if (v.resetAt < now) map.delete(k);
+    return true;
+  }
+  if (b.count >= max) return false;
+  b.count++;
+  return true;
+}
 
 export async function POST(req: NextRequest) {
   try {
-    const body = await req.json();
+    const ip = (req.headers.get("x-forwarded-for") || "").split(",")[0].trim() || "local";
+
+    if (!rateLimit(ipBuckets, ip, IP_MAX_ATTEMPTS, IP_WINDOW_MS)) {
+      return NextResponse.json({ ok: false, message: "تلاش‌های زیاد — بعداً دوباره امتحان کنید" }, { status: 429 });
+    }
+
+    if (!isTestOtpAllowed) {
+      return NextResponse.json(
+        { ok: false, message: "ورود با کد یکبار مصرف فعلاً فعال نیست" },
+        { status: 503 }
+      );
+    }
+
+    let body: any;
+    try {
+      body = await req.json();
+    } catch {
+      return NextResponse.json({ ok: false, message: "درخواست نامعتبر" }, { status: 400 });
+    }
     const phoneRaw = (body.phone || "").trim();
     const otp = (body.otp || "").trim();
 
@@ -35,8 +86,14 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ ok: false, message: "شماره و کد را وارد کنید" }, { status: 400 });
     if (!/^09\d{9}$/.test(phoneRaw.replace(/\s/g, "")))
       return NextResponse.json({ ok: false, message: "شماره موبایل نامعتبر" }, { status: 400 });
+
+    if (!rateLimit(phoneBuckets, phoneRaw, PHONE_MAX_ATTEMPTS, PHONE_WINDOW_MS)) {
+      return NextResponse.json({ ok: false, message: "تلاش‌های زیاد برای این شماره — ۱۰ دقیقه صبر کنید" }, { status: 429 });
+    }
+
+    // generic error — never reveal the test code
     if (otp !== TEST_OTP)
-      return NextResponse.json({ ok: false, message: "کد اشتباه است (کد تستی: ۱۲۳۴۵۶)" }, { status: 400 });
+      return NextResponse.json({ ok: false, message: "کد وارد شده صحیح نیست" }, { status: 400 });
 
     const phone = normalizePhone(phoneRaw);
     const db = await getDb();
