@@ -1,0 +1,75 @@
+# ===========================================================================
+# LicenseLand — production docker-compose
+# Services: app (Next.js), postgres (DB), caddy (TLS reverse proxy)
+# ===========================================================================
+
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-licenseland}
+      POSTGRES_USER: ${POSTGRES_USER:-licenseland}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-changeme}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-licenseland} -d ${POSTGRES_DB:-licenseland}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - licenseland
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgresql://${POSTGRES_USER:-licenseland}:${POSTGRES_PASSWORD:-changeme}@postgres:5432/${POSTGRES_DB:-licenseland}?schema=public
+      NEXTAUTH_SECRET: ${NEXTAUTH_SECRET:-please-set-me}
+      NEXTAUTH_URL: ${NEXTAUTH_URL:-https://${DOMAIN:-localhost}}
+      ZARINPAL_SANDBOX: ${ZARINPAL_SANDBOX:-false}
+      ZARINPAL_MERCHANT: ${ZARINPAL_MERCHANT:-}
+      SUPPLIER_API_KEY: ${SUPPLIER_API_KEY:-}
+      SUPPLIER_MARKUP_PERCENT: ${SUPPLIER_MARKUP_PERCENT:-200}
+      LICENSE_VAULT_KEY: ${LICENSE_VAULT_KEY:-}
+    ports:
+      # Internal only — Caddy terminates TLS and proxies to app:3000
+      - "127.0.0.1:3000:3000"
+    networks:
+      - licenseland
+
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    depends_on:
+      - app
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      DOMAIN: ${DOMAIN:-licenseland.ir}
+      ACME_EMAIL: ${ACME_EMAIL:-admin@licenseland.ir}
+    volumes:
+      - ./Caddyfile.prod:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    networks:
+      - licenseland
+
+volumes:
+  postgres_data:
+  caddy_data:
+  caddy_config:
+
+networks:
+  licenseland:
+    driver: bridge

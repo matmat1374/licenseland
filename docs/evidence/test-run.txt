@@ -1,0 +1,146 @@
+# raw evidence — generated 2026-08-19T15:11:58Z
+$ node --version
+v24.14.1
+$ node --test --experimental-test-coverage test/*.test.ts
+✔ only a paid order can be provisioned (2.442706ms)
+✔ delivered licenses are sealed before the order is closed (0.621479ms)
+✔ a delivered order with no accounts is never marked delivered (0.292418ms)
+✔ a processing order stays pending for the poller (0.166762ms)
+✔ a supplier-side failure refunds the wallet (0.54055ms)
+✔ out of stock refunds with a low severity ticket (0.256394ms)
+✔ a terminal supplier error refunds, tickets and dead-letters (0.308587ms)
+✔ retryable and transport failures are retried, never refunded blindly (0.353343ms)
+✔ the supplier idempotency key is stable across retries of the same order (0.271343ms)
+✔ bps denominator is 10_000 (1.053419ms)
+✔ isSafeMoneyInteger accepts only safe integers (0.158838ms)
+✔ assertSafeInteger returns the value or throws MoneyError (0.463114ms)
+✔ money constructor validates the amount (0.945125ms)
+✔ currency mixing is rejected (0.308415ms)
+✔ add and sub keep integer semantics (0.152141ms)
+✔ mulDivHalfUp rounds half up in both signs (1.108004ms)
+✔ mulDivHalfUp guards divide-by-zero, non-integers and overflow (0.234931ms)
+✔ applyBps computes percentage in basis points (0.12377ms)
+✔ marginBps is relative to the sell price and safe at zero (0.121663ms)
+✔ the documented happy path is reachable end to end (1.032489ms)
+✔ failure paths lead to refunded, terminal states are closed (0.177777ms)
+✔ illegal transitions throw instead of silently corrupting state (0.478536ms)
+✔ every transition emits an audit record (0.843522ms)
+✔ no transition escapes a terminal state (0.982206ms)
+✔ runOnce executes once and replays the stored result (0.322048ms)
+✔ reusing a key with a different payload is a conflict (0.345039ms)
+✔ a concurrent duplicate request is rejected while in flight (0.235542ms)
+✔ a failed operation releases the key so the client can retry (0.299219ms)
+✔ blocked inputs are rejected with an explicit reason (1.589786ms)
+✔ happy path: 320 cents at 1,000,000 IRT/USD with 30% markup (1.246805ms)
+✔ fx buffer protects the margin against rate moves (0.162865ms)
+✔ rule precedence: product override beats category beats global (0.269633ms)
+✔ partial rules inherit field by field (0.170009ms)
+✔ an unknown category falls back to the global rule (0.100012ms)
+✔ zero markup still respects the absolute margin floor (0.307241ms)
+✔ floor and cap clamp the price and are reported (0.207349ms)
+✔ a cap below the margin floor blocks the sale instead of selling at a loss (0.132115ms)
+✔ tax is added on top and recovered exactly from the gross price (0.112754ms)
+✔ rounding boundaries behave per mode (0.34136ms)
+✔ roundNotBelow never returns less than the minimum (0.092107ms)
+✔ scheduled campaigns apply last and never break the margin floor (0.259271ms)
+✔ campaign scope and schedule filters (16.684642ms)
+✔ weekday windows are evaluated in the configured time zone (0.432516ms)
+✔ a mid-cycle supplier or fx change produces a different quote (0.249835ms)
+✔ price snapshots are digest-protected and quantity aware (0.956472ms)
+✔ snapshots reject blocked quotes and invalid quantities (0.607087ms)
+✔ margin policy classifies ok, below target and negative margins (0.262953ms)
+✔ catalog dry-run summary counts each status (0.251974ms)
+✔ backoff grows exponentially and is capped (1.057071ms)
+✔ non-retryable errors are not retried (0.645327ms)
+✔ a retryable error succeeds on the next attempt and reports the delay (1.026827ms)
+✔ attempts are bounded (0.284811ms)
+✔ the breaker opens, half-opens after the cooldown and closes on success (1.770205ms)
+✔ withTimeout fails fast and passes fast results through (0.317475ms)
+✔ the system clock is wired to real time (4.115429ms)
+✔ mode none returns the amount untouched (1.002162ms)
+✔ negative and non-integer amounts are rejected (0.486267ms)
+✔ a non-positive unit is rejected for every active mode (0.168092ms)
+✔ up mode ceils to the unit and keeps exact multiples (0.117123ms)
+✔ nearest mode rounds at the exact boundary upwards (0.134351ms)
+✔ psychological mode never lands below the input (0.130813ms)
+✔ psychological ending must be inside the unit (0.18666ms)
+✔ the master key must be 256-bit (2.246823ms)
+✔ a sealed license round-trips and records the key version (0.708694ms)
+✔ empty payloads are refused (0.12771ms)
+✔ tampering, key swapping and order swapping all fail authentication (0.442981ms)
+✔ webhook signatures are verified, not trusted (0.656345ms)
+✔ maskSecret keeps short values fully hidden (0.157216ms)
+✔ redact removes supplier keys and sensitive fields from log payloads (0.52269ms)
+✔ a missing API key fails at construction, not at checkout (1.500207ms)
+✔ supplier calls are refused in a browser-like global (0.308042ms)
+✔ listProducts accepts both documented envelope shapes (1.502393ms)
+✔ the API key never reaches a log sink (0.241902ms)
+✔ a products payload that is not a list is a contract mismatch (0.358896ms)
+✔ balance is read from either documented field and converted to cents (0.418994ms)
+✔ purchase enforces the documented 1..64 char idempotency key (0.366095ms)
+✔ a delivered purchase is parsed into integer cents and account payloads (1.131036ms)
+✔ optional purchase fields fall back to documented defaults (0.313915ms)
+✔ order polling maps the documented status set (0.357922ms)
+✔ documented HTTP errors map to typed domain errors (0.286331ms)
+✔ a 5xx is retried and then succeeds (0.315489ms)
+✔ an auth failure is never retried (0.197323ms)
+✔ retries are bounded by the attempt budget (0.185339ms)
+✔ the default jitter source is used when none is injected (0.204264ms)
+✔ a hanging supplier call times out instead of blocking checkout (0.259658ms)
+✔ purchase parsing rejects payloads without an order id or with unknown status (0.291035ms)
+✔ the mock provider is deterministic, idempotent and production-safe (4.065284ms)
+✔ usdToCents uses string math, never floats (1.116597ms)
+✔ usdToCents rejects junk and unsafe magnitudes (0.618267ms)
+✔ a documented license product parses with defaults (0.880964ms)
+✔ a documented SMM product parses per_1000 pricing and required inputs (0.306855ms)
+✔ unknown payload shapes are rejected instead of defaulted (0.347233ms)
+✔ pre-flight validation mirrors the documented HTTP 400 cases (1.286419ms)
+✔ supplier cost is integer cents for both pricing units (0.24366ms)
+✔ accounts are unique and must exist before posting (1.395013ms)
+✔ a transaction must balance and use positive amounts (0.401495ms)
+✔ legs must match the transaction currency (0.225212ms)
+✔ balances are derived from the ledger for both account directions (0.30635ms)
+✔ topping up twice with the same txId is a no-op replay (1.033787ms)
+✔ spending is limited by the derived balance (0.375559ms)
+✔ a supplier failure refunds the wallet and reverses revenue (0.17986ms)
+ℹ tests 101
+ℹ suites 0
+ℹ pass 101
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1201.95041
+ℹ start of coverage report
+ℹ ------------------------------------------------------------------
+ℹ file              | line % | branch % | funcs % | uncovered lines
+ℹ ------------------------------------------------------------------
+ℹ src               |        |          |         | 
+ℹ  fulfillment      |        |          |         | 
+ℹ   saga.ts         | 100.00 |   100.00 |  100.00 | 
+ℹ  idempotency      |        |          |         | 
+ℹ   store.ts        | 100.00 |   100.00 |  100.00 | 
+ℹ  orders           |        |          |         | 
+ℹ   stateMachine.ts | 100.00 |   100.00 |  100.00 | 
+ℹ  pricing          |        |          |         | 
+ℹ   engine.ts       | 100.00 |   100.00 |  100.00 | 
+ℹ   policy.ts       | 100.00 |   100.00 |  100.00 | 
+ℹ   rounding.ts     | 100.00 |   100.00 |  100.00 | 
+ℹ   snapshot.ts     | 100.00 |   100.00 |  100.00 | 
+ℹ  security         |        |          |         | 
+ℹ   licenseVault.ts | 100.00 |   100.00 |  100.00 | 
+ℹ  shared           |        |          |         | 
+ℹ   money.ts        | 100.00 |   100.00 |  100.00 | 
+ℹ   redact.ts       | 100.00 |   100.00 |  100.00 | 
+ℹ  supplier         |        |          |         | 
+ℹ   contract.ts     | 100.00 |    98.70 |  100.00 | 
+ℹ   mockProvider.ts | 100.00 |   100.00 |  100.00 | 
+ℹ   provider.ts     | 100.00 |   100.00 |  100.00 | 
+ℹ   resilience.ts   | 100.00 |    96.88 |  100.00 | 
+ℹ  wallet           |        |          |         | 
+ℹ   ledger.ts       | 100.00 |   100.00 |  100.00 | 
+ℹ ------------------------------------------------------------------
+ℹ all files         | 100.00 |    99.60 |  100.00 | 
+ℹ ------------------------------------------------------------------
+ℹ end of coverage report
+exit_code:0

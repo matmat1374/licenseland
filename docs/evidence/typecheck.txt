@@ -1,0 +1,5 @@
+$ tsc --noEmit -p tsconfig.json  (typescript 7.0.2)
+error TS2688: Cannot find type definition file for 'node'.
+  The file is in the program because:
+    Entry point of type library 'node' specified in compilerOptions
+exit_code:1

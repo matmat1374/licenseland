@@ -1,0 +1,47 @@
+# LicenseLand — Docker build context ignore
+# Keeps the image small by excluding dev/local artifacts.
+
+# Node / Next.js
+node_modules
+.next
+out
+dist
+.turbo
+
+# Tests / docs / kernel
+tests
+docs
+kernel
+upload
+download
+agent-ctx
+tool-results
+
+# Local DB (SQLite dev)
+db/*.db
+db/*.db-journal
+
+# Backups
+backups
+
+# Editor / OS
+.git
+.gitignore
+.vscode
+.idea
+.DS_Store
+
+# Env files (image must read env from runtime, not bake it in)
+.env
+.env.local
+.env.*.local
+
+# Docker
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# Misc
+*.log
+dev.log
+tsconfig.tsbuildinfo

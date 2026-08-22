@@ -1,0 +1,542 @@
+// LicenseLand — Digital License Marketplace
+// Prisma schema
+//
+// PRODUCTION = PostgreSQL (default below).
+// To switch back to SQLite for local development:
+//   1. Change `provider = "sqlite"` → `provider = "sqlite"`
+//   2. Set DATABASE_URL=file:./dev.db in .env
+//   3. Run `bun run db:push` to (re)create the SQLite schema.
+// Note: SQLite has no JSON/array columns and limited concurrency — only use for dev.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// ----------------------------- Users -----------------------------
+model User {
+  id            String   @id @default(cuid())
+  email         String   @unique
+  name          String?
+  phone         String?  @unique
+  password      String
+  role          String   @default("USER") // USER | ADMIN
+  avatar        String?
+  nationalId    String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  orders        Order[]
+  reviews       Review[]
+  accounts      Account[]
+  sessions      Session[]
+  supplierOrders SupplierOrder[]
+}
+
+// ----------------------------- NextAuth -----------------------------
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// ----------------------------- Catalog -----------------------------
+model Category {
+  id          String    @id @default(cuid())
+  name        String    @unique
+  slug        String    @unique
+  description String?
+  icon        String?   // lucide icon name
+  color       String?   // gradient class or hex
+  sortOrder   Int       @default(0)
+  createdAt   DateTime  @default(now())
+
+  products    Product[]
+}
+
+model Product {
+  id              String   @id @default(cuid())
+  title           String
+  slug            String   @unique
+  shortDesc       String
+  description     String   // markdown
+  features        String   // JSON string array of feature lines
+  specifications  String?  // JSON string of key/value specs
+  price           Int      // in Toman (sell price)
+  discountPrice   Int?     // in Toman (sale price)
+  currency        String   @default("تومان")
+  duration        String?  // e.g. "۱ ماه", "۱۲ ماه", "مادام‌العمر"
+  category        String   // category slug
+  brand           String?
+  tags            String?  // comma separated
+  image           String?  // cover gradient key or url
+  rating          Float?   // null until real reviews exist — NO default
+  reviewCount     Int      @default(0)
+  salesCount      Int      @default(0)
+  stock           Int      @default(0)
+  featured        Boolean  @default(false)
+  bestseller      Boolean  @default(false)
+  isActive        Boolean  @default(true)
+  // Fulfillment mode: MANUAL (from inventory or admin) | AUTO (buy from supplier API)
+  fulfillmentMode String   @default("MANUAL")
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  categoryRel    Category? @relation(fields: [category], references: [slug], onDelete: Restrict)
+  licenses       LicenseKey[]
+  reviews        Review[]
+  orderItems     OrderItem[]
+  supplierOrders SupplierOrder[]
+
+  @@index([category])
+  @@index([isActive])
+}
+
+// ----------------------------- License Keys (inventory) -----------------------------
+model LicenseKey {
+  id        String   @id @default(cuid())
+  productId String
+  key       String   // the actual license key / account
+  note      String?  // extra info (e.g. email bound to account)
+  status    String   @default("AVAILABLE") // AVAILABLE | RESERVED | SOLD
+  source    String?  // manual | telegram | supplier_api
+  orderItemId     String?
+  supplierOrderId String?
+  createdAt DateTime @default(now())
+  soldAt    DateTime?
+
+  product        Product        @relation(fields: [productId], references: [id], onDelete: Cascade)
+  orderItem      OrderItem?     @relation(fields: [orderItemId], references: [id], onDelete: SetNull)
+  supplierOrder  SupplierOrder? @relation(fields: [supplierOrderId], references: [id], onDelete: SetNull)
+
+  @@index([productId, status])
+}
+
+// ----------------------------- Orders -----------------------------
+model Order {
+  id              String   @id @default(cuid())
+  code            String   @unique // human friendly e.g. LL-100001
+  userId          String?
+  guestEmail      String?
+  guestName       String?
+  guestPhone      String?
+  status          String   @default("PENDING") // PENDING | PAID | FAILED | CANCELLED
+  total           Int      // in Toman
+  discount        Int      @default(0)
+  discountCode    String?
+  zarinpalAuthority String?
+  zarinpalRefId   String?
+  ip              String?
+  createdAt       DateTime @default(now())
+  paidAt          DateTime?
+
+  user            User?      @relation(fields: [userId], references: [id], onDelete: SetNull)
+  items           OrderItem[]
+
+  @@index([userId])
+  @@index([status])
+}
+
+model OrderItem {
+  id               String   @id @default(cuid())
+  orderId          String
+  productId        String
+  productTitle     String
+  productSlug      String
+  price            Int
+  quantity         Int
+  duration         String?
+  // Fulfillment tracking: PENDING → PROCESSING → FULFILLED | FAILED | REFUNDED | PENDING_MANUAL
+  fulfillmentStatus String @default("PENDING")
+  supplierOrderId   String? // link to SupplierOrder for traceability
+
+  order       Order      @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product     Product    @relation(fields: [productId], references: [id], onDelete: Restrict)
+  licenses    LicenseKey[]
+
+  @@index([orderId])
+  @@index([fulfillmentStatus])
+}
+
+// ----------------------------- Reviews -----------------------------
+model Review {
+  id        String   @id @default(cuid())
+  productId String
+  userId    String?
+  authorName String
+  rating    Int      // 1-5
+  comment   String
+  verified  Boolean  @default(false)
+  approved  Boolean  @default(false) // must be manually approved — no auto-approve
+  createdAt DateTime @default(now())
+
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([productId])
+}
+
+// ----------------------------- Discount Codes -----------------------------
+model DiscountCode {
+  id          String   @id @default(cuid())
+  code        String   @unique
+  type        String   @default("PERCENT") // PERCENT | FIXED
+  value       Int      // percent (0-100) or fixed amount in Toman
+  maxUses     Int      @default(0) // 0 = unlimited
+  usedCount   Int      @default(0)
+  expiresAt   DateTime?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+}
+
+// ----------------------------- Blog / Articles (SEO) -----------------------------
+model Article {
+  id             String   @id @default(cuid())
+  title          String
+  slug           String   @unique
+  excerpt        String
+  content        String   // markdown
+  cover          String?  // gradient key or url
+  category       String   @default("عمومی")
+  tags           String?
+  readingMinutes Int      @default(5)
+  published      Boolean  @default(true)
+  featured       Boolean  @default(false)
+  seoTitle       String?
+  seoDescription String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@index([published])
+}
+
+// ----------------------------- Site Settings -----------------------------
+model Setting {
+  id    String @id @default(cuid())
+  key   String @unique
+  value String
+}
+
+// ----------------------------- Site Content (CMS) -----------------------------
+// Editable site content (hero, stats, about, etc.) — admin can edit via /admin/content
+model SiteContent {
+  id    String @id @default(cuid())
+  key   String @unique
+  value String
+}
+
+// ----------------------------- Supplier Integration -----------------------------
+// Tracks requests sent to the license supplier (Telegram bot / external API)
+model SupplierOrder {
+  id              String   @id @default(cuid())
+  code            String   @unique // SO-100001
+  productId       String
+  productTitle    String
+  quantity        Int
+  status          String   @default("PENDING") // PENDING | FULFILLED | FAILED | CANCELLED
+  direction       String   @default("OUTBOUND") // OUTBOUND (we requested) | INBOUND (supplier pushed)
+  supplierRef     String?  // supplier's reference id
+  note            String?
+  requestedById   String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  fulfilledAt     DateTime?
+
+  product         Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  requestedBy     User?    @relation(fields: [requestedById], references: [id], onDelete: SetNull)
+  licenses        LicenseKey[]
+  logs            SupplierLog[]
+
+  @@index([productId])
+  @@index([status])
+}
+
+model SupplierLog {
+  id              String   @id @default(cuid())
+  supplierOrderId String?
+  action          String   // request_sent | keys_received | webhook_in | error | status_change
+  status          String   @default("INFO") // INFO | SUCCESS | ERROR
+  payload         String   // JSON string of request/response
+  message         String?
+  createdAt       DateTime @default(now())
+
+  supplierOrder   SupplierOrder? @relation(fields: [supplierOrderId], references: [id], onDelete: SetNull)
+
+  @@index([supplierOrderId])
+  @@index([createdAt])
+}
+
+// =============================================================
+// DOMAIN KERNEL — Production-grade models (Phase 2-7)
+// All money columns are Int in minor units (Toman = 1/1 rial).
+// Float is forbidden. See docs/ARCHITECTURE.md and INTEGRATION.md §3.
+// =============================================================
+
+// ----------------------------- Pricing Engine (Migration 1) -----------------------------
+// Dynamic markup rules — product override > category rule > global default
+model PricingRule {
+  id              String   @id @default(cuid())
+  scope           String   // "global" | "category" | "product"
+  scopeKey        String?  // category slug or product id; null for global
+  markupBps       Int      // markup in basis points (20000 = 200%)
+  marginFloorAbsMinor Int  @default(0) // absolute minimum margin in minor units
+  priority        Int      @default(0) // higher = checked first
+  isActive        Boolean  @default(true)
+  startsAt        DateTime?
+  endsAt          DateTime?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@unique([scope, scopeKey])
+  @@index([scope, isActive])
+}
+
+// Immutable price snapshot at order time — prevents supplier price changes from mutating open orders
+model PriceSnapshot {
+  id              String   @id @default(cuid())
+  orderId         String?  // linked order (nullable until order is created)
+  productId       String
+  costMinor       Int      // supplier cost in minor units
+  markupBps       Int      // markup applied
+  sellMinor       Int      // final sell price in minor units
+  fxRateMinor     Int      // USD→Toman rate at snapshot time
+  roundingMode    String   @default("none") // none|up|nearest|psychological
+  quoteSteps      String   // JSON: auditable step list from engine.computeQuote
+  createdAt       DateTime @default(now())
+
+  @@index([orderId])
+  @@index([productId])
+}
+
+// ----------------------------- Wallet (Migration 2) -----------------------------
+// Double-entry ledger — balance is derived, never stored
+model WalletAccount {
+  id              String   @id @default(cuid())
+  userId          String   @unique
+  currency        String   @default("IRT")
+  direction       String   @default("credit") // credit (user) | debit (supplier)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  ledgerEntries   WalletLedger[]
+}
+
+// Append-only ledger entries — unbalanced transactions are rejected at the domain layer
+model WalletLedger {
+  id              String   @id @default(cuid())
+  walletAccountId String
+  orderId         String?
+  txId            String   // transaction id (idempotent)
+  direction       String   // debit | credit
+  amountMinor      Int      // always positive; direction determines sign
+  currency        String   @default("IRT")
+  reason          String   // topup | purchase | refund | supplier_charge
+  createdAt       DateTime @default(now())
+
+  walletAccount   WalletAccount @relation(fields: [walletAccountId], references: [id], onDelete: Cascade)
+
+  @@index([walletAccountId])
+  @@index([txId])
+  @@index([orderId])
+}
+
+// ----------------------------- Idempotency (Migration 3) -----------------------------
+// Prevents double-charging on retry — fingerprint + in-flight guard
+model IdempotencyKey {
+  id              String   @id @default(cuid())
+  key             String   @unique // client-provided idempotency key
+  requestId       String   // fingerprint hash of the request body
+  status          String   @default("in_flight") // in_flight | completed | failed
+  response        String?  // JSON: the response to replay on duplicate
+  createdAt       DateTime @default(now())
+  completedAt     DateTime?
+
+  @@index([key])
+}
+
+// ----------------------------- Supplier Calls & Webhooks (Migration 4) -----------------------------
+// Audit trail of all outbound HTTP calls to irMarket
+model SupplierCall {
+  id              String   @id @default(cuid())
+  endpoint        String   // /api/buyer/purchase etc.
+  method          String   // GET | POST | DELETE
+  requestBody     String   // JSON (secrets redacted)
+  responseBody    String?  // JSON
+  statusCode      Int?
+  durationMs      Int?
+  error           String?
+  createdAt       DateTime @default(now())
+
+  @@index([endpoint])
+  @@index([createdAt])
+}
+
+// Inbound webhooks from irMarket — signature verified before processing
+model Webhook {
+  id              String   @id @default(cuid())
+  source          String   @default("irmarket")
+  eventType       String   // order.updated etc.
+  signatureValid  Boolean
+  rawBody         String   // raw JSON body for audit
+  processedAt     DateTime?
+  createdAt       DateTime @default(now())
+
+  @@index([source, eventType])
+}
+
+// Background jobs — dead-letter queue for failed fulfillments
+model Job {
+  id              String   @id @default(cuid())
+  type            String   // fulfill_order | refund | retry_supplier
+  payload         String   // JSON
+  status          String   @default("pending") // pending | processing | completed | failed | dead_letter
+  attempts        Int      @default(0)
+  maxAttempts     Int      @default(3)
+  lastError       String?
+  availableAt     DateTime @default(now())
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([status, availableAt])
+  @@index([type])
+}
+
+// ----------------------------- Payments (Migration 5) -----------------------------
+// Iranian payment gateway (ZarinPal) — separate from orders
+model Payment {
+  id              String   @id @default(cuid())
+  orderId         String
+  gateway         String   @default("zarinpal") // zarinpal | other
+  authority       String?  // gateway authority token
+  refId           String?  // gateway reference id
+  amountMinor     Int      // amount charged in minor units
+  status          String   @default("pending") // pending | verified | failed | reversed
+  rawResponse     String?  // JSON: full gateway response for audit
+  verifiedAt      DateTime?
+  createdAt       DateTime @default(now())
+
+  @@index([orderId])
+  @@index([authority])
+}
+
+// Crypto rail (USDT-TRC20) — optional alternative payment
+model CryptoPayment {
+  id              String   @id @default(cuid())
+  orderId         String
+  currency        String   @default("USDT")
+  network         String   @default("TRC20")
+  walletAddress   String
+  amount          Int      // in smallest unit (1 USDT = 1000000)
+  confirmations   Int      @default(0)
+  requiredConf    Int      @default(1)
+  status          String   @default("pending") // pending | confirmed | expired | failed
+  txHash          String?
+  expiresAt       DateTime
+  createdAt       DateTime @default(now())
+
+  @@index([orderId])
+  @@index([status])
+}
+
+// Refunds — linked to original payment
+model Refund {
+  id              String   @id @default(cuid())
+  paymentId       String
+  orderId         String
+  amountMinor     Int
+  reason          String
+  status          String   @default("pending") // pending | completed | failed
+  gatewayRefId    String?
+  createdAt       DateTime @default(now())
+
+  @@index([paymentId])
+  @@index([orderId])
+}
+
+// ----------------------------- Audit & Support (Migration 6) -----------------------------
+// Immutable audit log — append-only, never update or delete
+model AuditLog {
+  id              String   @id @default(cuid())
+  actorId         String?  // user id or null for system
+  action          String   // e.g. "product.price_changed"
+  entityType      String   // e.g. "Product"
+  entityId        String?
+  oldValue        String?  // JSON
+  newValue        String?  // JSON
+  ip              String?
+  userAgent       String?
+  createdAt       DateTime @default(now())
+
+  @@index([actorId])
+  @@index([entityType, entityId])
+  @@index([createdAt])
+}
+
+// Support tickets — auto-created on fulfillment failures
+model Ticket {
+  id              String   @id @default(cuid())
+  orderId         String?
+  userId          String?
+  subject         String
+  body            String
+  status          String   @default("open") // open | resolved | closed
+  priority        String   @default("normal") // low | normal | high | urgent
+  assignedTo      String?  // admin user id
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([orderId])
+  @@index([status])
+}
+
+// ----------------------------- SEO (Migration 6) -----------------------------
+// Per-entity SEO metadata
+model SeoMeta {
+  id              String   @id @default(cuid())
+  entityType      String   // "Product" | "Article" | "Category"
+  entityId        String
+  seoTitle        String?
+  seoDescription  String?
+  canonicalUrl    String?
+  ogImage         String?
+  noindex         Boolean  @default(false)
+  keywords        String?  // comma-separated
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@unique([entityType, entityId])
+  @@index([entityType])
+}
