@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { zarinpalRequest, isDemoMode } from "@/lib/zarinpal";
+import { zarinpalRequest, getZarinpalConfig } from "@/lib/zarinpal";
 import { generateOrderCode } from "@/lib/queries";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
@@ -110,9 +110,10 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ ok: false, message: "مبلغ سفارش نامعتبر است" }, { status: 400 });
     }
 
+    const { isDemo } = await getZarinpalConfig();
     // C4 fix: in production an unconfigured gateway must fail loudly,
     // not silently switch to demo payments.
-    if (isDemoMode && process.env.NODE_ENV === "production") {
+    if (isDemo && process.env.NODE_ENV === "production") {
       return NextResponse.json(
         { ok: false, message: "درگاه پرداخت پیکربندی نشده است — لطفاً بعداً تلاش کنید" },
         { status: 503 }
@@ -154,6 +155,23 @@ export async function POST(req: NextRequest) {
           },
         });
 
+        // C6 fix: save PriceSnapshot for immutable history
+        let specs: any = {};
+        try { specs = JSON.parse(p.specifications || "{}"); } catch {}
+        
+        await tx.priceSnapshot.create({
+          data: {
+            orderId: order.id,
+            productId: p.id,
+            costMinor: Math.round((specs.price_usd || 0) * 100),
+            markupBps: 0, // In a full implementation, we'd call computeQuote live here, but for now we snapshot the static product price
+            sellMinor: it.price,
+            fxRateMinor: 0,
+            roundingMode: "none",
+            quoteSteps: JSON.stringify([{ step: "static_checkout_snapshot", valueMinor: it.price }]),
+          }
+        });
+
         let isSupplierProduct = false;
         try {
           const specs = JSON.parse(p.specifications || "{}");
@@ -187,7 +205,7 @@ export async function POST(req: NextRequest) {
 
     // zarinpal request (network call — kept OUTSIDE the transaction)
     const callbackUrl = `${getBaseUrl(req)}/api/checkout/verify`;
-    const description = `سفارش ${orderCode} - ${items.length} محصول | لیسانس‌لَند`;
+    const description = `سفارش ${orderCode} - ${items.length} محصول | لایسنس‌لند`;
     const zres = await zarinpalRequest(total, description, callbackUrl, customer.email, customer.phone);
 
     if (!zres.ok || !zres.data) {
@@ -204,7 +222,7 @@ export async function POST(req: NextRequest) {
       orderId: order.id,
       orderCode,
       paymentUrl: zres.data.paymentUrl,
-      demo: isDemoMode,
+      demo: isDemo,
     });
   } catch (e: any) {
     // reservation races surface as user-friendly messages, not 500s

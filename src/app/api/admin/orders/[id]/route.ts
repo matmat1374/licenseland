@@ -62,12 +62,21 @@ export async function GET(
         price: it.price,
         quantity: it.quantity,
         duration: it.duration,
-        licenses: it.licenses.map((l) => ({
-          id: l.id,
-          key: l.key,
-          note: l.note,
-          status: l.status,
-        })),
+        licenses: it.licenses.map((l) => {
+          let decrypted = l.key;
+          try {
+            if (l.key.startsWith("SEALED:")) {
+              const { openKey } = require("@/lib/licenses");
+              decrypted = openKey(it.productId, l.key);
+            }
+          } catch (e) {}
+          return {
+            id: l.id,
+            key: decrypted,
+            note: l.note,
+            status: l.status,
+          };
+        }),
       })),
     },
   });

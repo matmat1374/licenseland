@@ -22,7 +22,7 @@ const SETTING_KEYS = [
 ] as const;
 
 const SETTING_LABELS: Record<string, { label: string; placeholder: string; type?: "text" | "password"; help?: string }> = {
-  site_name: { label: "نام سایت", placeholder: "لیسانس‌لَند" },
+  site_name: { label: "نام سایت", placeholder: "لایسنس‌لند" },
   site_tagline: { label: "شعار سایت", placeholder: "بازار لایسنس دیجیتال ایران" },
   telegram: { label: "تلگرام", placeholder: "https://t.me/licenseland" },
   instagram: { label: "اینستاگرام", placeholder: "https://instagram.com/licenseland" },

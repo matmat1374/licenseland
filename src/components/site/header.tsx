@@ -107,33 +107,33 @@ export function SiteHeader() {
           })}
         </nav>
 
-        {/* search */}
-        <div className="mr-auto hidden md:block">
+        {/* central search */}
+        <div className="mr-auto ml-2 w-full max-w-sm flex-1 md:mx-4 lg:mx-8">
           <SearchDialog />
         </div>
 
-        <div className="mr-auto flex items-center gap-1 md:mr-0">
+        <div className="flex items-center gap-1 md:mr-0">
           <ThemeToggle />
 
-          {/* cart */}
+          {/* cart - hidden on mobile (in bottom nav) */}
           <button
             onClick={openCart}
             aria-label="سبد خرید"
-            className="relative flex h-10 w-10 items-center justify-center rounded-full transition-colors hover:bg-accent"
+            className="relative hidden h-10 w-10 items-center justify-center rounded-full transition-colors hover:bg-accent md:flex"
           >
             <ShoppingCart className="h-5 w-5" />
             {cnt > 0 && (
-              <span className="absolute -top-0.5 -left-0.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-bold text-primary-foreground">
+              <span className="absolute -top-0.5 -left-0.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-destructive px-1 text-[10px] font-bold text-destructive-foreground">
                 {cnt}
               </span>
             )}
           </button>
 
-          {/* user */}
+          {/* user - hidden on mobile */}
           {session?.user ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <button className="flex items-center gap-1.5 rounded-full p-1 transition-colors hover:bg-accent">
+                <button className="hidden items-center gap-1.5 rounded-full p-1 transition-colors hover:bg-accent md:flex">
                   <Avatar className="h-8 w-8 border">
                     <AvatarFallback className="bg-primary/15 text-primary text-xs font-bold">
                       {session.user.name?.[0] || session.user.email?.[0]?.toUpperCase()}
@@ -168,17 +168,17 @@ export function SiteHeader() {
                     await signOut({ redirect: false });
                     window.location.href = "/";
                   }}
-                  className="text-rose-500 focus:text-rose-500"
+                  className="text-destructive focus:text-destructive"
                 >
                   <LogOut className="ml-2 h-4 w-4" /> خروج از حساب
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           ) : (
-            <Button asChild size="sm" className="mr-1 gap-1.5">
+            <Button asChild size="sm" className="mr-1 hidden gap-1.5 md:flex rounded-full">
               <Link href="/login">
                 <UserIcon className="h-4 w-4" />
-                <span className="hidden sm:inline">ورود / ثبت‌نام</span>
+                <span>ورود / ثبت‌نام</span>
               </Link>
             </Button>
           )}

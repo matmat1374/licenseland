@@ -6,6 +6,7 @@ import { SiteHeader } from "@/components/site/header";
 import { SiteFooter } from "@/components/site/footer";
 import { CartDrawer } from "@/components/site/cart-drawer";
 import { SITE } from "@/lib/constants";
+import { Toaster } from "sonner";
 
 const vazir = Vazirmatn({
   subsets: ["arabic", "latin"],
@@ -70,6 +71,7 @@ export default function RootLayout({
           <main className="flex-1 flex flex-col">{children}</main>
           <SiteFooter />
           <CartDrawer />
+          <Toaster position="top-center" dir="rtl" richColors closeButton />
         </Providers>
       </body>
     </html>

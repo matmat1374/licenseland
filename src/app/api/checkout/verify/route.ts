@@ -1,10 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { zarinpalVerify, isDemoMode } from "@/lib/zarinpal";
+import { zarinpalVerify } from "@/lib/zarinpal";
 import { getBaseUrl } from "@/lib/url";
 import { purchaseFromSupplier } from "@/lib/supplier";
 import { signOrderAccessToken } from "@/lib/order-access";
 import { sealKey } from "@/lib/licenses";
+import { transitionOrder } from "@/lib/domain/orders";
+import { topUpWallet, chargeWallet } from "@/lib/domain/wallet";
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
@@ -26,7 +28,7 @@ export async function GET(req: NextRequest) {
   // authorities skipped cancellation and were marked PAID anyway)
   if (status !== "OK") {
     await releaseReservedKeys(order.id);
-    await db.order.update({ where: { id: order.id }, data: { status: "CANCELLED" } });
+    await transitionOrder({ orderId: order.id, from: "awaiting_payment", event: "cancelled" }).catch(() => {});
     return NextResponse.redirect(new URL(`/checkout?failed=cancel`, base));
   }
 
@@ -40,17 +42,38 @@ export async function GET(req: NextRequest) {
 
   if (!verify.success) {
     await releaseReservedKeys(order.id);
-    await db.order.update({ where: { id: order.id }, data: { status: "FAILED" } });
+    await transitionOrder({ orderId: order.id, from: "awaiting_payment", event: "cancelled" }).catch(() => {});
     return NextResponse.redirect(new URL(`/order/${order.id}?failed=1&token=${signOrderAccessToken(order.id)}`, base));
   }
 
-  // Atomically claim the PAID transition (H6 fix): concurrent callbacks race on
-  // a conditional update; the loser sees count=0 and just redirects.
-  const claimed = await db.order.updateMany({
-    where: { id: order.id, status: { not: "PAID" } },
-    data: { status: "PAID", zarinpalRefId: verify.refId || null, paidAt: new Date() },
-  });
-  if (claimed.count === 0) {
+  // Double-entry accounting: Gateway top-up -> User wallet -> Revenue charge
+  try {
+    await topUpWallet({
+      userId: order.userId,
+      amountMinor: order.total,
+      txId: `zarinpal-${authority}`,
+      reason: "zarinpal_deposit",
+    });
+    await chargeWallet({
+      userId: order.userId,
+      amountMinor: order.total,
+      orderId: order.id,
+    });
+  } catch (e) {
+    console.error("[wallet] Failed to charge wallet:", e);
+    // Even if wallet accounting fails, we must give them their order, so log and continue
+  }
+
+  // Atomically claim the PAID transition using State Machine
+  try {
+    await transitionOrder({
+      orderId: order.id,
+      from: "awaiting_payment",
+      event: "payment_verified",
+      extraData: { zarinpalRefId: verify.refId || null, paidAt: new Date() }
+    });
+  } catch (e) {
+    // Concurrent request already processed this order
     const t = signOrderAccessToken(order.id);
     return NextResponse.redirect(new URL(`/order/${order.id}?paid=1&token=${t}`, base));
   }

@@ -8,9 +8,10 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Phone, Loader2, CheckCircle2, ShieldCheck, KeyRound, ArrowRight } from "lucide-react";
+import { Phone, Loader2, CheckCircle2, ShieldCheck, KeyRound, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
 import { SITE } from "@/lib/constants";
+import { normalizePersianDigits } from "@/lib/format";
 
 const TEST_OTP = "123456";
 
@@ -24,8 +25,10 @@ export default function RegisterPage() {
   async function sendOtp(e: React.FormEvent) {
     e.preventDefault();
     if (!phone) return toast.error("شماره موبایل را وارد کنید");
-    if (!/^09\d{9}$/.test(phone.replace(/\s/g, "")))
+    const normalizedPhone = normalizePersianDigits(phone.replace(/\s/g, ""));
+    if (!/^09\d{9}$/.test(normalizedPhone))
       return toast.error("شماره موبایل باید با 09 شروع شود و ۱۱ رقم باشد");
+    setPhone(normalizedPhone);
     setLoading(true);
     // Test OTP: always 123456
     await new Promise((r) => setTimeout(r, 500));
@@ -52,7 +55,7 @@ export default function RegisterPage() {
       }
       const r = await signIn("credentials", {
         identifier: phone,
-        password: "123456",
+        password: data.sessionPassword,
         redirect: false,
       });
       setLoading(false);
@@ -101,7 +104,7 @@ export default function RegisterPage() {
               </div>
             </div>
             <Button type="submit" size="lg" className="w-full gap-2" disabled={loading}>
-              {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <ArrowRight className="h-4 w-4" />}
+              {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <ArrowLeft className="h-4 w-4" />}
               ارسال کد تأیید
             </Button>
           </form>
@@ -123,7 +126,7 @@ export default function RegisterPage() {
                   inputMode="numeric"
                   maxLength={6}
                   value={otp}
-                  onChange={(e) => setOtp(e.target.value.replace(/\D/g, ""))}
+                  onChange={(e) => setOtp(normalizePersianDigits(e.target.value).replace(/\D/g, ""))}
                   placeholder="------"
                   className="pr-9 text-center text-2xl tracking-[0.5em]"
                   required

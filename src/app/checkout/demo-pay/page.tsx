@@ -41,7 +41,7 @@ function DemoPayContent() {
         <div className="mb-5 space-y-2 rounded-xl bg-muted/40 p-4 text-sm">
           <div className="flex justify-between">
             <span className="text-muted-foreground">پذیرنده</span>
-            <span className="font-medium">لیسانس‌لَند</span>
+            <span className="font-medium">لایسنس‌لند</span>
           </div>
           <div className="flex justify-between">
             <span className="text-muted-foreground">کد پیگیری</span>

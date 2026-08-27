@@ -8,12 +8,35 @@
 import { db } from "@/lib/db";
 import { computeQuote } from "@kernel/pricing/engine";
 import { sealKey, openKey } from "@/lib/licenses";
+import { IrMarketClient } from "@kernel/supplier/provider";
+import { CircuitBreaker, systemClock } from "@kernel/supplier/resilience";
 
 // irMarket API base URL — configurable via env for testing/alternative endpoints.
 // Declared at top so it's available to all functions below.
 const IRMARKET_BASE_URL = process.env.SUPPLIER_API_URL?.replace(/\/api\/buyer\/.*$/, "") ||
   process.env.IRMARKET_BASE_URL ||
   "https://api.irmarket.store";
+
+let _supplierClient: IrMarketClient | null = null;
+const globalBreaker = new CircuitBreaker({ failureThreshold: 5, openMs: 30000, clock: systemClock });
+
+async function getSupplierClient(): Promise<IrMarketClient | null> {
+  if (_supplierClient) return _supplierClient;
+  const key = await getSupplierApiKey();
+  if (!key) return null;
+  
+  _supplierClient = new IrMarketClient({
+    baseUrl: IRMARKET_BASE_URL,
+    apiKey: key,
+    fetchImpl: fetch as any,
+    clock: systemClock,
+    timeoutMs: 10000,
+    attempts: 3,
+    log: (ev) => console.log(`[Supplier] ${ev.level}: ${ev.message}`, ev.data),
+    breaker: globalBreaker,
+  });
+  return _supplierClient;
+}
 
 // ----------------------------- Config -----------------------------
 
@@ -97,9 +120,11 @@ export async function setSupplierConfig(cfg: Partial<SupplierConfig>): Promise<v
   }
 }
 
+import { randomBytes } from "crypto";
+
 // Generate a random webhook secret if none set
 export function generateSecret(): string {
-  return "sk_live_" + Math.random().toString(36).slice(2, 14) + Math.random().toString(36).slice(2, 14);
+  return "sk_live_" + randomBytes(24).toString("hex");
 }
 
 // ----------------------------- Logging -----------------------------
@@ -135,8 +160,10 @@ export async function requestLicenseFromSupplier(
   if (!product) return { ok: false, message: "محصول یافت نشد" };
 
   // create supplier order
-  const count = await db.supplierOrder.count();
-  const code = `SO-${100001 + count}`;
+  const { randomBytes } = await import("crypto");
+  const randomPart = randomBytes(4).toString("hex").toUpperCase();
+  const datePart = new Date().toISOString().slice(0,10).replace(/-/g,"");
+  const code = `SO-${datePart}-${randomPart}`;
   const so = await db.supplierOrder.create({
     data: {
       code,
@@ -265,8 +292,10 @@ export async function receiveSupplierKeys(
   }
   // if no supplierOrder, create an INBOUND one to track
   if (!so) {
-    const count = await db.supplierOrder.count();
-    const code = `SO-${100001 + count}`;
+    const { randomBytes } = await import("crypto");
+    const randomPart = randomBytes(4).toString("hex").toUpperCase();
+    const datePart = new Date().toISOString().slice(0,10).replace(/-/g,"");
+    const code = `SO-${datePart}-${randomPart}`;
     so = await db.supplierOrder.create({
       data: {
         code,
@@ -647,8 +676,8 @@ export async function purchaseFromSupplier(
   customerEmail?: string,
   idempotencyKey?: string
 ): Promise<{ ok: boolean; accounts?: string[]; orderId?: number; message: string }> {
-  const key = await getSupplierApiKey();
-  if (!key) return { ok: false, message: "کلید API تأمین‌کننده تنظیم نشده" };
+  const client = await getSupplierClient();
+  if (!client) return { ok: false, message: "کلید API تأمین‌کننده تنظیم نشده" };
 
   const product = await db.product.findUnique({ where: { id: productId } });
   if (!product) return { ok: false, message: "محصول یافت نشد" };
@@ -665,36 +694,30 @@ export async function purchaseFromSupplier(
   if (requiresPassword)
     return { ok: false, message: "این محصول نیازمند رمز مشتری است و فعلاً قابل فروش خودکار نیست" };
 
-  const body: any = {
-    product_id: supplierProductId,
-    quantity,
-    idempotency_key: idempotencyKey || `LL-${Date.now()}`,
-  };
-  if (customerEmail) body.customer_email = customerEmail;
-
   try {
-    const res = await fetch(`${IRMARKET_BASE_URL}/api/buyer/purchase`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json", "X-API-Key": key },
-      body: JSON.stringify(body),
+    const result = await client.purchase({
+      productId: supplierProductId,
+      quantity,
+      idempotencyKey: idempotencyKey || `LL-${Date.now()}`,
+      customerEmail,
     });
-    const data = await res.json();
-    if (!res.ok || !data.success) {
-      return { ok: false, message: data.detail || data.message || `خطای خرید (${res.status})` };
-    }
 
     // status can be 'processing' (still fulfilling) — poll the order a few
     // times before giving up, per the API docs
-    let status: string = data.status || "delivered";
-    let accounts: string[] = data.accounts || [];
-    let orderId: number | undefined = data.order_id;
+    let status = result.status;
+    let accounts: string[] = [...result.accounts];
+    const orderId = result.orderId;
+
     if (status === "processing" && accounts.length === 0 && orderId) {
       for (let attempt = 0; attempt < 5 && status === "processing"; attempt++) {
         await new Promise((r) => setTimeout(r, 3000));
-        const poll = await getSupplierOrder(orderId);
-        if (!poll.ok) break;
-        status = poll.status || status;
-        accounts = poll.accounts || accounts;
+        try {
+          const poll = await client.getOrder(orderId);
+          status = poll.status;
+          accounts = [...poll.accounts];
+        } catch (e) {
+          // ignore poll errors and keep trying
+        }
       }
     }
 
@@ -702,12 +725,11 @@ export async function purchaseFromSupplier(
       return { ok: true, accounts, orderId, message: `خرید موفق — ${accounts.length} اکانت تحویل شد` };
     }
     if (status === "processing") {
-      return { ok: false, orderId, message: `سفارش ${orderId} نزد تأمین‌کننده در حال پردازش است — کلیدها بعداً از طریق وب‌هوک یا پنل ادمین تحویل داده می‌شود` };
+      return { ok: false, orderId, message: `سفارش ${orderId} نزد تأمین‌کننده در حال پردازش است — کلیدها بعداً از طریق وب‌هوک تحویل داده می‌شود` };
     }
-    // failed / cancelled / delivered-without-accounts
     return { ok: false, orderId, message: `تحویل ناموفق بود (وضعیت: ${status})` };
   } catch (e: any) {
-    return { ok: false, message: `ارتباط با تأمین‌کننده: ${e?.message || ""}` };
+    return { ok: false, message: `ارتباط با تأمین‌کننده: ${e?.message || "خطای نامشخص"}` };
   }
 }
 

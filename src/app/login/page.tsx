@@ -8,11 +8,11 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Phone, Loader2, CheckCircle2, ShieldCheck, KeyRound, ArrowRight } from "lucide-react";
+import { Phone, Loader2, CheckCircle2, ShieldCheck, KeyRound, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
 import { SITE } from "@/lib/constants";
+import { normalizePersianDigits } from "@/lib/format";
 
-const TEST_OTP = "123456";
 const IS_DEV = process.env.NODE_ENV !== "production";
 
 function LoginContent() {
@@ -27,18 +27,38 @@ function LoginContent() {
   async function sendOtp(e: React.FormEvent) {
     e.preventDefault();
     if (!phone) return toast.error("شماره موبایل را وارد کنید");
-    if (!/^09\d{9}$/.test(phone.replace(/\s/g, "")))
+    const normalizedPhone = normalizePersianDigits(phone.replace(/\s/g, ""));
+    if (!/^09\d{9}$/.test(normalizedPhone))
       return toast.error("شماره موبایل باید با 09 شروع شود و ۱۱ رقم باشد");
+    
+    setPhone(normalizedPhone);
     setLoading(true);
-    await new Promise((r) => setTimeout(r, 500));
-    setLoading(false);
-    setStep("otp");
-    if (IS_DEV) toast.success(`کد تستی ارسال شد: ${TEST_OTP}`);
+    
+    try {
+      const res = await fetch("/api/auth/otp/request", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ phone: normalizedPhone }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        toast.error(data.message || "خطا در ارسال کد");
+        setLoading(false);
+        return;
+      }
+      
+      setLoading(false);
+      setStep("otp");
+      toast.success(data.message || "کد تأیید ارسال شد");
+    } catch (e) {
+      toast.error("خطا در برقراری ارتباط با سرور");
+      setLoading(false);
+    }
   }
 
   async function verifyOtp(e: React.FormEvent) {
     e.preventDefault();
-    if (otp !== TEST_OTP) return toast.error("کد اشتباه است (کد تستی: ۱۲۳۴۵۶)");
+    if (otp.length !== 6) return toast.error("کد باید ۶ رقمی باشد");
     setLoading(true);
     try {
       const res = await fetch("/api/auth/otp", {
@@ -52,10 +72,10 @@ function LoginContent() {
         setLoading(false);
         return;
       }
-      // Sign in with credentials (password was set to TEST_OTP by the API)
+      // Sign in with credentials (password was set to a random session password by the API)
       const r = await signIn("credentials", {
         identifier: phone,
-        password: "123456",
+        password: data.sessionPassword,
         redirect: false,
       });
       setLoading(false);
@@ -99,25 +119,19 @@ function LoginContent() {
               </div>
             </div>
             <Button type="submit" size="lg" className="w-full gap-2" disabled={loading}>
-              {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <ArrowRight className="h-4 w-4" />}
+              {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <ArrowLeft className="h-4 w-4" />}
               ارسال کد تأیید
             </Button>
           </form>
         ) : (
           <form onSubmit={verifyOtp} className="space-y-4">
-            <div className="rounded-lg bg-emerald-500/10 p-3 text-center text-sm">
-              <p className="font-medium text-emerald-700 dark:text-emerald-400">
-                کد تستی: <span dir="ltr" className="font-bold text-lg">{TEST_OTP}</span>
-              </p>
-              <p className="mt-1 text-xs text-muted-foreground">(در محیط واقعی، کد به شماره شما پیامک می‌شود)</p>
-            </div>
             <div className="space-y-1.5">
               <Label htmlFor="otp">کد تأیید ۶ رقمی</Label>
               <div className="relative">
                 <KeyRound className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                 <Input
                   id="otp" dir="ltr" inputMode="numeric" maxLength={6}
-                  value={otp} onChange={(e) => setOtp(e.target.value.replace(/\D/g, ""))}
+                  value={otp} onChange={(e) => setOtp(normalizePersianDigits(e.target.value).replace(/\D/g, ""))}
                   placeholder="------" className="pr-9 text-center text-2xl tracking-[0.5em]" required
                 />
               </div>
@@ -141,10 +155,6 @@ function LoginContent() {
           <ShieldCheck className="h-3 w-3" />
           با ورود، <Link href="/terms" className="underline">قوانین</Link> {SITE.name} را می‌پذیرید.
         </p>
-        <div className="mt-4 rounded-xl bg-muted/40 p-3 text-xs text-muted-foreground">
-          <span className="font-medium text-foreground">حساب مدیریت:</span>{" "}
-          شماره <span dir="ltr">09100000000</span> با کد تستی
-        </div>
       </Card>
     </div>
   );

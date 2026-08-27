@@ -135,6 +135,29 @@ export function ProductPurchase({ product }: { product: ProductListItem }) {
           </div>
         ))}
       </div>
+      {/* sticky mobile buy bar */}
+      <div className="fixed bottom-[68px] left-0 right-0 z-40 flex items-center justify-between gap-4 border-t border-white/10 bg-background/85 px-4 py-3 backdrop-blur-xl shadow-[0_-10px_30px_rgba(0,0,0,0.3)] md:hidden pb-safe">
+        <div className="flex flex-col">
+          {discount > 0 && (
+            <span className="text-[10px] text-muted-foreground line-through decoration-destructive/50">
+              {toToman(product.price)}
+            </span>
+          )}
+          <div className="flex items-baseline gap-1">
+            <span className="text-base font-black text-foreground">{toToman(price)}</span>
+            <span className="text-[10px] text-muted-foreground">تومان</span>
+          </div>
+        </div>
+        <Button
+          size="sm"
+          onClick={handleBuyNow}
+          disabled={!inStock}
+          className="h-10 shrink-0 gap-1.5 rounded-xl px-6 font-bold shadow-lg shadow-primary/20 text-white"
+        >
+          <Zap className="h-4 w-4 fill-current" />
+          خرید آنی
+        </Button>
+      </div>
     </div>
   );
 }

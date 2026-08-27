@@ -9,6 +9,8 @@ async function requireAdmin() {
   return session;
 }
 
+const SENSITIVE_KEYS = ["supplier_api_key", "supplier_telegram_bot_token", "supplier_webhook_secret"];
+
 // GET — return all settings as a key/value map
 export async function GET() {
   const session = await requireAdmin();
@@ -17,7 +19,13 @@ export async function GET() {
 
   const rows = await db.setting.findMany();
   const settings: Record<string, string> = {};
-  for (const r of rows) settings[r.key] = r.value;
+  for (const r of rows) {
+    let val = r.value;
+    if (SENSITIVE_KEYS.includes(r.key) && val.length > 5) {
+      val = val.substring(0, 4) + "••••••••";
+    }
+    settings[r.key] = val;
+  }
 
   return NextResponse.json({ ok: true, settings });
 }
@@ -39,16 +47,20 @@ export async function POST(req: NextRequest) {
     }
 
     const keys = Object.keys(settings);
+    let updated = 0;
     for (const key of keys) {
       const value = String(settings[key] ?? "");
+      if (value.includes("••••")) continue; // do not overwrite with masked string
+      
       await db.setting.upsert({
         where: { key },
         update: { value },
         create: { key, value },
       });
+      updated++;
     }
 
-    return NextResponse.json({ ok: true, updated: keys.length });
+    return NextResponse.json({ ok: true, updated });
   } catch (e: any) {
     console.error("admin settings POST error:", e);
     return NextResponse.json(

@@ -19,7 +19,7 @@ export const SETUP_FIELDS: SetupField[] = [
   {
     key: "site_name",
     label: "نام برند",
-    placeholder: "لیسانس‌لَند",
+    placeholder: "لایسنس‌لند",
     help: "نام تجاری سایت که در هدر، فوتر و نقشه سایت نمایش داده می‌شود.",
   },
   {
@@ -69,7 +69,7 @@ export const SETUP_FIELDS: SetupField[] = [
     ltr: true,
   },
   {
-    key: "telegram_bot_token",
+    key: "supplier_telegram_bot_token",
     label: "توکن بات تلگرام",
     placeholder: "123456789:ABCdef...",
     type: "password",

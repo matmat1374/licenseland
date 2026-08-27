@@ -19,12 +19,12 @@ export default async function BlogPage({
 }) {
   const sp = await searchParams;
   const cat = sp.cat || "all";
-  const [articles, categories] = await Promise.all([
-    getArticles({ category: cat, limit: 50 }),
-    getCategories(),
+  const [articles, allArticlesForCats] = await Promise.all([
+    getArticles({ category: cat !== "all" ? cat : undefined, limit: 50 }),
+    getArticles({ limit: 500 }), // to extract all categories
   ]);
 
-  const cats = Array.from(new Set(articles.map((a) => a.category)));
+  const cats = Array.from(new Set(allArticlesForCats.map((a) => a.category)));
   const featured = articles.find((a) => a.featured) || articles[0];
   const rest = articles.filter((a) => a.id !== featured?.id);
 
@@ -32,7 +32,7 @@ export default async function BlogPage({
     <div className="container mx-auto px-4 py-8">
       <div className="mb-8 text-center">
         <div className="mb-2 flex items-center justify-center gap-2 text-sm font-bold text-primary">
-          <Newspaper className="h-4 w-4" /> وبلاگ لیسانس‌لَند
+          <Newspaper className="h-4 w-4" /> وبلاگ لایسنس‌لند
         </div>
         <h1 className="text-3xl font-black">مقالات و راهنماها</h1>
         <p className="mt-2 text-muted-foreground">جدیدترین مطالب درباره لایسنس، هوش مصنوعی و نرم‌افزار</p>

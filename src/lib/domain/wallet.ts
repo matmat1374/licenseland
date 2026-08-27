@@ -7,10 +7,11 @@ import { logger } from "@/lib/logger";
 export { assertBalanced };
 export type { LedgerTransaction, PostingLeg };
 
-export async function getOrCreateWallet(userId: string): Promise<string> {
-  let wallet = await db.walletAccount.findUnique({ where: { userId } });
+export async function getOrCreateWallet(userId: string | null): Promise<string> {
+  const safeUserId = userId || "guest_wallet";
+  let wallet = await db.walletAccount.findUnique({ where: { userId: safeUserId } });
   if (!wallet) {
-    wallet = await db.walletAccount.create({ data: { userId, currency: "IRT", direction: "credit" } });
+    wallet = await db.walletAccount.create({ data: { userId: safeUserId, currency: "IRT", direction: "credit" } });
   }
   return wallet.id;
 }
@@ -36,6 +37,18 @@ export async function postTransaction(args: {
     logger.info("wallet.replay", { txId: args.txId });
     return;
   }
+  
+  // Enforce double-entry accounting invariants
+  assertBalanced({
+    txId: args.txId,
+    currency: "IRT",
+    reason: args.reason,
+    refType: "order",
+    refId: args.orderId || "",
+    createdAtIso: new Date().toISOString(),
+    legs: args.legs.map(l => ({ accountId: l.walletAccountId, direction: l.direction, amountMinor: l.amountMinor }))
+  });
+
   const debits = args.legs.filter((l) => l.direction === "debit");
   if (debits.length > 0) {
     for (const d of debits) {
@@ -63,21 +76,45 @@ export async function postTransaction(args: {
   logger.info("wallet.posted", { txId: args.txId, legs: args.legs.length });
 }
 
-export async function chargeWallet(args: { userId: string; amountMinor: number; orderId: string }): Promise<void> {
+export async function topUpWallet(args: { userId: string | null; amountMinor: number; txId: string; reason: string }): Promise<void> {
   const walletId = await getOrCreateWallet(args.userId);
+  const cashAccountId = await getOrCreateWallet("gateway_cash"); // The Zarinpal/Bank asset account
+
+  await postTransaction({
+    txId: args.txId,
+    legs: [
+      { walletAccountId: cashAccountId, direction: "debit", amountMinor: args.amountMinor },
+      { walletAccountId: walletId, direction: "credit", amountMinor: args.amountMinor }
+    ],
+    reason: args.reason,
+  });
+}
+
+export async function chargeWallet(args: { userId: string | null; amountMinor: number; orderId: string }): Promise<void> {
+  const walletId = await getOrCreateWallet(args.userId);
+  const sysRevenueId = await getOrCreateWallet("system_revenue");
+  
   await postTransaction({
     txId: `charge-${args.orderId}`,
-    legs: [{ walletAccountId: walletId, direction: "debit", amountMinor: args.amountMinor }],
+    legs: [
+      { walletAccountId: walletId, direction: "debit", amountMinor: args.amountMinor },
+      { walletAccountId: sysRevenueId, direction: "credit", amountMinor: args.amountMinor }
+    ],
     reason: "purchase",
     orderId: args.orderId,
   });
 }
 
-export async function refundWallet(args: { userId: string; amountMinor: number; orderId: string; reason: string }): Promise<void> {
+export async function refundWallet(args: { userId: string | null; amountMinor: number; orderId: string; reason: string }): Promise<void> {
   const walletId = await getOrCreateWallet(args.userId);
+  const sysRevenueId = await getOrCreateWallet("system_revenue");
+  
   await postTransaction({
     txId: `refund-${args.orderId}`,
-    legs: [{ walletAccountId: walletId, direction: "credit", amountMinor: args.amountMinor }],
+    legs: [
+      { walletAccountId: sysRevenueId, direction: "debit", amountMinor: args.amountMinor },
+      { walletAccountId: walletId, direction: "credit", amountMinor: args.amountMinor }
+    ],
     reason: `refund: ${args.reason}`,
     orderId: args.orderId,
   });

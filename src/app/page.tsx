@@ -188,20 +188,18 @@ export default async function HomePage() {
           title="هر چیزی که نیاز دارید"
           desc="مجموعه کاملی از لایسنس‌های دیجیتال در دسته‌های مختلف"
         />
-        <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-6">
+        <div className="mt-8 flex overflow-x-auto gap-4 pb-6 px-1 md:grid md:grid-cols-3 lg:grid-cols-6 no-scrollbar snap-x snap-mandatory">
           {categories.map((c) => {
             const Icon = (Icons as any)[c.icon || "Folder"] || Icons.Folder;
             return (
-              <Link key={c.id} href={`/shop?cat=${c.slug}`}>
-                <Card className="group flex flex-col items-center gap-3 p-5 text-center transition-all hover:-translate-y-1 hover:border-primary/40 hover:shadow-lg">
+              <Link key={c.id} href={`/shop?cat=${c.slug}`} className="snap-start shrink-0 w-[110px] md:w-auto">
+                <Card className="glass group h-full flex flex-col items-center gap-3 p-4 text-center transition-all hover:-translate-y-1 hover:border-primary/40 hover:shadow-lg border-white/5 bg-background/40">
                   <div
-                    className={`flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br ${c.color} text-white shadow-lg transition-transform group-hover:scale-110`}
+                    className={`flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br ${c.color} text-white shadow-lg transition-transform duration-500 group-hover:scale-110`}
                   >
                     <Icon className="h-6 w-6" />
                   </div>
-                  <div>
-                    <div className="text-sm font-bold">{c.name}</div>
-                  </div>
+                  <div className="text-[13px] font-bold leading-tight">{c.name}</div>
                 </Card>
               </Link>
             );
@@ -219,16 +217,18 @@ export default async function HomePage() {
               desc="بهترین پیشنهاد‌های هفته با تخفیف ویژه"
               align="right"
             />
-            <Button asChild variant="outline" className="shrink-0">
+            <Button asChild variant="outline" className="shrink-0 glass border-white/10 rounded-xl">
               <Link href="/shop">
                 همه محصولات
                 <ArrowLeft className="mr-1 h-4 w-4" />
               </Link>
             </Button>
           </div>
-          <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
+          <div className="flex overflow-x-auto gap-4 pb-8 px-1 md:grid md:grid-cols-3 lg:grid-cols-4 no-scrollbar snap-x snap-mandatory">
             {featured.map((p) => (
-              <ProductCard key={p.id} product={p} />
+              <div key={p.id} className="snap-start shrink-0 w-[260px] md:w-auto">
+                <ProductCard product={p} />
+              </div>
             ))}
           </div>
         </div>
@@ -263,16 +263,18 @@ export default async function HomePage() {
       </section>
 
       {/* ============ BESTSELLERS ============ */}
-      <section className="bg-muted/30 py-16">
+      <section className="bg-muted/10 py-16 border-y border-white/5">
         <div className="container mx-auto px-4">
           <SectionHeading
             eyebrow="پرفروش‌ترین‌ها"
             title="محبوب‌ترین لایسنس‌ها"
             desc="انتخاب هزاران مشتری راضی"
           />
-          <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
+          <div className="mt-8 flex overflow-x-auto gap-4 pb-8 px-1 md:grid md:grid-cols-3 lg:grid-cols-4 no-scrollbar snap-x snap-mandatory">
             {bestsellers.map((p) => (
-              <ProductCard key={p.id} product={p} />
+              <div key={p.id} className="snap-start shrink-0 w-[260px] md:w-auto">
+                <ProductCard product={p} />
+              </div>
             ))}
           </div>
         </div>
@@ -283,7 +285,7 @@ export default async function HomePage() {
         <div className="grid gap-8 lg:grid-cols-2 lg:items-center">
           <div>
             <SectionHeading
-              eyebrow="چرا لیسانس‌لَند؟"
+              eyebrow="چرا لایسنس‌لند؟"
               title={content.about_title}
               desc={content.about_description}
               align="right"
@@ -343,16 +345,18 @@ export default async function HomePage() {
               title="جدیدترین محصولات"
               align="right"
             />
-            <Button asChild variant="outline" className="shrink-0">
+            <Button asChild variant="outline" className="shrink-0 glass border-white/10 rounded-xl">
               <Link href="/shop?sort=newest">
                 مشاهده همه
                 <ArrowLeft className="mr-1 h-4 w-4" />
               </Link>
             </Button>
           </div>
-          <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
+          <div className="flex overflow-x-auto gap-4 pb-8 px-1 md:grid md:grid-cols-3 lg:grid-cols-4 no-scrollbar snap-x snap-mandatory">
             {newest.map((p) => (
-              <ProductCard key={p.id} product={p} />
+              <div key={p.id} className="snap-start shrink-0 w-[260px] md:w-auto">
+                <ProductCard product={p} />
+              </div>
             ))}
           </div>
         </div>

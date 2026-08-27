@@ -94,7 +94,7 @@ export default async function ArticlePage({
         {/* CTA */}
         <Card className="mt-10 overflow-hidden bg-gradient-to-br from-primary to-emerald-600 p-6 text-center text-primary-foreground">
           <h3 className="text-xl font-black">آماده خرید لایسنس هستید؟</h3>
-          <p className="mt-1 text-sm text-primary-foreground/80">با بهترین قیمت و تحویل آنی از لیسانس‌لَند خرید کنید</p>
+          <p className="mt-1 text-sm text-primary-foreground/80">با بهترین قیمت و تحویل آنی از لایسنس‌لند خرید کنید</p>
           <Button asChild variant="secondary" className="mt-4">
             <Link href="/shop">مشاهده محصولات</Link>
           </Button>

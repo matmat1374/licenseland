@@ -1,7 +1,7 @@
 // Shared constants for LicenseLand
 
 export const SITE = {
-  name: "لیسانس‌لَند",
+  name: "لایسنس‌لند",
   nameEn: "LicenseLand",
   tagline: "بازار لایسنس دیجیتال ایران",
   description:

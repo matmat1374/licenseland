@@ -5,7 +5,8 @@
 //  - in production it requires BOTH an empty merchant AND ALLOW_DEMO_PAYMENTS=true
 //    (explicit opt-in for staging servers), otherwise requests fail loudly.
 
-const MERCHANT = process.env.ZARINPAL_MERCHANT || "";
+import { db } from "@/lib/db";
+
 const SANDBOX = process.env.ZARINPAL_SANDBOX === "true";
 
 const BASE = SANDBOX
@@ -13,8 +14,18 @@ const BASE = SANDBOX
   : "https://api.zarinpal.com";
 
 const ALLOW_DEMO_IN_PROD = process.env.ALLOW_DEMO_PAYMENTS === "true";
-export const isDemoMode =
-  !MERCHANT && (process.env.NODE_ENV !== "production" || ALLOW_DEMO_IN_PROD);
+
+export async function getZarinpalConfig(): Promise<{ merchant: string; isDemo: boolean }> {
+  let merchant = process.env.ZARINPAL_MERCHANT || "";
+  try {
+    const s = await db.setting.findUnique({ where: { key: "zarinpal_merchant" } });
+    if (s?.value) merchant = s.value;
+  } catch (e) {
+    // db error fallback
+  }
+  const isDemo = !merchant && (process.env.NODE_ENV !== "production" || ALLOW_DEMO_IN_PROD);
+  return { merchant, isDemo };
+}
 
 export interface ZarinPalRequestResult {
   authority: string;
@@ -35,8 +46,10 @@ export async function zarinpalRequest(
   email?: string,
   mobile?: string
 ): Promise<{ ok: boolean; data?: ZarinPalRequestResult; error?: string }> {
+  const { merchant, isDemo } = await getZarinpalConfig();
+
   // DEMO mode
-  if (isDemoMode) {
+  if (isDemo) {
     const authority = "DEMO" + Math.random().toString(36).slice(2, 12).toUpperCase();
     return {
       ok: true,
@@ -52,7 +65,7 @@ export async function zarinpalRequest(
       method: "POST",
       headers: { "Content-Type": "application/json", Accept: "application/json" },
       body: JSON.stringify({
-        merchant_id: MERCHANT,
+        merchant_id: merchant,
         amount: amount * 10, // convert toman -> rial
         description,
         callback_url: callbackUrl,
@@ -82,8 +95,10 @@ export async function zarinpalVerify(
   amount: number,
   authority: string
 ): Promise<ZarinPalVerifyResult> {
-  // DEMO mode — always succeed for demo authorities
-  if (isDemoMode || authority.startsWith("DEMO")) {
+  const { merchant, isDemo } = await getZarinpalConfig();
+
+  // DEMO mode — always succeed for demo authorities IF demo mode is active
+  if (isDemo && authority.startsWith("DEMO")) {
     return {
       success: true,
       refId: "DEMO" + Math.floor(Math.random() * 90000000 + 10000000),
@@ -96,7 +111,7 @@ export async function zarinpalVerify(
       method: "POST",
       headers: { "Content-Type": "application/json", Accept: "application/json" },
       body: JSON.stringify({
-        merchant_id: MERCHANT,
+        merchant_id: merchant,
         amount: amount * 10,
         authority,
       }),

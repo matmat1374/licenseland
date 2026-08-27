@@ -179,7 +179,9 @@ export async function getOrderById(id: string, email?: string | null, userId?: s
 }
 
 export async function generateOrderCode(): Promise<string> {
-  const count = await db.order.count();
-  const num = 100001 + count;
-  return `LL-${num}`;
+  const { randomBytes } = await import("crypto");
+  const randomPart = randomBytes(4).toString("hex").toUpperCase();
+  // Format: LL-YYYYMMDD-XXXXXXXX
+  const datePart = new Date().toISOString().slice(0,10).replace(/-/g,"");
+  return `LL-${datePart}-${randomPart}`;
 }

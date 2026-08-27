@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { normalizePersianDigits } from "@/lib/format";
 
 // Inline normalizePhone to avoid importing auth.ts (which pulls in all of NextAuth)
 function normalizePhone(input: string): string {
@@ -31,9 +32,7 @@ async function getDb() {
 //     staging server), otherwise phone login is disabled
 //   - brute-force rate limit per phone AND per IP, in both environments
 // ---------------------------------------------------------------------------
-const TEST_OTP = "123456";
-const isTestOtpAllowed =
-  process.env.NODE_ENV !== "production" || process.env.ALLOW_TEST_OTP === "true";
+import { OTP_CACHE } from "@/lib/otp-cache";
 
 const PHONE_WINDOW_MS = 10 * 60 * 1000;
 const PHONE_MAX_ATTEMPTS = 5;
@@ -66,21 +65,14 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ ok: false, message: "تلاش‌های زیاد — بعداً دوباره امتحان کنید" }, { status: 429 });
     }
 
-    if (!isTestOtpAllowed) {
-      return NextResponse.json(
-        { ok: false, message: "ورود با کد یکبار مصرف فعلاً فعال نیست" },
-        { status: 503 }
-      );
-    }
-
     let body: any;
     try {
       body = await req.json();
     } catch {
       return NextResponse.json({ ok: false, message: "درخواست نامعتبر" }, { status: 400 });
     }
-    const phoneRaw = (body.phone || "").trim();
-    const otp = (body.otp || "").trim();
+    const phoneRaw = normalizePersianDigits((body.phone || "").trim());
+    const otp = normalizePersianDigits((body.otp || "").trim());
 
     if (!phoneRaw || !otp)
       return NextResponse.json({ ok: false, message: "شماره و کد را وارد کنید" }, { status: 400 });
@@ -91,35 +83,48 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ ok: false, message: "تلاش‌های زیاد برای این شماره — ۱۰ دقیقه صبر کنید" }, { status: 429 });
     }
 
-    // generic error — never reveal the test code
-    if (otp !== TEST_OTP)
+    // Check OTP cache
+    const cached = OTP_CACHE.get(phoneRaw);
+    if (!cached || cached.expires < Date.now()) {
+      return NextResponse.json({ ok: false, message: "کد وارد شده منقضی شده است. مجدد درخواست دهید" }, { status: 400 });
+    }
+    if (cached.code !== otp) {
       return NextResponse.json({ ok: false, message: "کد وارد شده صحیح نیست" }, { status: 400 });
+    }
+
+    // Clear cache upon successful verification
+    OTP_CACHE.delete(phoneRaw);
 
     const phone = normalizePhone(phoneRaw);
     const db = await getDb();
 
     // Find or create user
     let user = await db.user.findUnique({ where: { phone } });
+    // Generate a one-time random password for this OTP session only.
+    // This avoids overwriting the user's real password (which was the critical
+    // security bug: anyone who OTP-logged in had their password set to "123456").
+    const sessionPassword = randomBytes(32).toString("hex");
     if (!user) {
       user = await db.user.create({
         data: {
           name: `کاربر ${phone.slice(-4)}`,
           email: `${phone}@licenseland.ir`,
           phone,
-          password: hashPassword(TEST_OTP),
+          password: hashPassword(sessionPassword),
           role: "USER",
         },
       });
     } else {
-      // Update password to TEST_OTP for OTP login
+      // Set a temporary random password for this login session — NOT the test OTP
       await db.user.update({
         where: { id: user.id },
-        data: { password: hashPassword(TEST_OTP) },
+        data: { password: hashPassword(sessionPassword) },
       });
     }
 
     return NextResponse.json({
       ok: true,
+      sessionPassword,
       user: { id: user.id, name: user.name, phone: user.phone, role: user.role },
     });
   } catch (e: any) {
