@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -24,6 +25,7 @@ interface Props {
 }
 
 export function ContentManager({ initialContent, groups }: Props) {
+  const router = useRouter();
   const [values, setValues] = useState<Record<string, string>>(initialContent);
   const [loading, setLoading] = useState(false);
   const [resetting, setResetting] = useState(false);
@@ -44,6 +46,7 @@ export function ContentManager({ initialContent, groups }: Props) {
       const json = await res.json();
       if (!json.ok) throw new Error(json.message || "خطا");
       toast.success(json.message || "محتوا ذخیره شد");
+      router.refresh();
     } catch (e: any) {
       toast.error(e?.message || "خطای ناشناخته");
     } finally {
@@ -63,6 +66,7 @@ export function ContentManager({ initialContent, groups }: Props) {
       if (!json.ok) throw new Error(json.message || "خطا");
       set(key, DEFAULT_CONTENT[key] || "");
       toast.success("مقدار پیش‌فرض بازگردانده شد");
+      router.refresh();
     } catch (e: any) {
       toast.error(e?.message || "خطا");
     } finally {

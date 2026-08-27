@@ -7,6 +7,7 @@ import { KeyRound, Package } from "lucide-react";
 import { toFa } from "@/lib/date";
 
 export const metadata = { title: "مدیریت لایسنس‌ها" };
+export const dynamic = "force-dynamic";
 
 export default async function AdminLicensesPage({
   searchParams,

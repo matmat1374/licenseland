@@ -6,6 +6,7 @@ import { SettingsForm } from "@/components/admin/settings-form";
 import { Info, CreditCard, Send, ShieldCheck } from "lucide-react";
 
 export const metadata = { title: "تنظیمات سایت" };
+export const dynamic = "force-dynamic";
 
 const SETTING_KEYS = [
   "site_name",

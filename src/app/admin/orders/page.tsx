@@ -3,6 +3,7 @@ import { toFa } from "@/lib/date";
 import { OrdersClient } from "@/components/admin/orders-client";
 
 export const metadata = { title: "مدیریت سفارش‌ها" };
+export const dynamic = "force-dynamic";
 
 export default async function AdminOrdersPage({
   searchParams,

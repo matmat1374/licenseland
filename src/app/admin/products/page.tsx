@@ -9,6 +9,7 @@ import { toToman, calcDiscountPercent } from "@/lib/format";
 import { ProductManager } from "@/components/admin/product-manager";
 
 export const metadata = { title: "مدیریت محصولات" };
+export const dynamic = "force-dynamic";
 
 export default async function AdminProductsPage() {
   const [products, categories] = await Promise.all([

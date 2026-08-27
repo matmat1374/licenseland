@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -53,6 +54,7 @@ function slugifyFa(s: string): string {
 }
 
 export function ProductForm({ initial, categories, onSaved, onCancel }: ProductFormProps) {
+  const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [slugEdited, setSlugEdited] = useState(!!initial?.slug);
   const [data, setData] = useState<ProductFormData>({
@@ -124,6 +126,7 @@ export function ProductForm({ initial, categories, onSaved, onCancel }: ProductF
       const json = await res.json();
       if (!json.ok) throw new Error(json.message || "خطا در ذخیره‌سازی");
       toast.success(data.id ? "محصول بروزرسانی شد" : "محصول با موفقیت ساخته شد");
+      router.refresh();
       onSaved?.();
     } catch (e: any) {
       toast.error(e?.message || "خطای ناشناخته");

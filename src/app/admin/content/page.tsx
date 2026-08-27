@@ -3,6 +3,7 @@ import { DEFAULT_CONTENT, CONTENT_FIELDS } from "@/lib/content";
 import { ContentManager } from "@/components/admin/content-manager";
 
 export const metadata = { title: "مدیریت محتوا | پنل مدیریت" };
+export const dynamic = "force-dynamic";
 
 export default async function AdminContentPage() {
   const rows = await db.siteContent.findMany();

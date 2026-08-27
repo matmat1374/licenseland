@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -21,6 +22,7 @@ export function SettingsForm({
   settings: Record<string, string>;
   settingLabels: Record<string, FieldDef>;
 }) {
+  const router = useRouter();
   const [values, setValues] = useState<Record<string, string>>(settings);
   const [loading, setLoading] = useState(false);
 
@@ -40,6 +42,7 @@ export function SettingsForm({
       const json = await res.json();
       if (!json.ok) throw new Error(json.message || "خطا");
       toast.success("تنظیمات ذخیره شد");
+      router.refresh(); // <--- Refresh to fetch new data
     } catch (e: any) {
       toast.error(e?.message || "خطای ناشناخته");
     } finally {
