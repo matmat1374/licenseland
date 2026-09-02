@@ -1,0 +1,21 @@
+--- STARTING E2E SIMULATION ---
+
+1. Testing Home Page (/)
+✅ Page /: Loaded successfully with all expected strings.
+✅ Marquee slider found.
+
+2. Testing Shop Page (/shop)
+✅ Page /shop: Loaded successfully with all expected strings.
+
+3. Testing Product Page (/product/chatgpt)
+❌ Page /product/chatgpt: Failed to load - HTTP 404
+
+4. Testing Cart and APIs
+
+5. Testing Checkout Page (/checkout)
+❌ Page /checkout: Missing expected string "شماره تماس"
+
+6. Testing Login Page (/login)
+✅ Page /login: Loaded successfully with all expected strings.
+
+--- END OF SIMULATION ---

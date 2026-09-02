@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { getArticleBySlug, getArticles } from "@/lib/queries";
-import { ProductCover } from "@/components/site/product-cover";
+import { ArticleCover } from "@/components/site/article-cover";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -10,6 +10,7 @@ import { formatJalaliDate, toFa } from "@/lib/date";
 import { SITE } from "@/lib/constants";
 import { ShareButton } from "@/components/site/share-button";
 import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import type { Metadata } from "next";
 
 export async function generateMetadata({
@@ -84,17 +85,17 @@ export default async function ArticlePage({
         </div>
 
         {/* cover */}
-        <ProductCover title={article.title} seed={article.slug} className="aspect-video w-full rounded-2xl shadow-lg mb-8" size="lg" />
+        <ArticleCover title={article.title} category={article.category} className="aspect-video w-full rounded-2xl shadow-lg mb-8" />
 
         {/* content */}
         <div className="prose-fa max-w-none text-base">
-          <ReactMarkdown>{article.content}</ReactMarkdown>
+          <ReactMarkdown remarkPlugins={[remarkGfm]}>{article.content}</ReactMarkdown>
         </div>
 
         {/* CTA */}
         <Card className="mt-10 overflow-hidden bg-gradient-to-br from-primary to-emerald-600 p-6 text-center text-primary-foreground">
           <h3 className="text-xl font-black">آماده خرید لایسنس هستید؟</h3>
-          <p className="mt-1 text-sm text-primary-foreground/80">با بهترین قیمت و تحویل آنی از لایسنس‌لند خرید کنید</p>
+          <p className="mt-1 text-sm text-primary-foreground/80">با بهترین قیمت و تحویل آنی از لایسنو خرید کنید</p>
           <Button asChild variant="secondary" className="mt-4">
             <Link href="/shop">مشاهده محصولات</Link>
           </Button>
@@ -110,7 +111,7 @@ export default async function ArticlePage({
               {related.map((a) => (
                 <Link key={a.id} href={`/blog/${a.slug}`}>
                   <Card className="group h-full overflow-hidden p-0 transition-all hover:-translate-y-1 hover:shadow-lg">
-                    <ProductCover title={a.title} seed={a.slug} className="aspect-video w-full" />
+                    <ArticleCover title={a.title} category={a.category} className="aspect-video w-full" />
                     <div className="p-4">
                       <h3 className="line-clamp-2 text-sm font-bold group-hover:text-primary">{a.title}</h3>
                       <div className="mt-2 text-xs text-muted-foreground">{toFa(a.readingMinutes)} دقیقه</div>

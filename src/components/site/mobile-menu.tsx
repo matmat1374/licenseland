@@ -4,13 +4,13 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Home, Search, ShoppingCart, User } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useCartStore } from "@/store/cart";
+import { useCart } from "@/store/cart";
 import { useSession } from "next-auth/react";
 
 export function MobileMenu() {
   const pathname = usePathname();
-  const items = useCartStore((s) => s.items);
-  const cartCount = items.reduce((acc, item) => acc + item.quantity, 0);
+  const items = useCart((s: any) => s.items);
+  const cartCount = items.reduce((acc: any, item: any) => acc + item.quantity, 0);
   const { data: session } = useSession();
 
   const links = [

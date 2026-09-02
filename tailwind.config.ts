@@ -56,7 +56,21 @@ const config: Config = {
   			lg: 'var(--radius)',
   			md: 'calc(var(--radius) - 2px)',
   			sm: 'calc(var(--radius) - 4px)'
-  		}
+  		},
+      keyframes: {
+        "marquee-fast": {
+          from: { transform: "translateX(0)" },
+          to: { transform: "translateX(-50%)" },
+        },
+        "marquee-fast-reverse": {
+          from: { transform: "translateX(-50%)" },
+          to: { transform: "translateX(0)" },
+        },
+      },
+      animation: {
+        "marquee-fast": "marquee-fast 25s linear infinite",
+        "marquee-fast-reverse": "marquee-fast-reverse 25s linear infinite",
+      }
   	}
   },
   plugins: [tailwindcssAnimate],

@@ -205,7 +205,7 @@ export async function POST(req: NextRequest) {
 
     // zarinpal request (network call — kept OUTSIDE the transaction)
     const callbackUrl = `${getBaseUrl(req)}/api/checkout/verify`;
-    const description = `سفارش ${orderCode} - ${items.length} محصول | لایسنس‌لند`;
+    const description = `سفارش ${orderCode} - ${items.length} محصول | لایسنو`;
     const zres = await zarinpalRequest(total, description, callbackUrl, customer.email, customer.phone);
 
     if (!zres.ok || !zres.data) {

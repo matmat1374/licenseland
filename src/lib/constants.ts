@@ -1,18 +1,20 @@
 // Shared constants for LicenseLand
 
 export const SITE = {
-  name: "لایسنس‌لند",
-  nameEn: "LicenseLand",
-  tagline: "بازار لایسنس دیجیتال ایران",
+  name: "لایسنو",
+  nameEn: "Liceno",
+  tagline: "مرجع خرید لایسنس و اشتراک‌های قانونی دیجیتال",
   description:
-    "خرید آنی لایسنس اوریجینال هوش مصنوعی و نرم‌افزار با تحویل خودکار، بهترین قیمت و پشتیبانی ۲۴ ساعته. لایسنس ChatGPT، Midjourney، CapCut، Adobe و...",
-  url: "https://licenseland.ir",
-  email: "support@licenseland.ir",
-  phone: "۰۲۱-۹۱۰۰۰۰۰۰",
-  telegram: "https://t.me/licenseland",
-  instagram: "https://instagram.com/licenseland",
-  whatsapp: "https://wa.me/98910000000",
-  address: "تهران، ایران",
+    "خرید آنی لایسنس اوریجینال هوش مصنوعی و نرم‌افزار با تحویل خودکار، بهترین قیمت و پشتیبانی ۲۴ ساعته. لایسنس ChatGPT، Claude، Midjourney، CapCut، Adobe و...",
+  url: "https://liceno.ir",
+  email: "info@liceno.ir",
+  phone: "۰۷۶-۴۴۴۵۸۷۹۱",
+  mobile: "۰۹۱۲۱۱۴۵۶۸۷",
+  telegram: "https://t.me/matinmazi",
+  telegramHandle: "@matinmazi",
+  instagram: "https://instagram.com/liceno",
+  whatsapp: "https://wa.me/989121145687",
+  address: "جزیره کیش، بازار شارستان، پلاک ۳۰",
 };
 
 export const NAV_LINKS = [

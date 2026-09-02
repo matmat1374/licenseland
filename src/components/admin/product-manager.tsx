@@ -45,10 +45,11 @@ interface ProductManagerProps {
   mode: "create" | "edit";
   product?: ShortProduct;
   categories: { name: string; slug: string }[];
+  activeUsdRate?: number;
   children?: React.ReactNode;
 }
 
-export function ProductManager({ mode, product, categories, children }: ProductManagerProps) {
+export function ProductManager({ mode, product, categories, activeUsdRate, children }: ProductManagerProps) {
   const [open, setOpen] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const router = useRouter();
@@ -91,6 +92,17 @@ export function ProductManager({ mode, product, categories, children }: ProductM
           const arr = JSON.parse(p.features || "[]");
           if (Array.isArray(arr)) features = arr.join("\n");
         } catch {}
+        
+        let costUsd = "";
+        let markupPercent = "";
+        try {
+          if (p.specifications) {
+            const spec = typeof p.specifications === 'string' ? JSON.parse(p.specifications) : p.specifications;
+            if (spec.cost_usd) costUsd = spec.cost_usd;
+            if (spec.markup_percent) markupPercent = spec.markup_percent;
+          }
+        } catch {}
+
         setFullProduct({
           id: p.id,
           title: p.title,
@@ -108,6 +120,8 @@ export function ProductManager({ mode, product, categories, children }: ProductM
           featured: p.featured,
           bestseller: p.bestseller,
           isActive: p.isActive,
+          costUsd,
+          markupPercent,
         });
       }
     } catch (e) {
@@ -128,6 +142,7 @@ export function ProductManager({ mode, product, categories, children }: ProductM
           </DialogHeader>
           <ProductForm
             categories={categories}
+            activeUsdRate={activeUsdRate}
             onSaved={handleSaved}
             onCancel={() => setOpen(false)}
           />
@@ -165,6 +180,7 @@ export function ProductManager({ mode, product, categories, children }: ProductM
             <ProductForm
               initial={fullProduct}
               categories={categories}
+              activeUsdRate={activeUsdRate}
               onSaved={handleSaved}
               onCancel={() => setOpen(false)}
             />

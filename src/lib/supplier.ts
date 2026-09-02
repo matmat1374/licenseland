@@ -418,10 +418,21 @@ export interface SupplierProduct {
 }
 
 // USD to Toman conversion rate (configurable in admin settings, default ~60000)
+
+export function isVpnProduct(text: string): boolean {
+  return /vpn|nordvpn|expressvpn|surfshark|hma|hidemyass|hide\s*my\s*ass|ipvanish|cyberghost|protonvpn|mullvad|windscribe|tunnelbear|purevpn|adguard\s*vpn|pia\s*vpn|v2ray|shadowsocks|wireguard|openvpn|outline|warp|psiphon|فیلترشکن|وی\s*پی\s*ان/i.test(text);
+}
+
+export async function fetchLiveUsdtRate(): Promise<number | null> {
+  const s = await db.setting.findUnique({ where: { key: "usd_to_toman_rate_auto" } }).catch(() => null);
+  return Number(s?.value) || null;
+}
+
 export async function getUsdToTomanRate(): Promise<number> {
   const s = await db.setting.findUnique({ where: { key: "usd_to_toman_rate" } }).catch(() => null);
   return Number(s?.value) || 60000;
 }
+
 
 // Get supplier API key from DB settings (falls back to env)
 export async function getSupplierApiKey(): Promise<string> {
@@ -628,7 +639,7 @@ export async function importProductsFromSupplier(
           brand,
           tags,
           image: sp.image || sp.imageUrl || sp.images?.[0] || existing.image,
-          isActive: true,
+            isActive: !isVpnProduct(title),
           // store supplier product id in specifications for purchasing
           specifications: JSON.stringify({ supplier_product_id: sp.id, price_usd: priceUSD, pricing_unit: sp.pricing_unit, requires_email: sp.requires_email, requires_link: sp.requires_link }),
           fulfillmentMode: "AUTO",
@@ -648,7 +659,7 @@ export async function importProductsFromSupplier(
           category: catSlug,
           brand, tags,
           image: sp.image || sp.imageUrl || sp.images?.[0] || null,
-          isActive: true,
+            isActive: !isVpnProduct(title),
           stock: 0, // we don't pre-stock; purchase on-demand
           rating: 5, reviewCount: 0, salesCount: 0,
           specifications: JSON.stringify({ supplier_product_id: sp.id, price_usd: priceUSD, pricing_unit: sp.pricing_unit, requires_email: sp.requires_email, requires_link: sp.requires_link }),

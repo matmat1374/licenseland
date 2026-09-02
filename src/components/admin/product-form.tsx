@@ -34,11 +34,14 @@ export interface ProductFormData {
   featured: boolean;
   bestseller: boolean;
   isActive: boolean;
+  costUsd?: string;
+  markupPercent?: string;
 }
 
 interface ProductFormProps {
   initial?: Partial<ProductFormData> & { id?: string };
   categories: { name: string; slug: string }[];
+  activeUsdRate?: number;
   onSaved?: () => void;
   onCancel?: () => void;
 }
@@ -53,7 +56,7 @@ function slugifyFa(s: string): string {
     .slice(0, 80);
 }
 
-export function ProductForm({ initial, categories, onSaved, onCancel }: ProductFormProps) {
+export function ProductForm({ initial, categories, activeUsdRate, onSaved, onCancel }: ProductFormProps) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [slugEdited, setSlugEdited] = useState(!!initial?.slug);
@@ -74,7 +77,11 @@ export function ProductForm({ initial, categories, onSaved, onCancel }: ProductF
     featured: initial?.featured ?? false,
     bestseller: initial?.bestseller ?? false,
     isActive: initial?.isActive ?? true,
+    costUsd: initial?.costUsd || "",
+    markupPercent: initial?.markupPercent || "",
   });
+
+  const [usdRate, setUsdRate] = useState<string>(String(activeUsdRate || 92000));
 
   function set<K extends keyof ProductFormData>(key: K, value: ProductFormData[K]) {
     setData((d) => ({ ...d, [key]: value }));
@@ -112,6 +119,10 @@ export function ProductForm({ initial, categories, onSaved, onCancel }: ProductF
       featured: data.featured,
       bestseller: data.bestseller,
       isActive: data.isActive,
+      specifications: (data.costUsd || data.markupPercent) ? {
+        cost_usd: data.costUsd || undefined,
+        markup_percent: data.markupPercent || undefined,
+      } : null
     };
 
     setLoading(true);
@@ -134,6 +145,8 @@ export function ProductForm({ initial, categories, onSaved, onCancel }: ProductF
       setLoading(false);
     }
   }
+
+  const calculatedPrice = (Number(data.costUsd) || 0) * (Number(usdRate) || 0) * (1 + (Number(data.markupPercent) || 0) / 100);
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
@@ -207,6 +220,66 @@ export function ProductForm({ initial, categories, onSaved, onCancel }: ProductF
             placeholder={"دسترسی کامل به GPT-4o\nتولید تصویر با DALL-E 3\nتحویل آنی"}
           />
         </div>
+
+        {/* Pricing Calculator Section */}
+        <div className="sm:col-span-2 p-4 bg-muted/30 border rounded-lg space-y-4">
+          <h3 className="text-sm font-bold flex items-center gap-2">
+            <span>🧮</span> ماشین‌حساب قیمت هوشمند
+          </h3>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div className="space-y-1.5">
+              <Label htmlFor="costUsd" className="text-xs">هزینه دلاری تأمین‌کننده ($)</Label>
+              <Input
+                id="costUsd"
+                type="number"
+                step="0.01"
+                value={data.costUsd}
+                onChange={(e) => set("costUsd", e.target.value)}
+                dir="ltr"
+                placeholder="3.5"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="usdRate" className="text-xs">نرخ تتر (USDT Rate)</Label>
+              <Input
+                id="usdRate"
+                type="number"
+                value={usdRate}
+                onChange={(e) => setUsdRate(e.target.value)}
+                dir="ltr"
+                placeholder="92000"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="markupPercent" className="text-xs">درصد سود (Markup %)</Label>
+              <Input
+                id="markupPercent"
+                type="number"
+                value={data.markupPercent}
+                onChange={(e) => set("markupPercent", e.target.value)}
+                dir="ltr"
+                placeholder="20"
+              />
+            </div>
+          </div>
+          
+          {(Number(data.costUsd) > 0) && (
+            <div className="bg-background border rounded p-3 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+              <div className="text-sm font-mono" dir="ltr">
+                ({data.costUsd || 0}$ × {Number(usdRate || 0).toLocaleString()} T) × {(1 + (Number(data.markupPercent) || 0) / 100).toFixed(2)} = <span className="font-bold text-primary">{Math.round(calculatedPrice).toLocaleString()} T</span>
+              </div>
+              <Button 
+                type="button" 
+                size="sm" 
+                variant="secondary"
+                onClick={() => set("price", Math.round(calculatedPrice).toString())}
+              >
+                اعمال قیمت محاسبه‌شده در فیلد قیمت
+              </Button>
+            </div>
+          )}
+        </div>
+
         <div className="space-y-1.5">
           <Label htmlFor="price">قیمت (تومان) *</Label>
           <Input

@@ -37,10 +37,11 @@ export default function ContactPage() {
           {/* info */}
           <div className="space-y-3">
             {[
-              { icon: Phone, label: "تلفن", value: SITE.phone, href: `tel:${SITE.phone}`, ltr: true },
-              { icon: Mail, label: "ایمیل", value: SITE.email, href: `mailto:${SITE.email}`, ltr: true },
-              { icon: MapPin, label: "آدرس", value: SITE.address },
-              { icon: MessageCircle, label: "تلگرام", value: "@licenseland", href: SITE.telegram, ltr: true },
+              { icon: Phone, label: "تلفن ثابت", value: SITE.phone, href: `tel:${SITE.phone.replace(/[^0-9]/g, '')}`, ltr: true },
+              { icon: Phone, label: "موبایل و واتساپ", value: SITE.mobile, href: `tel:${SITE.mobile}`, ltr: true },
+              { icon: Mail, label: "ایمیل پشتیبانی", value: SITE.email, href: `mailto:${SITE.email}`, ltr: true },
+              { icon: MapPin, label: "دفتر مرکزی", value: SITE.address },
+              { icon: MessageCircle, label: "تلگرام پشتیبانی", value: (SITE as any).telegramHandle || "@matinmazi", href: SITE.telegram, ltr: true },
             ].map((c) => (
               <Card key={c.label} className="p-4">
                 <div className="flex items-center gap-3">

@@ -25,10 +25,14 @@ export function gradientFor(seed: string): string {
   return GRADIENTS[hashString(seed) % GRADIENTS.length];
 }
 
+import { getBrandIconUrl } from "@/lib/brand-icons";
+import Image from "next/image";
+
 export function ProductCover({
   title,
   brand,
   seed,
+  image,
   className,
   icon,
   size = "md",
@@ -36,6 +40,7 @@ export function ProductCover({
   title: string;
   brand?: string | null;
   seed?: string;
+  image?: string | null;
   className?: string;
   icon?: React.ReactNode;
   size?: "sm" | "md" | "lg";
@@ -43,9 +48,12 @@ export function ProductCover({
   const grad = gradientFor(seed || title);
   const initials = (brand || title).slice(0, 2);
   const iconSize =
-    size === "lg" ? "h-12 w-12" : size === "sm" ? "h-7 w-7" : "h-10 w-10";
+    size === "lg" ? "h-14 w-14" : size === "sm" ? "h-8 w-8" : "h-12 w-12";
   const textSize =
     size === "lg" ? "text-3xl" : size === "sm" ? "text-base" : "text-xl";
+
+  const resolvedImage = image || (brand ? getBrandIconUrl(brand, title) : null);
+  const [imgError, setImgError] = React.useState(false);
 
   return (
     <div
@@ -65,10 +73,22 @@ export function ProductCover({
         }}
       />
       {/* glow */}
-      <div className="absolute -top-8 -right-8 h-24 w-24 rounded-full bg-white/20 blur-2xl" />
-      <div className="absolute -bottom-10 -left-10 h-28 w-28 rounded-full bg-black/20 blur-2xl" />
-      <div className="relative z-10 flex flex-col items-center gap-2 px-3 text-center">
-        {icon ? (
+      <div className="absolute -top-8 -right-8 h-28 w-28 rounded-full bg-white/30 blur-2xl" />
+      <div className="absolute -bottom-10 -left-10 h-32 w-32 rounded-full bg-black/40 blur-2xl" />
+      
+      <div className="relative z-10 flex flex-col items-center justify-center gap-2 px-3 text-center w-full h-full">
+        {resolvedImage && !imgError ? (
+          <div className={cn("relative flex items-center justify-center rounded-2xl bg-black/25 backdrop-blur-md p-2 border border-white/20 shadow-xl transition-transform duration-300 group-hover:scale-110", iconSize)}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={resolvedImage}
+              alt={brand || title}
+              className="w-full h-full object-contain filter drop-shadow-md"
+              onError={() => setImgError(true)}
+              loading="lazy"
+            />
+          </div>
+        ) : icon ? (
           <div className={cn("text-white drop-shadow", iconSize)}>{icon}</div>
         ) : (
           <div
@@ -80,8 +100,8 @@ export function ProductCover({
             {initials}
           </div>
         )}
-        <span className="text-[10px] font-bold uppercase tracking-wider text-white/80 line-clamp-1">
-          {brand || "LICENSE"}
+        <span className="text-[11px] font-black uppercase tracking-wider text-white drop-shadow line-clamp-1 bg-black/30 px-2.5 py-0.5 rounded-full border border-white/10 mt-1">
+          {brand || "LICENO"}
         </span>
       </div>
     </div>

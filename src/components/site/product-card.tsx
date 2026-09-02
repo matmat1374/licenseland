@@ -54,6 +54,7 @@ export function ProductCard({ product }: { product: ProductListItem }) {
             title={product.title}
             brand={product.brand}
             seed={product.slug}
+            image={product.image}
             icon={<Icon className="h-full w-full" />}
             className="h-full w-full transition-transform duration-700 group-hover:scale-110"
           />
@@ -85,10 +86,12 @@ export function ProductCard({ product }: { product: ProductListItem }) {
 
         {/* Body */}
         <div className="relative flex flex-col gap-2 p-4">
-          <h3 className="line-clamp-1 font-bold text-base leading-6 transition-colors group-hover:text-primary">
+          {/* Farsi title - bold RTL */}
+          <h3 className="line-clamp-1 font-bold text-base leading-6 transition-colors group-hover:text-primary" dir="rtl">
             {product.title}
           </h3>
-          <p className="line-clamp-2 text-xs text-muted-foreground leading-5 min-h-[2.5rem]">
+          {/* English subtitle - LTR muted mono */}
+          <p className="line-clamp-2 text-xs text-muted-foreground leading-5 min-h-[2.5rem] font-mono" dir="ltr">
             {product.shortDesc}
           </p>
 
@@ -100,6 +103,19 @@ export function ProductCard({ product }: { product: ProductListItem }) {
             </div>
             <span className="opacity-40">•</span>
             <span>{product.salesCount}+ فروش</span>
+          </div>
+
+          {/* trust badges */}
+          <div className="mt-2 flex items-center justify-between gap-1 rounded-lg border border-amber-500/20 bg-gradient-to-l from-amber-500/10 to-transparent p-1.5 text-[10px] font-medium text-amber-500/90 shadow-[0_0_10px_rgba(245,158,11,0.05)]" dir="rtl">
+            <div className="flex items-center gap-1">
+              <Check className="h-3 w-3" /> اصالت
+            </div>
+            <div className="flex items-center gap-1">
+              <Check className="h-3 w-3" /> گارانتی
+            </div>
+            <div className="flex items-center gap-1">
+              <Zap className="h-3 w-3" /> آنی
+            </div>
           </div>
 
           {/* price + action */}

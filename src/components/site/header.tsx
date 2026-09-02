@@ -10,6 +10,7 @@ import {
   User as UserIcon,
   ChevronDown,
   Sparkles,
+  KeyRound,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -54,42 +55,41 @@ export function SiteHeader() {
         scrolled ? "glass border-border shadow-sm" : "border-transparent bg-background"
       )}
     >
-      {/* top bar */}
-      <div className="hidden bg-primary text-primary-foreground md:block">
-        <div className="container mx-auto flex h-8 items-center justify-between px-4 text-xs">
-          <div className="flex items-center gap-4">
-            <span className="flex items-center gap-1">
-              <Sparkles className="h-3 w-3" />
-              تحویل آنی و خودکار لایسنس پس از پرداخت
-            </span>
-          </div>
-          <div className="flex items-center gap-4">
-            <Link href="/faq" className="hover:underline">سوالات متداول</Link>
-            <span className="opacity-50">|</span>
-            <Link href="/contact" className="hover:underline">پشتیبانی ۲۴/۷</Link>
-            <span className="opacity-50">|</span>
-            <a href={SITE.telegram} target="_blank" rel="noreferrer" className="hover:underline">تلگرام</a>
-          </div>
+      {/* top promo banner */}
+      <Link href="/shop" className="group block bg-gradient-to-r from-amber-500 via-emerald-600 to-teal-600 text-white hover:from-amber-400 hover:via-emerald-500 hover:to-teal-500 transition-all">
+        <div className="container mx-auto flex h-9 items-center justify-center px-4 text-xs sm:text-sm font-medium">
+          <span className="flex items-center gap-2">
+            <span className="text-base">🔥</span> 
+            تضمین ارزانترین قیمت ایران در مقایسه با ترب | استعلام خودکار کمترین قیمت بازار + ۵٪ تخفیف خرید اول با کد: <span className="font-bold bg-white/20 px-2 py-0.5 rounded-md tracking-wider">LICENO</span>
+          </span>
         </div>
-      </div>
+      </Link>
 
       {/* main header */}
       <div className="container mx-auto flex h-16 items-center gap-3 px-4">
         <MobileMenu />
 
         {/* logo */}
-        <Link href="/" className="flex shrink-0 items-center gap-2">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-emerald-600 text-primary-foreground font-black shadow-lg shadow-primary/20">
-            L
+        <Link href="/" className="group flex shrink-0 items-center gap-3">
+          <div className="relative flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-amber-400 via-emerald-500 to-teal-600 p-[1px] shadow-lg shadow-emerald-500/20 transition-transform group-hover:scale-105">
+            <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-white/40 to-transparent opacity-50 mix-blend-overlay blur-[2px]" />
+            <div className="relative flex h-full w-full items-center justify-center rounded-[15px] bg-background/90 backdrop-blur-xl">
+              <div className="absolute inset-0 rounded-[15px] bg-gradient-to-tr from-emerald-500/10 to-amber-500/10" />
+              <KeyRound className="h-6 w-6 rotate-45 text-emerald-500 drop-shadow-[0_0_8px_rgba(16,185,129,0.5)] transition-all group-hover:rotate-0" />
+            </div>
           </div>
-          <div className="hidden sm:block">
-            <div className="text-lg font-extrabold leading-none">{SITE.name}</div>
-            <div className="text-[10px] text-muted-foreground">{SITE.tagline}</div>
+          <div className="hidden sm:block shrink-0">
+            <div className="text-xl font-black tracking-tight text-foreground whitespace-nowrap">
+              لایسـنـو
+            </div>
+            <div className="text-[10px] font-bold tracking-widest text-muted-foreground whitespace-nowrap">
+              LICENO <span className="text-emerald-500">•</span> LEGAL STORE
+            </div>
           </div>
         </Link>
 
         {/* desktop nav */}
-        <nav className="mr-2 hidden items-center gap-1 lg:flex">
+        <nav className="mr-2 hidden items-center gap-1 xl:gap-2 lg:flex shrink-0">
           {NAV_LINKS.map((link) => {
             const active = pathname === link.href || (link.href !== "/" && pathname.startsWith(link.href.split("?")[0]));
             return (
@@ -97,8 +97,8 @@ export function SiteHeader() {
                 key={link.href}
                 href={link.href}
                 className={cn(
-                  "rounded-lg px-3 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-primary",
-                  active && "bg-accent text-primary"
+                  "rounded-lg px-2.5 py-1.5 text-sm font-medium transition-colors hover:bg-accent hover:text-primary whitespace-nowrap shrink-0 select-none",
+                  active && "bg-accent text-primary font-bold"
                 )}
               >
                 {link.label}

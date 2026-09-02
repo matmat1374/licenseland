@@ -23,12 +23,12 @@ const SETTING_KEYS = [
 ] as const;
 
 const SETTING_LABELS: Record<string, { label: string; placeholder: string; type?: "text" | "password"; help?: string }> = {
-  site_name: { label: "نام سایت", placeholder: "لایسنس‌لند" },
-  site_tagline: { label: "شعار سایت", placeholder: "بازار لایسنس دیجیتال ایران" },
-  telegram: { label: "تلگرام", placeholder: "https://t.me/licenseland" },
-  instagram: { label: "اینستاگرام", placeholder: "https://instagram.com/licenseland" },
+  site_name: { label: "نام سایت", placeholder: "لایسنو" },
+  site_tagline: { label: "شعار سایت", placeholder: "مرجع خرید لایسنس و اشتراکهای قانونی دیجیتال" },
+  telegram: { label: "تلگرام", placeholder: "https://t.me/liceno" },
+  instagram: { label: "اینستاگرام", placeholder: "https://instagram.com/liceno" },
   phone: { label: "تلفن تماس", placeholder: "۰۲۱-۹۱۰۰۰۰۰۰" },
-  email: { label: "ایمیل پشتیبانی", placeholder: "support@licenseland.ir" },
+  email: { label: "ایمیل پشتیبانی", placeholder: "support@liceno.ir" },
   usd_to_toman_rate: {
     label: "نرخ دلار (تومان)",
     placeholder: "60000",

@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { getArticles, getCategories } from "@/lib/queries";
-import { ProductCover } from "@/components/site/product-cover";
+import { ArticleCover } from "@/components/site/article-cover";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Calendar, Clock, ChevronLeft, Newspaper } from "lucide-react";
@@ -32,7 +32,7 @@ export default async function BlogPage({
     <div className="container mx-auto px-4 py-8">
       <div className="mb-8 text-center">
         <div className="mb-2 flex items-center justify-center gap-2 text-sm font-bold text-primary">
-          <Newspaper className="h-4 w-4" /> وبلاگ لایسنس‌لند
+          <Newspaper className="h-4 w-4" /> وبلاگ لایسنو
         </div>
         <h1 className="text-3xl font-black">مقالات و راهنماها</h1>
         <p className="mt-2 text-muted-foreground">جدیدترین مطالب درباره لایسنس، هوش مصنوعی و نرم‌افزار</p>
@@ -42,7 +42,7 @@ export default async function BlogPage({
       {featured && (
         <Link href={`/blog/${featured.slug}`} className="mb-8 block">
           <Card className="grid overflow-hidden p-0 md:grid-cols-2">
-            <ProductCover title={featured.title} seed={featured.slug} className="aspect-video w-full md:aspect-auto" size="lg" />
+            <ArticleCover title={featured.title} category={featured.category} className="aspect-video w-full md:aspect-auto" />
             <div className="flex flex-col justify-center gap-3 p-6">
               <div className="flex items-center gap-2">
                 <Badge className="bg-primary text-primary-foreground hover:bg-primary">مقاله ویژه</Badge>
@@ -73,7 +73,7 @@ export default async function BlogPage({
         {rest.map((a) => (
           <Link key={a.id} href={`/blog/${a.slug}`}>
             <Card className="group h-full overflow-hidden p-0 transition-all hover:-translate-y-1 hover:shadow-lg">
-              <ProductCover title={a.title} seed={a.slug} className="aspect-video w-full" />
+              <ArticleCover title={a.title} category={a.category} className="aspect-video w-full" />
               <div className="p-5">
                 <div className="mb-2 flex items-center gap-2 text-xs text-muted-foreground">
                   <Badge variant="secondary">{a.category}</Badge>

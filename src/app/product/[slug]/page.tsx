@@ -202,6 +202,7 @@ export default async function ProductPage({
             title={product.title}
             brand={product.brand}
             seed={product.slug}
+            image={product.image}
             className="aspect-square w-full rounded-3xl shadow-xl"
             size="lg"
           />

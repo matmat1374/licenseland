@@ -19,20 +19,20 @@ export const SETUP_FIELDS: SetupField[] = [
   {
     key: "site_name",
     label: "نام برند",
-    placeholder: "لایسنس‌لند",
+    placeholder: "لایسنو",
     help: "نام تجاری سایت که در هدر، فوتر و نقشه سایت نمایش داده می‌شود.",
   },
   {
     key: "site_url",
     label: "آدرس دامنه (URL)",
-    placeholder: "https://licenseland.ir",
+    placeholder: "https://liceno.ir",
     help: "دامنه اصلی سایت — برای ساخت لینک canonical و متادیتای سئو استفاده می‌شود. معادل NEXTAUTH_URL.",
     ltr: true,
   },
   {
     key: "email",
     label: "ایمیل پشتیبانی",
-    placeholder: "support@licenseland.ir",
+    placeholder: "support@liceno.ir",
     help: "ایمیلی که مشتریان برای پشتیبانی از آن استفاده می‌کنند. در فوتر و صفحه تماس نمایش داده می‌شود.",
     ltr: true,
   },

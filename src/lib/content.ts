@@ -30,6 +30,27 @@ export const DEFAULT_CONTENT: Record<string, string> = {
   about_title: "تجربه‌ای متفاوت از خرید لایسنس",
   about_description:
     "ما به جزئیات اهمیت می‌دهیم تا شما با خیال راحت خرید کنید",
+
+  // Promo Banners
+  banner1_badge: "⚡ تحویل زیر ۵ دقیقه",
+  banner1_title_line1: "پکیج سلطنتی",
+  banner1_title_line2: "هوش مصنوعی",
+  banner1_discount: "-۴۰٪",
+  banner1_description: "قدرتمندترین مدل‌های زبانی جهان را در یک پکیج شگفت‌انگیز تجربه کنید.",
+  banner1_features: "Claude 3.7 Sonnet & Opus, ChatGPT Plus (GPT-4o), Midjourney Pro",
+  banner1_button_text: "خرید سریع پکیج",
+  banner1_link: "/shop?cat=ai",
+  banner1_product_ids: "",
+
+  banner2_badge: "💎 لایسنس ۱۰۰٪ قانونی",
+  banner2_title_line1: "کیت تخصصی",
+  banner2_title_line2: "دولوپر و طراح",
+  banner2_discount: "ویژه",
+  banner2_description: "ابزارهای حرفه‌ای برای کدنویسی سریع‌تر و طراحی خلاقانه‌تر.",
+  banner2_features: "Cursor AI Pro, GitHub Copilot, Canva Pro / Adobe CC",
+  banner2_button_text: "ورود به بخش برنامه‌نویسی",
+  banner2_link: "/shop?cat=developer",
+  banner2_product_ids: "",
 };
 
 // Returns a map of all content keys from DB merged with defaults.
@@ -101,4 +122,25 @@ export const CONTENT_FIELDS: {
     group: "بخش درباره ما",
     placeholder: "ما به جزئیات اهمیت می‌دهیم تا شما با خیال راحت خرید کنید",
   },
+
+  // Promo Banners
+  { key: "banner1_badge", label: "بج بنر ۱", group: "بنرهای تبلیغاتی بنتو (Promo Banners)", placeholder: "⚡ تحویل زیر ۵ دقیقه" },
+  { key: "banner1_title_line1", label: "عنوان خط ۱ بنر ۱", group: "بنرهای تبلیغاتی بنتو (Promo Banners)", placeholder: "پکیج سلطنتی" },
+  { key: "banner1_title_line2", label: "عنوان خط ۲ بنر ۱", group: "بنرهای تبلیغاتی بنتو (Promo Banners)", placeholder: "هوش مصنوعی" },
+  { key: "banner1_discount", label: "تخفیف بنر ۱", group: "بنرهای تبلیغاتی بنتو (Promo Banners)", placeholder: "-۴۰٪" },
+  { key: "banner1_description", label: "توضیحات بنر ۱", type: "textarea", group: "بنرهای تبلیغاتی بنتو (Promo Banners)", placeholder: "قدرتمندترین مدلهای زبانی جهان..." },
+  { key: "banner1_features", label: "ویژگی‌های بنر ۱ (با کاما جدا کنید)", type: "textarea", group: "بنرهای تبلیغاتی بنتو (Promo Banners)", placeholder: "Claude 3.7 Sonnet & Opus, ChatGPT Plus (GPT-4o), Midjourney Pro" },
+  { key: "banner1_button_text", label: "متن دکمه بنر ۱", group: "بنرهای تبلیغاتی بنتو (Promo Banners)", placeholder: "خرید سریع پکیج" },
+  { key: "banner1_link", label: "لینک دکمه بنر ۱", group: "بنرهای تبلیغاتی بنتو (Promo Banners)", placeholder: "/shop?cat=ai" },
+  { key: "banner1_product_ids", label: "محصولات بنر ۱ (شناسه یا اسلاگ، با کاما جدا شود)", group: "بنرهای تبلیغاتی بنتو (Promo Banners)", placeholder: "chatgpt-plus,midjourney-pro" },
+
+  { key: "banner2_badge", label: "بج بنر ۲", group: "بنرهای تبلیغاتی بنتو (Promo Banners)", placeholder: "💎 لایسنس ۱۰۰٪ قانونی" },
+  { key: "banner2_title_line1", label: "عنوان خط ۱ بنر ۲", group: "بنرهای تبلیغاتی بنتو (Promo Banners)", placeholder: "کیت تخصصی" },
+  { key: "banner2_title_line2", label: "عنوان خط ۲ بنر ۲", group: "بنرهای تبلیغاتی بنتو (Promo Banners)", placeholder: "دولوپر و طراح" },
+  { key: "banner2_discount", label: "تخفیف بنر ۲", group: "بنرهای تبلیغاتی بنتو (Promo Banners)", placeholder: "ویژه" },
+  { key: "banner2_description", label: "توضیحات بنر ۲", type: "textarea", group: "بنرهای تبلیغاتی بنتو (Promo Banners)", placeholder: "ابزارهای حرفه‌ای برای کدنویسی..." },
+  { key: "banner2_features", label: "ویژگی‌های بنر ۲ (با کاما جدا کنید)", type: "textarea", group: "بنرهای تبلیغاتی بنتو (Promo Banners)", placeholder: "Cursor AI Pro, GitHub Copilot, Canva Pro / Adobe CC" },
+  { key: "banner2_button_text", label: "متن دکمه بنر ۲", group: "بنرهای تبلیغاتی بنتو (Promo Banners)", placeholder: "ورود به بخش برنامه‌نویسی" },
+  { key: "banner2_link", label: "لینک دکمه بنر ۲", group: "بنرهای تبلیغاتی بنتو (Promo Banners)", placeholder: "/shop?cat=developer" },
+  { key: "banner2_product_ids", label: "محصولات بنر ۲ (شناسه یا اسلاگ، با کاما جدا شود)", group: "بنرهای تبلیغاتی بنتو (Promo Banners)", placeholder: "github-copilot,cursor-ai" },
 ];

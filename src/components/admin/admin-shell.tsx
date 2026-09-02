@@ -19,6 +19,11 @@ import {
   FileEdit,
   BookOpen,
   Rocket,
+  TrendingUp,
+  Users,
+  FolderTree,
+  Activity,
+  Bug,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -38,14 +43,19 @@ import { SITE } from "@/lib/constants";
 
 const NAV = [
   { href: "/admin", label: "داشبورد", icon: LayoutDashboard, exact: true },
-  { href: "/admin/setup", label: "راه‌اندازی اولیه", icon: Rocket },
+  { href: "/admin/pricing", label: "قیمت‌گذاری و ترب", icon: TrendingUp },
   { href: "/admin/products", label: "محصولات", icon: Package },
   { href: "/admin/licenses", label: "لایسنس‌ها", icon: KeyRound },
   { href: "/admin/orders", label: "سفارش‌ها", icon: ShoppingCart },
+  { href: "/admin/users", label: "مدیریت کاربران", icon: Users },
+  { href: "/admin/categories", label: "دسته‌بندی‌ها", icon: FolderTree },
   { href: "/admin/supplier", label: "تأمین‌کننده", icon: Truck },
   { href: "/admin/content", label: "مدیریت محتوا", icon: FileEdit },
-  { href: "/admin/articles", label: "مقالات", icon: FileText },
+  { href: "/admin/articles", label: "مقالات وبلاگ", icon: FileText },
   { href: "/admin/discounts", label: "کدهای تخفیف", icon: BadgePercent },
+  { href: "/admin/logs", label: "لاگ‌ها و مانیتورینگ", icon: Activity },
+  { href: "/admin/debug", label: "خطایابی و وضعیت", icon: Bug },
+  { href: "/admin/setup", label: "راه‌اندازی اولیه", icon: Rocket },
   { href: "/admin/settings", label: "تنظیمات", icon: Settings },
   { href: "/admin/docs", label: "راهنما", icon: BookOpen },
 ];

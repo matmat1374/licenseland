@@ -5,6 +5,7 @@ import { Providers } from "@/providers";
 import { SiteHeader } from "@/components/site/header";
 import { SiteFooter } from "@/components/site/footer";
 import { CartDrawer } from "@/components/site/cart-drawer";
+import { AiAdvisor } from "@/components/site/ai-advisor";
 import { SITE } from "@/lib/constants";
 import { Toaster } from "sonner";
 
@@ -68,8 +69,9 @@ export default function RootLayout({
       >
         <Providers>
           <SiteHeader />
-          <main className="flex-1 flex flex-col">{children}</main>
+          <main className="flex-1 flex flex-col pb-24 md:pb-0">{children}</main>
           <SiteFooter />
+          <AiAdvisor />
           <CartDrawer />
           <Toaster position="top-center" dir="rtl" richColors closeButton />
         </Providers>

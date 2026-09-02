@@ -94,6 +94,21 @@ export async function getProducts(opts?: {
 
   let list = products.map(decorate);
 
+  if (featured && list.length < 4) {
+    const fallbackProducts = await db.product.findMany({
+      where: { isActive: true },
+      orderBy: { salesCount: "desc" },
+      take: limit || 8,
+    });
+    const seen = new Set(list.map((p) => p.id));
+    for (const fb of fallbackProducts) {
+      if (!seen.has(fb.id)) {
+        list.push(decorate(fb));
+        seen.add(fb.id);
+      }
+    }
+  }
+
   if (sort === "discount") {
     list = list.sort((a, b) => b._discountPercent - a._discountPercent);
   }
@@ -124,6 +139,47 @@ export async function getRelatedProducts(category: string, excludeSlug: string, 
     orderBy: { salesCount: "desc" },
   });
   return products.slice(0, limit).map(decorate);
+}
+
+export async function getBannerProducts(identifiers: string[], fallbackCategory?: string, limit: number = 3): Promise<ProductListItem[]> {
+  const idsOrSlugs = identifiers.map(i => i.trim()).filter(Boolean);
+  let products: ProductListItem[] = [];
+  
+  if (idsOrSlugs.length > 0) {
+    const fetched = await db.product.findMany({
+      where: {
+        OR: [
+          { id: { in: idsOrSlugs } },
+          { slug: { in: idsOrSlugs } }
+        ],
+        isActive: true,
+      }
+    });
+    products = fetched.map(decorate);
+  }
+
+  if (products.length < limit) {
+    const remaining = limit - products.length;
+    const existingIds = products.map(p => p.id);
+    
+    const fallbackWhere: any = { isActive: true };
+    if (existingIds.length > 0) {
+      fallbackWhere.id = { notIn: existingIds };
+    }
+    if (fallbackCategory && fallbackCategory !== 'all') {
+      fallbackWhere.category = fallbackCategory;
+    }
+    
+    const fallbackProducts = await db.product.findMany({
+      where: fallbackWhere,
+      orderBy: { salesCount: "desc" },
+      take: remaining,
+    });
+    
+    products.push(...fallbackProducts.map(decorate));
+  }
+  
+  return products.slice(0, limit);
 }
 
 // ----------------------------- Articles -----------------------------

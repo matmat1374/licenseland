@@ -1,0 +1,1 @@
+const { PrismaClient } = require('@prisma/client'); const prisma = new PrismaClient(); async function main() { const s = await prisma.setting.findUnique({ where: { key: 'zarinpal_merchant' } }); console.log('DB Merchant:', s); } main();  

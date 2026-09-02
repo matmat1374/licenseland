@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Liceno - ارائه استراتژیک و پیچ دک</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;600;800&display=swap');
+    body { font-family: 'Vazirmatn', sans-serif; background: #0b0f19; color: #f8fafc; overflow-x: hidden; }
+    .slide { min-height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 4rem 2rem; border-bottom: 1px solid #1e293b; }
+  </style>
+</head>
+<body class="selection:bg-indigo-500 selection:text-white">
+
+  <!-- Slide 1: Cover -->
+  <section class="slide text-center bg-gradient-to-b from-indigo-950/40 to-[#0b0f19]">
+    <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-indigo-500/30 bg-indigo-500/10 text-indigo-400 text-sm mb-6 font-bold">
+      🚀 پلتفرم تخصصی لایسنس‌های هوش مصنوعی و نرم‌افزار
+    </div>
+    <h1 class="text-5xl md:text-7xl font-extrabold tracking-tight mb-6 bg-gradient-to-r from-white via-indigo-200 to-indigo-400 bg-clip-text text-transparent">
+      لایسنو (Liceno)
+    </h1>
+    <p class="text-xl md:text-2xl text-slate-400 max-w-2xl mb-8 leading-relaxed">
+      خرید مستقیم و قانونی لایسنس‌های بین‌المللی بدون تحریم با تحویل خودکار زیر ۵ دقیقه
+    </p>
+    <div class="flex gap-4">
+      <a href="#market" class="px-6 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold transition">مشاهده استراتژی بازار ↓</a>
+      <a href="http://localhost:3000" target="_blank" class="px-6 py-3 rounded-xl border border-slate-700 hover:bg-slate-800 font-bold transition">ورود به وبسایت ↗</a>
+    </div>
+  </section>
+
+  <!-- Slide 2: Market Problem & Solution -->
+  <section id="market" class="slide max-w-5xl mx-auto">
+    <h2 class="text-3xl md:text-4xl font-bold mb-12 text-center">چالش‌های کاربران ایرانی و راه‌حل لایسنو</h2>
+    <div class="grid md:grid-cols-2 gap-8 w-full">
+      <div class="p-8 rounded-2xl border border-red-500/20 bg-red-950/10">
+        <h3 class="text-2xl font-bold text-red-400 mb-4">❌ چالش‌های موجود</h3>
+        <ul class="space-y-4 text-slate-300">
+          <li class="flex items-start gap-2"><span>⚠️</span> تحریم‌های مالی و عدم امکان پرداخت مستقیم با کارت‌های شتاب</li>
+          <li class="flex items-start gap-2"><span>⚠️</span> قیمت‌های نجومی واسطه‌ها و کارمزدهای پنهان</li>
+          <li class="flex items-start gap-2"><span>⚠️</span> تحویل با تاخیر چند ساعته و قطعی مداوم اکانت‌ها</li>
+          <li class="flex items-start gap-2"><span>⚠️</span> عدم وجود پشتیبانی پاسخگو و ضمانت بازگشت وجه</li>
+        </ul>
+      </div>
+      <div class="p-8 rounded-2xl border border-emerald-500/20 bg-emerald-950/10">
+        <h3 class="text-2xl font-bold text-emerald-400 mb-4">✅ مزیت رقابتی لایسنو</h3>
+        <ul class="space-y-4 text-slate-300">
+          <li class="flex items-start gap-2"><span>⚡</span> پرداخت آسان تومانی با درگاه امن شاپرک و زرین‌پال</li>
+          <li class="flex items-start gap-2"><span>⚡</span> فرمول قیمت‌گذاری شفاف و قیمت‌شکن متصل به API ترب</li>
+          <li class="flex items-start gap-2"><span>⚡</span> سیستم تحویل خودکار و آنی در کمتر از ۵ دقیقه</li>
+          <li class="flex items-start gap-2"><span>⚡</span> تضمین ۱۰۰٪ بازگشت وجه و پشتیبانی ۲۴ ساعته در تلگرام</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 3: Growth & Sales Analytics (Chart.js) -->
+  <section class="slide max-w-5xl mx-auto w-full">
+    <h2 class="text-3xl md:text-4xl font-bold mb-4 text-center">رشد تقاضای لایسنس‌های هوش مصنوعی در ایران</h2>
+    <p class="text-slate-400 mb-8 text-center">تحلیل رشد سفارشات ابزارهای ChatGPT, Claude, Cursor و Midjourney</p>
+    <div class="w-full h-80 bg-slate-900/60 p-6 rounded-2xl border border-slate-800">
+      <canvas id="growthChart"></canvas>
+    </div>
+  </section>
+
+  <!-- Slide 4: Trust & Official Pillars -->
+  <section class="slide max-w-5xl mx-auto text-center">
+    <h2 class="text-3xl md:text-4xl font-bold mb-12">ارتباط و هویت رسمی لایسنو</h2>
+    <div class="grid md:grid-cols-3 gap-6 w-full text-right">
+      <div class="p-6 rounded-xl border border-slate-800 bg-slate-900/40">
+        <div class="text-2xl mb-2">🏢</div>
+        <h4 class="font-bold text-lg mb-1">دفتر مرکزی</h4>
+        <p class="text-sm text-slate-400">جزیره کیش، بازار شارستان، پلاک ۳۰</p>
+      </div>
+      <div class="p-6 rounded-xl border border-slate-800 bg-slate-900/40">
+        <div class="text-2xl mb-2">📞</div>
+        <h4 class="font-bold text-lg mb-1">خطوط ارتباطی</h4>
+        <p class="text-sm text-slate-400">تلفن: ۰۷۶۴۴۴۵۸۷۹۱<br>موبایل: ۰۹۱۲۱۱۴۵۶۸۷</p>
+      </div>
+      <div class="p-6 rounded-xl border border-slate-800 bg-slate-900/40">
+        <div class="text-2xl mb-2">💬</div>
+        <h4 class="font-bold text-lg mb-1">پشتیبانی تلگرام</h4>
+        <p class="text-sm text-slate-400">پاسخگویی سریع ۲۴ ساعته: <span class="text-indigo-400 font-mono">@matinmazi</span></p>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    const ctx = document.getElementById('growthChart').getContext('2d');
+    new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: ['فروردین', 'اردیبهشت', 'خرداد', 'تیر', 'مرداد', 'شهریور'],
+        datasets: [{
+          label: 'میزان تقاضای اشتراک هوش مصنوعی (شاخص رشد)',
+          data: [1200, 2400, 4800, 9500, 18200, 34000],
+          borderColor: '#6366f1',
+          backgroundColor: 'rgba(99, 102, 241, 0.15)',
+          fill: true,
+          tension: 0.4,
+          borderWidth: 3
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { labels: { color: '#f8fafc', font: { family: 'Vazirmatn' } } }
+        },
+        scales: {
+          x: { grid: { color: '#1e293b' }, ticks: { color: '#94a3b8', font: { family: 'Vazirmatn' } } },
+          y: { grid: { color: '#1e293b' }, ticks: { color: '#94a3b8' } }
+        }
+      }
+    });
+  </script>
+</body>
+</html>
