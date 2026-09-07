@@ -38,7 +38,7 @@ export function CreativeHero({ content, categories, heroProducts }: CreativeHero
             </h1>
 
             <p className="text-lg md:text-xl text-muted-foreground max-w-xl">
-              {content.hero_description || "بیش از ۵۰,۰۰۰ کاربر فعال. دسترسی فوری زیر ۵ دقیقه به معتبرترین ابزارهای هوش مصنوعی، طراحی و برنامه‌نویسی با تضمین ۱۰۰٪ بازگشت وجه."}
+              {content.hero_description || "بیش از ۹۵۰ مشتری راضی. دسترسی فوری زیر ۵ دقیقه به معتبرترین ابزارهای هوش مصنوعی، طراحی و برنامه‌نویسی با تضمین ۱۰۰٪ بازگشت وجه."}
             </p>
 
             {/* Animated Search Bar */}
@@ -94,7 +94,7 @@ export function CreativeHero({ content, categories, heroProducts }: CreativeHero
           </motion.div>
 
           {/* Left/End side Visuals (Floating Cards) */}
-          <div className="relative flex h-[400px] lg:h-[600px] w-full items-center justify-center">
+          <div className="relative flex h-[400px] lg:h-[600px] w-full items-center justify-center mb-8 lg:mb-0 mt-4 lg:mt-0">
             <OrbitalCarousel products={heroProducts} />
           </div>
         </div>

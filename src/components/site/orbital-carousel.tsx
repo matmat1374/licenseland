@@ -65,7 +65,7 @@ export function OrbitalCarousel({ products }: { products: Product[] }) {
 
   return (
     <div 
-      className="relative flex h-full min-h-[400px] lg:h-[600px] w-full items-center justify-center overflow-hidden [perspective:1200px]"
+      className="relative flex h-full min-h-[480px] lg:min-h-[650px] w-full items-center justify-center overflow-visible [perspective:1200px] pb-16"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
@@ -139,6 +139,7 @@ export function OrbitalCarousel({ products }: { products: Product[] }) {
                 title={p.title}
                 brand={p.brand}
                 seed={p.slug}
+                image={p.image}
                 className="mb-4 aspect-[4/3] w-full rounded-xl object-cover shadow-inner"
               />
               <div className="line-clamp-1 text-lg font-bold text-foreground text-start">{p.title}</div>
@@ -188,34 +189,36 @@ export function OrbitalCarousel({ products }: { products: Product[] }) {
       </div>
 
       {/* Indicators */}
-      <div className="absolute bottom-20 flex gap-2 z-50">
+      <div className="absolute bottom-2 flex gap-1.5 sm:gap-2 z-40">
         {products.map((_, i) => (
           <button
             key={i}
             onClick={() => goToSlide(i)}
-            className={`h-2 rounded-full transition-all duration-300 ${i === activeIndex ? 'w-8 bg-primary shadow-[0_0_10px_rgba(var(--primary),0.5)]' : 'w-2 bg-primary/30 hover:bg-primary/60'}`}
+            className={`h-1.5 sm:h-2 rounded-full transition-all duration-300 ${i === activeIndex ? 'w-6 sm:w-8 bg-primary shadow-[0_0_10px_rgba(var(--primary),0.5)]' : 'w-1.5 sm:w-2 bg-primary/30 hover:bg-primary/60'}`}
             aria-label={`Slide ${i + 1}`}
           />
         ))}
       </div>
 
-      {/* Controls */}
-      <div className="absolute bottom-4 flex gap-4 z-50">
-        <Button 
-          variant="outline" 
-          size="icon"
-          onClick={prevSlide}
-          className="rounded-full bg-background/50 backdrop-blur-md border-white/20 hover:bg-primary/20 hover:border-primary/50 hover:text-primary transition-all shadow-lg hover:scale-110 active:scale-95 h-12 w-12"
-        >
-          <ChevronRight className="h-6 w-6" />
-        </Button>
+      {/* Controls - Left & Right sides */}
+      <div className="absolute inset-y-1/2 -translate-y-1/2 flex justify-between w-full px-2 sm:px-4 pointer-events-none z-40">
         <Button 
           variant="outline" 
           size="icon"
           onClick={nextSlide}
-          className="rounded-full bg-background/50 backdrop-blur-md border-white/20 hover:bg-primary/20 hover:border-primary/50 hover:text-primary transition-all shadow-lg hover:scale-110 active:scale-95 h-12 w-12"
+          aria-label="Previous slide"
+          className="pointer-events-auto rounded-full bg-background/70 backdrop-blur-md border-white/20 hover:bg-primary/20 hover:border-primary/50 hover:text-primary transition-all shadow-lg hover:scale-110 active:scale-95 h-10 w-10 sm:h-12 sm:w-12"
         >
-          <ChevronLeft className="h-6 w-6" />
+          <ChevronRight className="h-5 w-5 sm:h-6 sm:w-6" />
+        </Button>
+        <Button 
+          variant="outline" 
+          size="icon"
+          onClick={prevSlide}
+          aria-label="Next slide"
+          className="pointer-events-auto rounded-full bg-background/70 backdrop-blur-md border-white/20 hover:bg-primary/20 hover:border-primary/50 hover:text-primary transition-all shadow-lg hover:scale-110 active:scale-95 h-10 w-10 sm:h-12 sm:w-12"
+        >
+          <ChevronLeft className="h-5 w-5 sm:h-6 sm:w-6" />
         </Button>
       </div>
     </div>
