@@ -56,8 +56,8 @@ services:
       - "80:80"
       - "443:443"
     environment:
-      DOMAIN: ${DOMAIN:-licenseland.ir}
-      ACME_EMAIL: ${ACME_EMAIL:-admin@licenseland.ir}
+      DOMAIN: ${DOMAIN:-liceno.ir}
+      ACME_EMAIL: ${ACME_EMAIL:-admin@liceno.ir}
     volumes:
       - ./Caddyfile.prod:/etc/caddy/Caddyfile:ro
       - caddy_data:/data

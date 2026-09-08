@@ -19,6 +19,23 @@ interface CreateItem {
 /** Release reservations held by stale PENDING orders (H3 fix). 30 minutes. */
 const RESERVATION_TTL_MS = 30 * 60 * 1000;
 
+// Rate limiting: max 8 checkout creations per minute per IP (DDoS/inventory hoard prevention)
+const checkoutRateMap = new Map<string, { count: number; resetAt: number }>();
+
+function checkCheckoutRateLimit(ip: string): boolean {
+  const now = Date.now();
+  const entry = checkoutRateMap.get(ip);
+  if (!entry || now > entry.resetAt) {
+    checkoutRateMap.set(ip, { count: 1, resetAt: now + 60_000 });
+    return true;
+  }
+  if (entry.count >= 8) {
+    return false;
+  }
+  entry.count++;
+  return true;
+}
+
 async function expireStaleReservations() {
   const cutoff = new Date(Date.now() - RESERVATION_TTL_MS);
   const stale = await db.order.findMany({
@@ -39,6 +56,18 @@ async function expireStaleReservations() {
 
 export async function POST(req: NextRequest) {
   try {
+    const ip =
+      req.headers.get("cf-connecting-ip") ||
+      (req.headers.get("x-forwarded-for") || "").split(",")[0].trim() ||
+      req.headers.get("x-real-ip") ||
+      "unknown";
+
+    if (!checkCheckoutRateLimit(ip)) {
+      return NextResponse.json(
+        { ok: false, message: "تعداد درخواست‌های ثبت سفارش بیش از حد مجاز است. لطفاً ۱ دقیقه دیگر مجدداً تلاش کنید." },
+        { status: 429 }
+      );
+    }
     const body = await req.json();
     const items: CreateItem[] = body.items || [];
     const customer = body.customer || {};
@@ -121,7 +150,6 @@ export async function POST(req: NextRequest) {
     }
 
     const orderCode = await generateOrderCode();
-    const ip = req.headers.get("x-forwarded-for") || req.headers.get("x-real-ip") || "unknown";
 
     // create order + items + reserve keys in ONE transaction with a
     // conditional claim per key (H2 fix: two buyers can never reserve the same key)

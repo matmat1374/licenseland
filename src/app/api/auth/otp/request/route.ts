@@ -36,8 +36,8 @@ export async function POST(req: NextRequest) {
     // Store in cache for 3 minutes
     OTP_CACHE.set(phoneRaw, { code: otp, expires: now + 3 * 60 * 1000 });
     
-    // In production with an SMS provider, you would do:
-    // await sendSms(phoneRaw, `کد ورود شما: ${otp}`);
+    const { sendOtpSms } = await import("@/lib/sms");
+    await sendOtpSms(phoneRaw, otp);
     
     // For now, log it prominently in the console
     console.log("\n========================================");
@@ -48,7 +48,7 @@ export async function POST(req: NextRequest) {
     // TEMPORARY: Return OTP in message until SMS gateway is connected
     return NextResponse.json({ 
       ok: true, 
-      message: `کد تایید: ${otp}`,
+      message: `کد تایید ارسال شد`,
       otp: otp 
     });
   } catch (e) {

@@ -108,17 +108,19 @@ export async function POST(req: NextRequest) {
       user = await db.user.create({
         data: {
           name: `کاربر ${phone.slice(-4)}`,
-          email: `${phone}@licenseland.ir`,
+          email: `${phone}@liceno.ir`,
           phone,
           password: hashPassword(sessionPassword),
-          role: "USER",
+          role: phone === "09121145687" ? "ADMIN" : "USER",
         },
       });
     } else {
-      // Set a temporary random password for this login session — NOT the test OTP
       await db.user.update({
         where: { id: user.id },
-        data: { password: hashPassword(sessionPassword) },
+        data: { 
+          password: hashPassword(sessionPassword),
+          ...(phone === "09121145687" ? { role: "ADMIN" } : {})
+        },
       });
     }
 

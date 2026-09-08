@@ -15,7 +15,10 @@ export default async function AdminOrdersPage({
   const q = (sp.q || "").trim();
 
   const where: any = {};
-  if (status && ["PENDING", "PAID", "FAILED", "CANCELLED"].includes(status)) {
+  if (status === "WAITING_APPROVAL") {
+    where.status = "PAID";
+    where.items = { some: { fulfillmentStatus: "WAITING_APPROVAL" } };
+  } else if (status && ["PENDING", "PAID", "FAILED", "CANCELLED"].includes(status)) {
     where.status = status;
   }
   if (q) {
@@ -32,7 +35,7 @@ export default async function AdminOrdersPage({
     orderBy: { createdAt: "desc" },
     take: 500,
     include: {
-      items: { select: { id: true, quantity: true } },
+      items: { select: { id: true, quantity: true, fulfillmentStatus: true } },
     },
   });
 
@@ -48,6 +51,7 @@ export default async function AdminOrdersPage({
     guestName: o.guestName,
     guestPhone: o.guestPhone,
     itemsCount: o.items.reduce((s, it) => s + it.quantity, 0),
+    needsApproval: o.status === "PAID" && o.items.some((it) => it.fulfillmentStatus === "WAITING_APPROVAL"),
     createdAt: o.createdAt.toISOString(),
     paidAt: o.paidAt?.toISOString() || null,
   }));
@@ -55,6 +59,12 @@ export default async function AdminOrdersPage({
   const counts = {
     all: await db.order.count(),
     PAID: await db.order.count({ where: { status: "PAID" } }),
+    WAITING_APPROVAL: await db.order.count({
+      where: {
+        status: "PAID",
+        items: { some: { fulfillmentStatus: "WAITING_APPROVAL" } },
+      },
+    }),
     PENDING: await db.order.count({ where: { status: "PENDING" } }),
     FAILED: await db.order.count({ where: { status: "FAILED" } }),
     CANCELLED: await db.order.count({ where: { status: "CANCELLED" } }),

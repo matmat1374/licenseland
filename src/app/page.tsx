@@ -30,41 +30,47 @@ import { toFa, formatJalaliDate } from "@/lib/date";
 import { CreativeHero } from "@/components/site/creative-hero";
 import { BrandMarquee } from "@/components/site/brand-marquee";
 import { PromoBentoBanners } from "@/components/site/promo-bento-banners";
+import { CategoryProductRow } from "@/components/site/category-product-row";
 
 export default async function HomePage() {
-  const [featured, bestsellers, newest, categories, articles, content, allPopular] = await Promise.all([
-    getProducts({ featured: true, limit: 8, sort: "popular" }),
-    getProducts({ bestseller: true, limit: 6, sort: "popular" }), // Adjusted to 6 for the hero
-    getProducts({ limit: 8, sort: "newest" }),
-    getCategories(),
+  const [bestsellers, articles, content] = await Promise.all([
+    getProducts({ bestseller: true, limit: 6, sort: "price-asc" }),
     getArticles({ limit: 3 }),
     getContentMap(),
-    getProducts({ limit: 12, sort: "popular" }),
   ]);
 
   const banner1Ids = content.banner1_product_ids ? content.banner1_product_ids.split(",") : [];
   const banner2Ids = content.banner2_product_ids ? content.banner2_product_ids.split(",") : [];
 
   const [banner1Products, banner2Products] = await Promise.all([
-    getBannerProducts(banner1Ids, "ai", 3),
-    getBannerProducts(banner2Ids, "developer", 3)
+    getBannerProducts(banner1Ids, ["ai"], 3),
+    getBannerProducts(banner2Ids, ["design", "software"], 3)
   ]);
 
-  let heroProducts = bestsellers.filter(p => p.isActive !== false);
-  if (heroProducts.length < 5) {
-    const pool = [...heroProducts, ...allPopular, ...featured, ...newest];
-    const seen = new Set<string>();
-    heroProducts = pool.filter(p => {
-      if (p.isActive === false || seen.has(p.id)) return false;
-      seen.add(p.id);
-      return true;
-    }).slice(0, 6);
-  } else {
-    heroProducts = heroProducts.slice(0, 6);
-  }
+  // Fetch products for each category
+  const [
+    aiProducts,
+    virtualNumbersProducts,
+    streamingProducts,
+    designProducts,
+    softwareProducts,
+    apiCreditsProducts,
+    gamingProducts,
+    socialProducts,
+  ] = await Promise.all([
+    getProducts({ limit: 5, category: "ai", sort: "price-asc" }),
+    getProducts({ limit: 5, category: "virtual-numbers", sort: "price-asc" }),
+    getProducts({ limit: 5, category: "streaming", sort: "price-asc" }),
+    getProducts({ limit: 5, category: "design", sort: "price-asc" }),
+    getProducts({ limit: 5, category: "software", sort: "price-asc" }),
+    getProducts({ limit: 5, category: "api-credits", sort: "price-asc" }),
+    getProducts({ limit: 5, category: "gaming", sort: "price-asc" }),
+    getProducts({ limit: 5, category: "social", sort: "price-asc" }),
+  ]);
 
+  // Keep hero products simple for hero slider
+  let heroProducts = bestsellers.filter(p => p.isActive !== false).slice(0, 6);
 
-  // Build stats array from content (with fallback to default STATS)
   const stats = [
     { value: content.stats_1_value, label: content.stats_1_label },
     { value: content.stats_2_value, label: content.stats_2_label },
@@ -72,114 +78,26 @@ export default async function HomePage() {
     { value: content.stats_4_value, label: content.stats_4_label },
   ];
 
-  const featuredList = featured.length >= 4 ? featured : [...featured, ...bestsellers.filter(b => !featured.some(f => f.id === b.id))].slice(0, 4);
-
   return (
     <>
-      <CreativeHero content={content} categories={categories} heroProducts={heroProducts} />
+      <CreativeHero content={content} categories={CATEGORIES} heroProducts={heroProducts} />
       
       {/* ============ BRANDS MARQUEE ============ */}
       <BrandMarquee />
 
       {/* ============ CATEGORIES ============ */}
-      <section className="container mx-auto px-4 py-16">
-        <SectionHeading
-          eyebrow="دسته‌بندی‌ها"
-          title="هر چیزی که نیاز دارید"
-          desc="مجموعه کاملی از لایسنس‌های دیجیتال در دسته‌های مختلف"
-        />
-        <div className="mt-8 flex overflow-x-auto gap-4 pb-6 px-1 md:grid md:grid-cols-3 lg:grid-cols-6 no-scrollbar snap-x snap-mandatory">
-          {categories.map((c) => {
-            const Icon = (Icons as any)[c.icon || "Folder"] || Icons.Folder;
-            return (
-              <Link key={c.id} href={`/shop?cat=${c.slug}`} className="snap-start shrink-0 w-[110px] md:w-auto">
-                <Card className="glass group h-full flex flex-col items-center gap-3 p-4 text-center transition-all hover:-translate-y-1 hover:border-primary/40 hover:shadow-lg border-white/5 bg-background/40">
-                  <div
-                    className={`flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br ${c.color} text-white shadow-lg transition-transform duration-500 group-hover:scale-110`}
-                  >
-                    <Icon className="h-6 w-6" />
-                  </div>
-                  <div className="text-[13px] font-bold leading-tight whitespace-nowrap truncate max-w-full">{c.name}</div>
-                </Card>
-              </Link>
-            );
-          })}
-        </div>
-      </section>
-
+      <CategoryProductRow categorySlug="ai" categoryNameEn="AI & Machine Learning" products={aiProducts.filter(p => p.isActive !== false)} />
+      <CategoryProductRow categorySlug="virtual-numbers" categoryNameEn="Virtual Numbers" products={virtualNumbersProducts.filter(p => p.isActive !== false)} />
+      <CategoryProductRow categorySlug="streaming" categoryNameEn="Streaming" products={streamingProducts.filter(p => p.isActive !== false)} />
+      
       {/* ============ PROMO BENTO BANNERS ============ */}
       <PromoBentoBanners content={content} banner1Products={banner1Products} banner2Products={banner2Products} />
 
-      {/* ============ FEATURED ============ */}
-      <section className="bg-muted/30 py-16">
-        <div className="container mx-auto px-4">
-          <div className="mb-8 flex items-end justify-between gap-4">
-            <SectionHeading
-              eyebrow="ویژه"
-              title="محصولات منتخب"
-              desc="بهترین پیشنهاد‌های هفته با تخفیف ویژه"
-              align="right"
-            />
-            <Button asChild variant="outline" className="shrink-0 glass border-white/10 rounded-xl">
-              <Link href="/shop">
-                همه محصولات
-                <ArrowLeft className="mr-1 h-4 w-4" />
-              </Link>
-            </Button>
-          </div>
-          <div className="flex overflow-x-auto gap-4 pb-8 px-1 md:grid md:grid-cols-3 lg:grid-cols-4 no-scrollbar snap-x snap-mandatory">
-            {featuredList.map((p) => (
-              <div key={p.id} className="snap-start shrink-0 w-[260px] md:w-auto">
-                <ProductCard product={p} />
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ============ BESTSELLERS ============ */}
-      <section className="bg-muted/10 py-16 border-y border-white/5">
-        <div className="container mx-auto px-4">
-          <SectionHeading
-            eyebrow="پرفروش‌ترین‌ها"
-            title="محبوب‌ترین لایسنس‌ها"
-            desc="انتخاب هزاران مشتری راضی"
-          />
-          <div className="mt-8 flex overflow-x-auto gap-4 pb-8 px-1 md:grid md:grid-cols-3 lg:grid-cols-4 no-scrollbar snap-x snap-mandatory">
-            {bestsellers.map((p) => (
-              <div key={p.id} className="snap-start shrink-0 w-[260px] md:w-auto">
-                <ProductCard product={p} />
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ============ NEWEST ============ */}
-      <section className="bg-muted/30 py-16">
-        <div className="container mx-auto px-4">
-          <div className="mb-8 flex items-end justify-between gap-4">
-            <SectionHeading
-              eyebrow="تازه‌ها"
-              title="جدیدترین محصولات"
-              align="right"
-            />
-            <Button asChild variant="outline" className="shrink-0 glass border-white/10 rounded-xl">
-              <Link href="/shop?sort=newest">
-                مشاهده همه
-                <ArrowLeft className="mr-1 h-4 w-4" />
-              </Link>
-            </Button>
-          </div>
-          <div className="flex overflow-x-auto gap-4 pb-8 px-1 md:grid md:grid-cols-3 lg:grid-cols-4 no-scrollbar snap-x snap-mandatory">
-            {newest.map((p) => (
-              <div key={p.id} className="snap-start shrink-0 w-[260px] md:w-auto">
-                <ProductCard product={p} />
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+      <CategoryProductRow categorySlug="design" categoryNameEn="Design Tools" products={designProducts.filter(p => p.isActive !== false)} />
+      <CategoryProductRow categorySlug="software" categoryNameEn="Software" products={softwareProducts.filter(p => p.isActive !== false)} />
+      <CategoryProductRow categorySlug="api-credits" categoryNameEn="API Credits" products={apiCreditsProducts.filter(p => p.isActive !== false)} />
+      <CategoryProductRow categorySlug="gaming" categoryNameEn="Gaming" products={gamingProducts.filter(p => p.isActive !== false)} />
+      <CategoryProductRow categorySlug="social" categoryNameEn="Social Boost" products={socialProducts.filter(p => p.isActive !== false)} />
 
       {/* ============ HOW IT WORKS ============ */}
       <section className="container mx-auto px-4 py-16">
@@ -358,7 +276,7 @@ export default async function HomePage() {
                 <div className="hidden md:block w-px h-4 bg-white/10" />
                 <div className="flex items-center gap-2">
                   <Check className="h-4 w-4 text-amber-500" />
-                  <span>شرکت ثبت شده رسمی (شماره ثبت: ۱۴۰۲۵۹)</span>
+                  <span>شرکت ثبت شده رسمی</span>
                 </div>
               </div>
             </div>
@@ -429,11 +347,6 @@ function SectionHeading({
     </div>
   );
 }
-
-const BRANDS = [
-  "OpenAI", "Midjourney", "Adobe", "CapCut", "Spotify", "Netflix",
-  "Canva", "Grammarly", "NordVPN", "Microsoft", "JetBrains", "Notion",
-];
 
 const STEPS = [
   {

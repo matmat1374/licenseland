@@ -114,6 +114,7 @@ model Product {
   fulfillmentMode String   @default("MANUAL")
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
+  lastSyncedAt    DateTime?
 
   categoryRel    Category? @relation(fields: [category], references: [slug], onDelete: Restrict)
   licenses       LicenseKey[]

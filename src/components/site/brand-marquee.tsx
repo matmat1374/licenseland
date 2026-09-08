@@ -5,22 +5,22 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 
 const brands = [
-  { name: "OpenAI", color: "#10a37f", tag: "هوش مصنوعی", href: "/shop?search=openai",
+  { name: "OpenAI", color: "#10a37f", tag: "هوش مصنوعی", href: "/shop?cat=ai&search=openai",
     svg: <svg viewBox="0 0 24 24" fill="currentColor" className="w-8 h-8"><path d="M22.28 11.45c-.17-1.04-.6-2.01-1.25-2.83-.68-.84-1.55-1.5-2.52-1.91V6.52c0-1.12-.42-2.19-1.17-3.02C16.59 2.68 15.52 2.2 14.4 2.2H9.6c-1.12 0-2.19.48-2.94 1.3-.75.83-1.17 1.9-1.17 3.02v.19c-.97.41-1.84 1.07-2.52 1.91-.65.82-1.08 1.79-1.25 2.83-.17 1.06-.05 2.14.33 3.14.37.99.98 1.86 1.76 2.52.79.66 1.74 1.11 2.76 1.28.17 1.04.6 2.01 1.25 2.83.68.84 1.55 1.5 2.52 1.91v.19c0 1.12.42 2.19 1.17 3.02.75.82 1.82 1.3 2.94 1.3h4.8c1.12 0 2.19-.48 2.94-1.3.75-.83 1.17-1.9 1.17-3.02v-.19c.97-.41 1.84-1.07 2.52-1.91.65-.82 1.08-1.79 1.25-2.83.17-1.06.05-2.14-.33-3.14-.37-.99-.98-1.86-1.76-2.52-.79-.66-1.74-1.11-2.76-1.28zm-3.06 6.09c-.44.57-1.03 1-1.71 1.25-.06-.5-.22-.98-.48-1.42l-2.4-4.16v-4.8l2.4 4.16c.38.66.57 1.41.57 2.18v2.79zm-7.62 3.86c-.73 0-1.42-.3-1.93-.81-.51-.51-.81-1.2-.81-1.93v-3.86l3.34 1.93c.33.19.72.29 1.11.29s.78-.1 1.11-.29l1.45-.84v2.75c0 .73-.3 1.42-.81 1.93-.51.51-1.2.81-1.93.81h-1.53zm-6.27-5.11c-.57-.44-1-1.03-1.25-1.71.5.06.98.22 1.42.48l4.16 2.4-2.4 4.16-3.93-5.33zm1.61-7.79c.44-.57 1.03-1 1.71-1.25.06.5.22.98.48 1.42l2.4 4.16v4.8l-2.4-4.16c-.38-.66-.57-1.41-.57-2.18V8.5zm7.62-3.86c.73 0 1.42.3 1.93.81.51.51.81 1.2.81 1.93v3.86l-3.34-1.93c-.66-.38-1.55-.38-2.22 0l-1.45.84V7.4c0-.73.3-1.42.81-1.93.51-.51 1.2-.81 1.93-.81h1.53zm6.27 5.11c.57.44 1 1.03 1.25 1.71-.5-.06-.98-.22-1.42-.48l-4.16-2.4 2.4-4.16 3.93 5.33zm-4.32 4.41l-2.75 1.59-2.75-1.59V11.2l2.75-1.59 2.75 1.59v3.18z"/></svg>
   },
-  { name: "Anthropic", color: "#d97706", tag: "هوش مصنوعی", href: "/shop?search=anthropic",
+  { name: "Anthropic", color: "#d97706", tag: "هوش مصنوعی", href: "/shop?cat=ai&search=anthropic",
     svg: <svg viewBox="0 0 24 24" fill="currentColor" className="w-8 h-8"><path d="M12 2L2 22h4l2-4h8l2 4h4L12 2zm0 4.5l3 6H9l3-6z"/></svg>
   },
-  { name: "Google Gemini", color: "#4285f4", tag: "هوش مصنوعی", href: "/shop?search=gemini",
+  { name: "Google Gemini", color: "#4285f4", tag: "هوش مصنوعی", href: "/shop?cat=ai&search=gemini",
     svg: <svg viewBox="0 0 24 24" fill="currentColor" className="w-8 h-8"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.5 14H8v-2h8.5v2zm0-4H8v-2h8.5v2z"/></svg>
   },
-  { name: "Midjourney", color: "#06b6d4", tag: "تولید تصویر", href: "/shop?search=midjourney",
+  { name: "Midjourney", color: "#06b6d4", tag: "تولید تصویر", href: "/shop?cat=ai&search=midjourney",
     svg: <svg viewBox="0 0 24 24" fill="currentColor" className="w-8 h-8"><path d="M12 2L3 7v10l9 5 9-5V7l-9-5zm0 13.5l-4.5-2.5 4.5-2.5 4.5 2.5-4.5 2.5z"/></svg>
   },
-  { name: "Cursor AI", color: "#6366f1", tag: "کدنویسی", href: "/shop?search=cursor",
+  { name: "Cursor AI", color: "#6366f1", tag: "کدنویسی", href: "/shop?cat=ai&search=cursor",
     svg: <svg viewBox="0 0 24 24" fill="currentColor" className="w-8 h-8"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6zm-1 2.5L17.5 9H13V4.5zM12 18H8v-2h4v2zm4-4H8v-2h8v2z"/></svg>
   },
-  { name: "GitHub Copilot", color: "#f3f4f6", tag: "کدنویسی", href: "/shop?search=copilot",
+  { name: "GitHub Copilot", color: "#f3f4f6", tag: "کدنویسی", href: "/shop?cat=ai&search=copilot",
     svg: <svg viewBox="0 0 24 24" fill="currentColor" className="w-8 h-8"><path d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.166 6.839 9.489.5.09.682-.217.682-.482 0-.237-.008-.866-.013-1.7-2.782.603-3.369-1.34-3.369-1.34-.454-1.156-1.11-1.462-1.11-1.462-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.831.092-.646.35-1.086.636-1.336-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.578 9.578 0 0112 6.836c.85.004 1.705.114 2.504.336 1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.203 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.577.688.48C19.138 20.161 22 16.416 22 12c0-5.523-4.477-10-10-10z"/></svg>
   },
   { name: "Spotify", color: "#1db954", tag: "استریم موسیقی", href: "/shop?search=spotify",
@@ -50,8 +50,8 @@ const brands = [
   { name: "Xbox", color: "#107c10", tag: "گیم پس", href: "/shop?search=xbox",
     svg: <svg viewBox="0 0 24 24" fill="currentColor" className="w-8 h-8"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4 15.5l-4-3-4 3v-9l4-3 4 3v9z"/></svg>
   },
-  { name: "NordVPN", color: "#4687ff", tag: "امنیت", href: "/shop?search=nordvpn",
-    svg: <svg viewBox="0 0 24 24" fill="currentColor" className="w-8 h-8"><path d="M12 2L2 7l10 5 10-5-10-5zm0 8L2 15l10 5 10-5-10-5z"/></svg>
+  { name: "Figma", color: "#f24e1e", tag: "طراحی رابط کاربری", href: "/shop?search=figma",
+    svg: <svg viewBox="0 0 24 24" fill="currentColor" className="w-8 h-8"><path d="M12 12a3 3 0 103 3 3 3 0 00-3-3zm-6 0a3 3 0 103 3 3 3 0 00-3-3zm0-6a3 3 0 103 3 3 3 0 00-3-3zm6 0a3 3 0 103 3 3 3 0 00-3-3zm0 6a3 3 0 103 3 3 3 0 00-3-3z"/></svg>
   }
 ];
 

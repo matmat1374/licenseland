@@ -26,6 +26,7 @@ export function gradientFor(seed: string): string {
 }
 
 import { getBrandIconUrl } from "@/lib/brand-icons";
+import { getBrandVector } from "@/lib/brand-assets";
 import Image from "next/image";
 
 export function ProductCover({
@@ -36,6 +37,7 @@ export function ProductCover({
   className,
   icon,
   size = "md",
+  hideLabel,
 }: {
   title: string;
   brand?: string | null;
@@ -44,13 +46,13 @@ export function ProductCover({
   className?: string;
   icon?: React.ReactNode;
   size?: "sm" | "md" | "lg";
+  hideLabel?: boolean;
 }) {
-  const grad = gradientFor(seed || title);
-  const initials = (brand || title).slice(0, 2);
+  const brandVector = getBrandVector(brand, title);
+  const grad = brandVector.gradient || gradientFor(seed || title);
+  const shouldHideLabel = hideLabel || size === "sm";
   const iconSize =
-    size === "lg" ? "h-14 w-14" : size === "sm" ? "h-8 w-8" : "h-12 w-12";
-  const textSize =
-    size === "lg" ? "text-3xl" : size === "sm" ? "text-base" : "text-xl";
+    size === "lg" ? "h-14 w-14" : size === "sm" ? "h-10 w-10" : "h-12 w-12";
 
   const resolvedImage = image || (brand ? getBrandIconUrl(brand, title) : null);
   const [imgError, setImgError] = React.useState(false);
@@ -76,9 +78,9 @@ export function ProductCover({
       <div className="absolute -top-8 -right-8 h-28 w-28 rounded-full bg-white/30 blur-2xl" />
       <div className="absolute -bottom-10 -left-10 h-32 w-32 rounded-full bg-black/40 blur-2xl" />
       
-      <div className="relative z-10 flex flex-col items-center justify-center gap-2 px-3 text-center w-full h-full">
+      <div className={cn("relative z-10 flex flex-col items-center justify-center text-center w-full h-full", size === "sm" ? "p-1" : "gap-2 px-3")}>
         {resolvedImage && !imgError ? (
-          <div className={cn("relative flex items-center justify-center rounded-2xl bg-black/25 backdrop-blur-md p-2 border border-white/20 shadow-xl transition-transform duration-300 group-hover:scale-110", iconSize)}>
+          <div className={cn("relative flex items-center justify-center backdrop-blur-md border border-white/20 transition-transform duration-300 group-hover:scale-110", size === "sm" ? "rounded-xl bg-white/10 dark:bg-white/15 p-1.5 shadow-sm" : "rounded-2xl bg-black/35 p-2 shadow-xl", iconSize)}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={resolvedImage}
@@ -93,16 +95,23 @@ export function ProductCover({
         ) : (
           <div
             className={cn(
-              "font-black text-white drop-shadow-lg tracking-tight",
-              textSize
+              "relative flex items-center justify-center backdrop-blur-md border border-white/20 transition-transform duration-300 group-hover:scale-110",
+              size === "sm" ? "rounded-xl bg-white/10 dark:bg-white/15 p-1.5 shadow-sm" : "rounded-2xl bg-black/40 p-2.5 shadow-xl",
+              iconSize
             )}
+            style={{
+              borderColor: brandVector.accent + "50",
+              boxShadow: `0 0 20px ${brandVector.bgGlow}`,
+            }}
           >
-            {initials}
+            {brandVector.icon}
           </div>
         )}
-        <span className="text-[11px] font-black uppercase tracking-wider text-white drop-shadow line-clamp-1 bg-black/30 px-2.5 py-0.5 rounded-full border border-white/10 mt-1">
-          {brand || "LICENO"}
-        </span>
+        {!shouldHideLabel && (
+          <span className="text-[11px] font-black uppercase tracking-wider text-white drop-shadow line-clamp-1 bg-black/40 px-2.5 py-0.5 rounded-full border border-white/10 mt-1">
+            {brand || brandVector.label}
+          </span>
+        )}
       </div>
     </div>
   );

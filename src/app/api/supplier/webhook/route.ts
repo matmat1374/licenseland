@@ -3,6 +3,7 @@ import { db } from "@/lib/db";
 import { getSupplierConfig, receiveSupplierKeys, logSupplier } from "@/lib/supplier";
 import { verifyWebhookSignature } from "@kernel/security/licenseVault";
 import { sealKey } from "@/lib/licenses";
+import { sendOrderFulfillmentEmail } from "@/lib/email";
 
 // POST /api/supplier/webhook — accepts TWO payload shapes:
 //
@@ -106,6 +107,7 @@ async function handleIrmarketWebhook(rawBody: string) {
       }
       await db.orderItem.update({ where: { id: it.id }, data: { fulfillmentStatus: "FULFILLED" } });
       await logSupplier(String(orderId), "webhook_delivered", "SUCCESS", { count: accounts.length }, `${accounts.length} اکانت از وب‌هوک irMarket تحویل شد`);
+      sendOrderFulfillmentEmail(it.orderId).catch(() => {});
     } else if (status === "failed" || status === "cancelled" || payload.refunded === true) {
       await db.orderItem.update({ where: { id: it.id }, data: { fulfillmentStatus: "FAILED" } });
       await logSupplier(

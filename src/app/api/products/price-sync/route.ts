@@ -25,10 +25,10 @@ export async function POST(req: NextRequest) {
       if (p.specifications) {
         try {
           const specs = JSON.parse(p.specifications);
-          if (liveUsdRate && specs.price_usd) {
+          if (liveUsdRate && (specs.price_usd || specs.cost_usd)) {
             let markup = specs.custom_markup ?? specs.markup_used;
             if (markup === undefined || markup === null || isNaN(Number(markup))) {
-              const priceUSD = Number(specs.price_usd);
+              const priceUSD = Number(specs.price_usd || specs.cost_usd);
               if (priceUSD < 1) markup = 200;
               else if (priceUSD < 10) markup = 150;
               else if (priceUSD < 20) markup = 100;
@@ -41,7 +41,7 @@ export async function POST(req: NextRequest) {
             if (specs.is_price_locked) {
               finalPrice = p.price;
             } else {
-              finalPrice = Math.ceil((Number(specs.price_usd) * liveUsdRate * (1 + markup / 100)) / 1000) * 1000;
+              finalPrice = Math.ceil((Number(specs.price_usd || specs.cost_usd) * liveUsdRate * (1 + markup / 100)) / 1000) * 1000;
             }
           }
         } catch (e) {

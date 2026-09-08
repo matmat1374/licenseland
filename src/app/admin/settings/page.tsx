@@ -20,9 +20,16 @@ const SETTING_KEYS = [
   "zarinpal_merchant",
   "telegram_bot_token",
   "telegram_supplier_chat_id",
+  "require_admin_order_approval",
 ] as const;
 
-const SETTING_LABELS: Record<string, { label: string; placeholder: string; type?: "text" | "password"; help?: string }> = {
+const SETTING_LABELS: Record<string, { label: string; placeholder: string; type?: "text" | "password" | "boolean"; help?: string }> = {
+  require_admin_order_approval: {
+    label: "تایید دستی تحویل لایسنس توسط ادمین (دوران تست/امنیت)",
+    placeholder: "true",
+    type: "boolean",
+    help: "با فعال بودن این گزینه، پس از پرداخت کاربر، سفارش در وضعیت «در انتظار صدور» قرار می‌گیرد و هیچ لایسنسی بدون کلیک شما روی دکمه تایید صادر نمی‌شود. با غیرفعال‌سازی، تحویل آنی و خودکار پس از پرداخت فعال می‌گردد.",
+  },
   site_name: { label: "نام سایت", placeholder: "لایسنو" },
   site_tagline: { label: "شعار سایت", placeholder: "مرجع خرید لایسنس و اشتراکهای قانونی دیجیتال" },
   telegram: { label: "تلگرام", placeholder: "https://t.me/liceno" },

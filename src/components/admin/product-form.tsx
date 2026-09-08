@@ -36,6 +36,11 @@ export interface ProductFormData {
   isActive: boolean;
   costUsd?: string;
   markupPercent?: string;
+  stock?: number | string;
+  torobUrl?: string;
+  torobUndercut?: string;
+  torobFloor?: string;
+  isPriceLocked?: boolean;
 }
 
 interface ProductFormProps {
@@ -120,8 +125,9 @@ export function ProductForm({ initial, categories, activeUsdRate, onSaved, onCan
       bestseller: data.bestseller,
       isActive: data.isActive,
       specifications: (data.costUsd || data.markupPercent) ? {
-        cost_usd: data.costUsd || undefined,
-        markup_percent: data.markupPercent || undefined,
+        price_usd: data.costUsd || null,
+        cost_usd: data.costUsd || null,
+        markup_percent: data.markupPercent || null,
       } : null
     };
 

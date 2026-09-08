@@ -25,7 +25,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { Search, ChevronLeft, CheckCircle2, Loader2, Eye } from "lucide-react";
+import { Search, ChevronLeft, CheckCircle2, Loader2, Eye, Send } from "lucide-react";
 import { toast } from "sonner";
 import { toFa, formatJalaliDate } from "@/lib/date";
 import { toToman } from "@/lib/format";
@@ -42,6 +42,7 @@ interface OrderItem {
   guestName: string | null;
   guestPhone: string | null;
   itemsCount: number;
+  needsApproval?: boolean;
   createdAt: string;
   paidAt: string | null;
 }
@@ -68,6 +69,7 @@ export function OrdersClient({
   const [status, setStatus] = useState(initialStatus || "all");
   const [q, setQ] = useState(initialQuery);
   const [markingPaid, setMarkingPaid] = useState<string | null>(null);
+  const [approvingOrder, setApprovingOrder] = useState<string | null>(null);
 
   // Debounced URL update
   useEffect(() => {
@@ -80,6 +82,23 @@ export function OrdersClient({
     }, 350);
     return () => clearTimeout(t);
   }, [status, q]);
+
+  async function handleApproveOrder(id: string) {
+    setApprovingOrder(id);
+    try {
+      const res = await fetch(`/api/admin/orders/${id}/approve`, {
+        method: "POST",
+      });
+      const json = await res.json();
+      if (!json.ok) throw new Error(json.message || "خطا در تایید سفارش");
+      toast.success(json.message || "سفارش تایید و لایسنس‌ها برای کاربر صادر شدند");
+      router.refresh();
+    } catch (e: any) {
+      toast.error(e?.message || "خطای ناشناخته");
+    } finally {
+      setApprovingOrder(null);
+    }
+  }
 
   async function handleMarkPaid(id: string) {
     setMarkingPaid(id);
@@ -118,6 +137,7 @@ export function OrdersClient({
 
   const tabs: { key: string; label: string; count: number }[] = [
     { key: "all", label: "همه", count: counts.all },
+    { key: "WAITING_APPROVAL", label: "در انتظار صدور", count: (counts as any).WAITING_APPROVAL || 0 },
     { key: "PAID", label: "پرداخت شده", count: counts.PAID },
     { key: "PENDING", label: "در انتظار", count: counts.PENDING },
     { key: "FAILED", label: "ناموفق", count: counts.FAILED },
@@ -196,17 +216,41 @@ export function OrdersClient({
                         </span>
                       ) : "—"}
                     </td>
-                    <td className="px-4 py-3"><Badge variant={st.variant}>{st.label}</Badge></td>
+                    <td className="px-4 py-3">
+                      {o.needsApproval ? (
+                        <Badge className="bg-amber-500/15 text-amber-600 dark:text-amber-400 border-amber-500/30 whitespace-nowrap">
+                          در انتظار صدور
+                        </Badge>
+                      ) : (
+                        <Badge variant={st.variant}>{st.label}</Badge>
+                      )}
+                    </td>
                     <td className="px-4 py-3 text-xs text-muted-foreground">
                       {formatJalaliDate(o.createdAt, true)}
                     </td>
                     <td className="px-4 py-3">
-                      <div className="flex items-center gap-1">
+                      <div className="flex items-center gap-1.5">
                         <Button asChild size="icon" variant="ghost" className="h-8 w-8" aria-label="مشاهده">
                           <Link href={`/order/${o.id}`} target="_blank">
                             <Eye className="h-4 w-4" />
                           </Link>
                         </Button>
+
+                        {o.needsApproval && (
+                          <Button
+                            size="sm"
+                            className="h-8 px-2.5 text-xs bg-amber-600 hover:bg-amber-700 text-white gap-1.5 shadow-sm whitespace-nowrap"
+                            onClick={() => handleApproveOrder(o.id)}
+                            disabled={approvingOrder === o.id}
+                          >
+                            {approvingOrder === o.id ? (
+                              <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                            ) : (
+                              <Send className="h-3.5 w-3.5" />
+                            )}
+                            <span>تایید و صدور</span>
+                          </Button>
+                        )}
 
                         {o.status === "PENDING" && (
                           <>

@@ -20,21 +20,32 @@ export const SITE = {
 export const NAV_LINKS = [
   { href: "/", label: "خانه" },
   { href: "/shop", label: "فروشگاه" },
-  { href: "/shop?cat=ai", label: "هوش مصنوعی" },
-  { href: "/shop?cat=software", label: "نرم‌افزار" },
   { href: "/blog", label: "وبلاگ" },
-  { href: "/faq", label: "سوالات متداول" },
-  { href: "/contact", label: "تماس با ما" },
+  { href: "/contact", label: "راهنما و پشتیبانی" },
 ];
 
 // Category definitions — keep in sync with seed
 export const CATEGORIES = [
+  {
+    name: "شماره مجازی و وریفای",
+    slug: "virtual-numbers",
+    description: "شماره‌های مجازی برای شبکه‌های اجتماعی و ابزارهای هوش مصنوعی",
+    icon: "Smartphone",
+    color: "from-emerald-500 to-teal-600",
+  },
   {
     name: "هوش مصنوعی",
     slug: "ai",
     description: "لایسنس و اکانت پریمیوم ابزارهای هوش مصنوعی",
     icon: "Sparkles",
     color: "from-emerald-500 to-teal-600",
+  },
+  {
+    name: "توکن و کردیت API",
+    slug: "api-credits",
+    description: "توکن و موجودی انواع API‌های برنامه‌نویسی و هوش مصنوعی",
+    icon: "Code2",
+    color: "from-blue-500 to-cyan-600",
   },
   {
     name: "نرم‌افزار",
@@ -44,7 +55,7 @@ export const CATEGORIES = [
     color: "from-amber-500 to-orange-600",
   },
   {
-    name: "گردشگری دیجیتال",
+    name: "فیلم، سریال و موسیقی",
     slug: "streaming",
     description: "اکانت پریمیوم سرویس‌های استریم و موسیقی",
     icon: "Play",
@@ -70,6 +81,13 @@ export const CATEGORIES = [
     description: "لایسنس نرم‌افزارهای طراحی و ادیت ویدیو",
     icon: "PenTool",
     color: "from-sky-500 to-cyan-600",
+  },
+  {
+    name: "شبکه‌های اجتماعی",
+    slug: "social",
+    description: "خدمات پریمیوم شبکه‌های اجتماعی",
+    icon: "Share2",
+    color: "from-indigo-500 to-blue-600",
   },
 ];
 
@@ -108,8 +126,8 @@ export const FAQS = [
 ];
 
 export const STATS = [
-  { value: "۵۰٬۰۰۰+", label: "مشتری راضی" },
-  { value: "۱٬۲۰۰+", label: "محصول فعال" },
+  { value: "۹۵۰+", label: "مشتری راضی" },
+  { value: "۱٬۲۰۰+", label: "لایسنس فعال" },
   { value: "۴.۹/۵", label: "امتیاز کاربران" },
   { value: "۲۴/۷", label: "پشتیبانی" },
 ];

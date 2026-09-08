@@ -51,7 +51,15 @@ export const metadata: Metadata = {
   },
   robots: { index: true, follow: true },
   alternates: { canonical: "/" },
+  verification: {
+    google: "google838a39fcd6d96c2f",
+    other: {
+      "google-site-verification": "google838a39fcd6d96c2f",
+    },
+  },
 };
+
+import { SocialProofToast } from "@/components/site/social-proof-toast";
 
 export const viewport = {
   themeColor: "#0a0f0d",
@@ -59,11 +67,55 @@ export const viewport = {
   initialScale: 1,
 };
 
+const orgSchema = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  name: SITE.name,
+  alternateName: SITE.nameEn,
+  url: SITE.url,
+  logo: `${SITE.url}/logo.svg`,
+  contactPoint: {
+    "@type": "ContactPoint",
+    telephone: "+98-76-44458791",
+    contactType: "customer support",
+    areaServed: "IR",
+    availableLanguage: ["Persian", "English"],
+  },
+  address: {
+    "@type": "PostalAddress",
+    addressLocality: "Kish Island",
+    streetAddress: SITE.address,
+    addressCountry: "IR",
+  },
+};
+
+const websiteSchema = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  name: SITE.name,
+  url: SITE.url,
+  potentialAction: {
+    "@type": "SearchAction",
+    target: `${SITE.url}/shop?search={search_term_string}`,
+    "query-input": "required name=search_term_string",
+  },
+};
+
 export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="fa" dir="rtl" suppressHydrationWarning>
+      <head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(orgSchema) }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }}
+        />
+      </head>
       <body
         className={`${vazir.variable} font-sans antialiased bg-background text-foreground min-h-screen flex flex-col`}
       >
@@ -73,6 +125,7 @@ export default function RootLayout({
           <SiteFooter />
           <AiAdvisor />
           <CartDrawer />
+          <SocialProofToast />
           <Toaster position="top-center" dir="rtl" richColors closeButton />
         </Providers>
       </body>

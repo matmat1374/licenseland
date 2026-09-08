@@ -424,13 +424,66 @@ export function isVpnProduct(text: string): boolean {
 }
 
 export async function fetchLiveUsdtRate(): Promise<number | null> {
+  try {
+    const res = await fetch("https://api.nobitex.ir/market/stats?srcCurrency=usdt&dstCurrency=rls", {
+      signal: AbortSignal.timeout(4000),
+      cache: "no-store",
+    });
+    if (res.ok) {
+      const data = await res.json();
+      const rls = Number(data?.stats?.["usdt-rls"]?.latest);
+      let rate = Math.round(rls / 10);
+      if (!rate || isNaN(rate) || rate < 100000 || rate > 500000 || rate === 95000) {
+        rate = 220000;
+      }
+      if (rate > 50000 && rate < 1000000) {
+        await db.setting.upsert({
+          where: { key: "usd_to_toman_rate_auto" },
+          create: { key: "usd_to_toman_rate_auto", value: String(rate) },
+          update: { value: String(rate) },
+        });
+        return rate;
+      }
+    }
+  } catch (e) {}
+
+  try {
+    const res = await fetch("https://api.wallex.ir/v1/markets", {
+      signal: AbortSignal.timeout(4000),
+      cache: "no-store",
+    });
+    if (res.ok) {
+      const data = await res.json();
+      let rate = Math.round(Number(data?.result?.symbols?.USDTTMN?.stats?.lastPrice));
+      if (!rate || isNaN(rate) || rate < 100000 || rate > 500000 || rate === 95000) {
+        rate = 220000;
+      }
+      if (rate > 50000 && rate < 1000000) {
+        await db.setting.upsert({
+          where: { key: "usd_to_toman_rate_auto" },
+          create: { key: "usd_to_toman_rate_auto", value: String(rate) },
+          update: { value: String(rate) },
+        });
+        return rate;
+      }
+    }
+  } catch (e) {}
+
   const s = await db.setting.findUnique({ where: { key: "usd_to_toman_rate_auto" } }).catch(() => null);
   return Number(s?.value) || null;
 }
 
 export async function getUsdToTomanRate(): Promise<number> {
-  const s = await db.setting.findUnique({ where: { key: "usd_to_toman_rate" } }).catch(() => null);
-  return Number(s?.value) || 60000;
+  try {
+    const { fetchLiveUsdtRate } = await import('./live-repricer');
+    const liveRate = await fetchLiveUsdtRate();
+    if (liveRate && liveRate > 40000) return liveRate;
+  } catch (e) {
+    console.error('Failed to get live rate:', e);
+  }
+  
+  const s = await db.setting.findUnique({ where: { key: 'usd_to_toman_rate' } }).catch(() => null);
+  return Number(s?.value) || 220000;
 }
 
 
@@ -452,11 +505,207 @@ function pickPriceUSD(p: SupplierProduct): number | null {
 }
 
 function pickTitle(p: SupplierProduct): string {
-  return (p.title || p.name || "").toString().trim();
+  let title = (p.title || p.name || "").toString().trim();
+  if (/^(Openai|ChatGPT|Claude|Telegram|WhatsApp|Google|Apple|Discord)\s*—/i.test(title) && !title.includes("شماره مجازی")) {
+    title = `شماره مجازی وریفای ${title} (دریافت پیامک)`;
+  }
+  return title;
 }
 
 function pickDescription(p: SupplierProduct): string {
   return (p.description || p.shortDesc || p.short_description || p.desc || "").toString();
+}
+
+export function localizeProduct(name: string, category: string, sp?: any): { title: string; shortDesc: string; description: string } {
+  let shortDesc = name.trim();
+  if (sp && (sp.name || sp.title)) {
+    shortDesc = (sp.name || sp.title).toString().trim();
+  }
+  const originalUpper = shortDesc.toUpperCase();
+  let t = name.trim(); // use 'name' (which may be fa-translated) for parsing title
+
+  // 1. SMM Services
+  if (sp && sp.category === 'سرویس های SMM') {
+    const finalTitle = name.trim();
+    return {
+      title: finalTitle,
+      shortDesc,
+      description: `## ${finalTitle}\n\nمحصول اوریجینال با تحویل آنی و پشتیبانی ۲۴ ساعته.\n\n### مشخصات\n- **نام اصلی و فنی:** ${shortDesc}\n- ضمانت اصالت و سلامت\n- خرید امن و مطمئن\n- تحویل فوری پس از پرداخت\n- پشتیبانی فعال\n`
+    };
+  }
+
+  const isAi = category === "ai" || category === "هوش مصنوعی";
+
+  // Helpers for normalizing english parts
+  const normalizePersianNumbers = (str: string) => {
+    return str.replace(/0/g, '۰').replace(/1/g, '۱').replace(/2/g, '۲').replace(/3/g, '۳')
+              .replace(/4/g, '۴').replace(/5/g, '۵').replace(/6/g, '۶').replace(/7/g, '۷')
+              .replace(/8/g, '۸').replace(/9/g, '۹');
+  };
+
+  // C) Old / Created / Free Accounts
+  if (t.toLowerCase().includes("old claude free account") || t.toLowerCase().includes("created more than")) {
+    const title = "اکانت آماده و قدیمی کلود رایگان (Claude Free - فعال و تست‌شده)";
+    return { title, shortDesc, description: `## ${title}\n\nاکانت از قبل ساخته شده و آماده استفاده بدون نیاز به شماره مجازی.\n\n### مشخصات\n- **نام اصلی و فنی:** ${shortDesc}\n- تحویل فوری\n- بدون قطعی و با ضمانت\n` };
+  }
+
+  // A) Virtual Numbers
+  const isVirtualNumber = /^(Openai|ChatGPT|Claude|Telegram|WhatsApp|Google|Apple|Discord)\s*—/i.test(t) || t.includes("شماره مجازی") || t.includes("شماره") || category === "virtual-numbers";
+  if (isVirtualNumber) {
+    let brand = "OpenAI";
+    let country = "";
+    const match = t.match(/^(Openai|ChatGPT|Claude|Telegram|WhatsApp|Google|Apple|Discord)\s*—\s*(.*)$/i);
+    if (match) {
+      brand = match[1];
+      country = match[2].trim();
+    } else {
+      const matchBrand = t.match(/(Openai|ChatGPT|Claude|Telegram|WhatsApp|Google|Apple|Discord)/i);
+      brand = matchBrand ? matchBrand[1] : (t.toLowerCase().includes("chatgpt") ? "ChatGPT" : "OpenAI");
+      country = t.replace(/(Openai|ChatGPT|Claude|Telegram|WhatsApp|Google|Apple|Discord|شماره مجازی وریفای|شماره مجازی|شماره|دریافت پیامک|\(|\)|—|-)/ig, "").trim();
+    }
+    
+    // Convert brand to Persian if needed
+    let brandFa = brand;
+    if (brand.toLowerCase() === "openai" || brand.toLowerCase() === "chatgpt") brandFa = "چت‌جی‌پی‌تی OpenAI";
+    else if (brand.toLowerCase() === "claude") brandFa = "کلود Claude";
+    else if (brand.toLowerCase() === "apple") brandFa = "اپل Apple";
+    else if (brand.toLowerCase() === "telegram") brandFa = "تلگرام Telegram";
+    
+    const title = `شماره مجازی فعالسازی ${brandFa} (${country})`;
+    const description = `> ⚠️ **توجه مهم — این محصول شماره مجازی است، نه اکانت یا اشتراک:**\n> این سرویس صرفاً یک **شماره تلفن موقت** جهت دریافت پیامک کد تایید (SMS OTP) برای ساخت یا فعالسازی حساب کاربری در ${brand} است و شامل اکانت ساخته‌شده یا اشتراک ماهانه نیست.\n\n## ${title}\n\nشماره مجازی معتبر جهت وریفای سرویس.\n\n### مشخصات\n- **نام اصلی و فنی:** ${shortDesc}\n- دریافت آنی پیامک\n- اختصاصی و امن\n- گارانتی فعال‌سازی\n`;
+    
+    return { title, shortDesc, description };
+  }
+
+  // B) Redeem Codes / Credits
+  const isRedeem = /\b(redeem|cre|credit|credits|token|tokens)\b/i.test(t);
+  if (isRedeem) {
+    let brand = t.replace(/\b(redeem|cre|credit|credits|token|tokens|full warranty|warranty|days?)\b/ig, "")
+                 .replace(/[\d\.]+[KkMm]/g, "").replace(/[-—\|]/g, "").trim();
+    brand = brand.replace(/\s+/g, " ");
+    
+    // Extract credit amount
+    let amountStr = "";
+    let cleanAmountStr = "";
+    // Match something like "3M", "8.5K", "1k2"
+    const amountMatch = t.match(/([\d\.]+)([kK]2|[kKmMsS]?)\s*(cre|credit|credits|token|tokens)?/i);
+    if (amountMatch) {
+      let num = amountMatch[1];
+      let suffix = amountMatch[2].toUpperCase();
+      if (suffix === "K2") cleanAmountStr = num + ".2 هزار";
+      else if (suffix === "K") cleanAmountStr = num + " هزار";
+      else if (suffix === "M") cleanAmountStr = num + " میلیون";
+      else cleanAmountStr = num;
+      
+      cleanAmountStr += t.toLowerCase().includes("token") ? " توکن" : " کردیت";
+      amountStr = normalizePersianNumbers(cleanAmountStr);
+      
+      // Remove the matched amount from brand if it wasn't stripped
+      brand = brand.replace(new RegExp(amountMatch[0], "i"), "").trim();
+    }
+    
+    // Extract warranty
+    let warranty = "با گارانتی";
+    const warrantyMatch = t.match(/(\d+)\s*days\s*warranty/i);
+    if (warrantyMatch) {
+      warranty = `گارانتی ${normalizePersianNumbers(warrantyMatch[1])} روزه`;
+    } else if (/\b1\s*month\s*warranty\b/i.test(t)) {
+      warranty = "گارانتی ۱ ماهه";
+    }
+
+    brand = brand.replace(/\bcode\b/ig, "").replace(/\s+/g, " ").trim();
+    const prefix = isAi ? "ردیم کد هوش مصنوعی" : "ردیم کد";
+    const title = `${prefix} ${brand} (${amountStr} - ${warranty})`;
+    
+    return { 
+      title, 
+      shortDesc, 
+      description: `## ${title}\n\nکد شارژ و ردیم اوریجینال با تحویل آنی.\n\n### مشخصات\n- **نام اصلی و فنی:** ${shortDesc}\n- ضمانت اصالت و سلامت\n- خرید امن و مطمئن\n- تحویل فوری پس از پرداخت\n- پشتیبانی فعال\n` 
+    };
+  }
+
+  // D) Subscriptions
+  
+  let duration = "";
+  if (/\b1\s*month\b/i.test(t)) duration = "۱ ماهه";
+  else if (/\b3\s*months?\b/i.test(t)) duration = "۳ ماهه";
+  else if (/\b6\s*months?\b/i.test(t)) duration = "۶ ماهه";
+  else if (/\b12\s*months?|1\s*year\b/i.test(t)) duration = "۱ ساله";
+
+  let planDetails = [];
+  if (/\b(slot|private)\b/i.test(t)) planDetails.push("اختصاصی");
+  if (/\b(shared)\b/i.test(t)) planDetails.push("اشتراکی");
+  
+  const profileMatch = t.match(/\b(\d+)\s*profile\b/i);
+  if (profileMatch) planDetails.push(normalizePersianNumbers(profileMatch[1]) + " پروفایل");
+  
+  if (duration) planDetails.push(duration);
+  const detailsStr = planDetails.length > 0 ? planDetails.join(" ") : "";
+
+  // Extract brand / plan name
+  let brand = t.replace(/\b\d+\s*months?\b/ig, "")
+               .replace(/\b1\s*year\b/ig, "")
+               .replace(/\b\d+\s*profile\b/ig, "")
+               .replace(/\b\d+\s*days?\b/ig, "")
+               .replace(/\b\d+\s*H\b/ig, "")
+               .replace(/\b(slot|private|shared|warranty|full warranty|days)\b/ig, "")
+               .replace(/[-—\|]/g, "")
+               .trim();
+  brand = brand.replace(/\s+/g, " ");
+
+  // Identify Categories and Custom Brand Names
+  let brandFa = "";
+  let brandEn = brand;
+  let prefix = "";
+
+  if (category === "ai" || category === "هوش مصنوعی") {
+      prefix = "اشتراک هوش مصنوعی";
+  } else if (category === "streaming" || category === "فیلم و موسیقی") {
+      prefix = "اشتراک پریمیوم";
+  } else if (category === "gaming" || category === "بازی و سرگرمی") {
+      prefix = "اشتراک بازی";
+  } else {
+      prefix = "اشتراک";
+  }
+
+  if (brand.toLowerCase().includes("netflix")) {
+    if (brand.toLowerCase().includes("admin")) {
+        prefix = "اشتراک پنل ادمین نتفلیکس";
+        brandEn = brand.replace(/\badmin\b/ig, "").trim();
+    } else {
+        prefix = "اشتراک نتفلیکس";
+    }
+  } else if (brand.toLowerCase().includes("youtube premium")) {
+    prefix = "اشتراک یوتیوب پریمیوم";
+  } else if (brand.toLowerCase().includes("chatgpt plus")) {
+    brandFa = "چت‌جی‌پی‌تی پلاس";
+  } else if (brand.toLowerCase().includes("midjourney")) {
+    brandFa = "میدجرنی";
+    if (brand.toLowerCase().includes("standard")) brandFa += " استاندارد";
+    else if (brand.toLowerCase().includes("pro")) brandFa += " پرو";
+    else if (brand.toLowerCase().includes("mega")) brandFa += " مگا";
+    brandEn = "Midjourney";
+  } else if (brand.toLowerCase().includes("capcut pro")) {
+    brandFa = "کپ‌کات پرو";
+  }
+  
+  brandEn = brandEn.replace(/\s+/g, " ").trim();
+  
+  if (brandEn.startsWith("اشتراک ") || brandEn.startsWith("اشتراک رسمی ")) {
+    prefix = "";
+  }
+  
+  let title = prefix ? `${prefix} ${brandFa ? brandFa + " " : ""}${brandEn}` : `${brandFa ? brandFa + " " : ""}${brandEn}`;
+  
+  if (detailsStr) {
+    title += ` (${detailsStr})`;
+  }
+  
+  title = title.replace(/\s+/g, " ").trim();
+
+  const description = `## ${title}\n\nمحصول اوریجینال با تحویل آنی و پشتیبانی ۲۴ ساعته.\n\n### مشخصات\n- **نام اصلی و فنی:** ${shortDesc}\n- ضمانت اصالت و سلامت\n- خرید امن و مطمئن\n- تحویل فوری پس از پرداخت\n- پشتیبانی فعال\n`;
+
+  return { title, shortDesc, description };
 }
 
 function slugifyFa(s: string): string {
@@ -469,28 +718,84 @@ function slugifyFa(s: string): string {
     .slice(0, 80);
 }
 
+const CATEGORIES_META: Record<string, string> = {
+  gaming: "بازی و سرگرمی",
+  streaming: "فیلم، سریال و موسیقی",
+  ai: "هوش مصنوعی",
+  design: "طراحی و ویرایش",
+  security: "امنیت و آنتی‌ویروس",
+  software: "نرم‌افزار و توسعه",
+  education: "آموزش",
+  social: "شبکه‌های اجتماعی",
+  "virtual-numbers": "شماره مجازی و وریفای",
+  "api-credits": "توکن و کردیت API"
+};
+
 // Categorize products based on name/brand
-function categorizeProduct(p: SupplierProduct): { slug: string; name: string } {
-  const title = pickTitle(p).toLowerCase();
-  const cat = (p.category || "").toString().toLowerCase();
-  if (cat) return { slug: cat, name: cat };
-  if (/chatgpt|claude|gemini|midjourney|perplexity|copilot|ai |gpt|dall-e|leonardo|grammarly/.test(title))
-    return { slug: "ai", name: "هوش مصنوعی" };
-  if (/spotify|netflix|youtube|disney|apple\s*music|soundcloud/.test(title))
-    return { slug: "streaming", name: "استریم و موسیقی" };
-  if (/vpn|nord|express|surfshark|kaspersky|malware|antivirus|security/.test(title))
-    return { slug: "security", name: "امنیت" };
-  if (/steam|playstation|xbox|game/.test(title))
-    return { slug: "gaming", name: "بازی" };
-  if (/capcut|adobe|photoshop|premiere|canva|filmora|camtasia|figma|design/.test(title))
-    return { slug: "design", name: "طراحی و ویرایش" };
-  return { slug: "software", name: "نرم‌افزار" };
+export function categorizeProduct(p: SupplierProduct): { slug: string; name: string } {
+  const name = pickTitle(p);
+  const n = (name || "").toLowerCase();
+  
+  const priceUsd = pickPriceUSD(p) || 0;
+  const spCat = (p.category || "").toLowerCase().trim();
+
+  let slug = "";
+
+  // 1. MUST BE FIRST: Virtual Numbers Check
+  const hasCountryRegex = /germany|us|usa|france|uk|england|netherlands|russia|afghanistan|india|indonesia|brazil|turkey|malaysia|vietnam|philippines|thailand|mexico|canada|argentina|colombia|nigeria|egypt|south africa|pakistan|bangladesh|china|japan|korea|australia|spain|italy|poland|ukraine|romania|kazakhstan|uzbekistan|morocco|algeria/i;
+  const hasDashOrEmoji = /—|-|[\uD83C][\uDDE6-\uDDFF]|\p{Emoji}/u.test(name);
+  
+  if (spCat === "otp numbers") {
+    slug = "virtual-numbers";
+  } else if (hasDashOrEmoji && hasCountryRegex.test(name)) {
+    slug = "virtual-numbers";
+  } else if (priceUsd > 0 && priceUsd < 0.5 && hasCountryRegex.test(name)) {
+    slug = "virtual-numbers";
+  } else if (n.includes("شماره مجازی") || /virtual number|otp|phone number/i.test(n)) {
+    slug = "virtual-numbers";
+  }
+
+  // 2. Supplier category mapping
+  if (!slug) {
+    if (spCat === "apis & dev tools") slug = "api-credits";
+    else if (spCat === "ai chatbots" || spCat === "ai video & image") slug = "ai";
+    else if (spCat === "accounts & ai video") {
+      if (/xbox|ایکس.?باکس|game.?pass|گیم.?پس|playstation|پلی.?استیشن|ps4|ps5|nintendo|steam/i.test(n)) slug = "gaming";
+      else if (/gmail|outlook|hotmail|yahoo.?mail|microsoft.?account|اوت.?لوک|هات.?میل/i.test(n)) slug = "software";
+      else if (/tiktok|تیک.?تاک|twitter|توییتر|instagram|اینستاگرام|facebook|فیسبوک|linkedin|لینکدین|discord|دیسکورد/i.test(n)) slug = "social";
+      else if (/netflix|نتفلیکس|spotify|اسپاتیفای|youtube|یوتیوب|prime.?video|پرایم|disney|دیزنی|apple.?tv/i.test(n)) slug = "streaming";
+      else slug = "ai"; 
+    }
+    else if (spCat === "design tools") slug = "design";
+    else if (spCat === "premium") {
+      slug = /spotify|netflix|deezer|tidal|apple.?music|youtube.?music/i.test(n) ? "streaming" : "software";
+    }
+    else if (spCat === "nitro" || spCat === "psn (us)" || spCat === "play - us" || spCat === "uc (global)" || spCat === "cp (in)") slug = "gaming";
+    else if (spCat === "itunes - us" || spCat === "productivity") slug = "software";
+    else if (spCat === "followers" || spCat === "stars") slug = "social";
+  }
+
+  // 3. Fallback regex
+  if (!slug) {
+    if (/\b(redeem|credit|token|key|توکن|کردیت)\b/i.test(n)) slug = "api-credits";
+    else if (/xbox|ایکس باکس|playstation|پلی استیشن|ps4|ps5|psn|nintendo|نینتندو|steam|استیم|epic games|اپیک گیمز|origin|uplay|ea play|game pass|گیم پس|gta|minecraft|ماینکرافت|fortnite|فورتنایت|pubg|پابجی|valorant|ولورانت|battlenet|blizzard|بلیزارد|nitro|uc|cp|گیم|بازی/.test(n)) slug = "gaming";
+    else if (/netflix|نتفلیکس|spotify|اسپاتیفای|youtube|یوتیوب|apple music|youtube music|apple tv|اپل تی وی|disney|دیزنی|hbo|paramount|پارامونت|deezer|دیزر|tidal|تایدال|crunchyroll|کرانچی رول|prime video|پرایم ویدیو|twitch|توییچ|فیلم|سینما|موسیقی|sound cloud|soundcloud|ساندکلاد/.test(n)) slug = "streaming";
+    else if (/api|codex|deepseek|qwen|token|credit|ردیم|توکن|کردیت/.test(n)) slug = "api-credits";
+    else if (/chatgpt|چت جی پی تی|چتجیپیتی|claude|کلاود|کلود|gemini|جمینی|midjourney|میدجرنی|openai|اوپن ای آی|anthropic|آنتروپیک|copilot|کوپایلوت|grok|گروک|perplexity|پرپلکسیتی|cursor|کورسور|windsurf|ویندسرف|runway|رانوی|suno|سونو|udio|یودیو|elevenlabs|الون لبز|pika|پیکا|dall|دال ای|kling|کلینگ|leonardo|لئوناردو|heygen|هی جن|هیجن|higgsfield|هیگزفیلد|veo|ویو|گوگل ویو|genspark|جن اسپارک|lovable|لاویبل|openart|اوپن آرت|pixverse|پیکس ورس|seedance|سیدنس|akool|آکول|beeble|بیبل|sora|سورا|gamma|gamma app|هوش مصنوعی/.test(n)) slug = "ai";
+    else if (/telegram|تلگرام|discord|دیسکورد|twitter|توییتر|x premium|linkedin|لینکدین|instagram|اینستاگرام|facebook|فیسبوک|tiktok|تیک تاک|تیک آبی/.test(n)) slug = "social";
+    else if (/capcut|corel|canva|کنوا|کانوا|adobe|ادوبی|figma|فیگما|sketch|اسکچ|invision|notion|نوشن|framer|فریمر|miro|میرو|creativecloud|lightroom|لایت روم|photoshop|فتوشاپ|illustrator|ایلوستریتور|premiere|پریمیر|after effects|افتر افکت|envato|انواتو|freepik|فری پیک/.test(n)) slug = "design";
+    else if (/vpn|وی پی ان|فیلترشکن|nordvpn|نورد|expressvpn|اکسپرس|surfshark|سرف شارک|cyberghost|proton|پروتون|malwarebytes|bitdefender|بیت دیفندر|kaspersky|کسپراسکای|کسپرسکی|norton|نورتون|antivirus|آنتی ویروس|1password|وان پسورد|lastpass|bitwarden|بیت واردن/.test(n)) slug = "security";
+    else if (/coursera|کورسرا|udemy|یودمی|linkedin learning|masterclass|مسترکلاس|skillshare|اسکیل شیر|duolingo|دولینگو|memrise|ممرایز|babbel|بابل|rosetta|رزتا/.test(n)) slug = "education";
+    else slug = "software";
+  }
+
+  return { slug, name: CATEGORIES_META[slug] || slug };
 }
 
 export async function importProductsFromSupplier(
   apiUrl?: string,
   apiKey?: string,
-  markupPercent = 200
+  markupPercent = 20
 ): Promise<{ ok: boolean; imported: number; updated: number; skipped: number; message: string; details: string[] }> {
   // irMarket default: if no URL, use irMarket products endpoint.
   // SUPPLIER_API_URL may be a bare host ("https://api.irmarket.store") — the
@@ -499,7 +804,7 @@ export async function importProductsFromSupplier(
   let url = apiUrl || process.env.SUPPLIER_API_URL || "https://api.irmarket.store";
   if (!/\/api(\/|$)/.test(url)) url = url.replace(/\/+$/, "") + "/api/buyer/products";
 
-  const markup = markupPercent > 0 ? markupPercent : Number(process.env.SUPPLIER_MARKUP_PERCENT) || 200;
+  const markup = markupPercent > 0 ? markupPercent : Number(process.env.SUPPLIER_MARKUP_PERCENT) || 20;
   const usdRate = await getUsdToTomanRate();
 
   let products: SupplierProduct[] = [];
@@ -537,6 +842,10 @@ export async function importProductsFromSupplier(
     const title = pickTitle(sp);
     const priceUSD = pickPriceUSD(sp);
     if (!title || !priceUSD || priceUSD <= 0) {
+      skipped++;
+      continue;
+    }
+    if (isVpnProduct(title) || (sp.description && isVpnProduct(sp.description))) {
       skipped++;
       continue;
     }
@@ -603,14 +912,18 @@ export async function importProductsFromSupplier(
     const features: string[] = Array.isArray(sp.features) ? sp.features : (sp.features ? String(sp.features).split("\n").filter(Boolean) : []);
     // Build features from irMarket fields
     if (features.length === 0) {
-      if (sp.retail_usd && sp.price_usd) features.push(`قیمت عمومی: $${sp.retail_usd}`);
       if (sp.discount_percent) features.push(`تخفیف ویژه: ${sp.discount_percent}٪`);
       if (sp.duration_days) features.push(`مدت: ${sp.duration_days} روز`);
-      if (sp.in_stock !== undefined) features.push(`موجود: ${sp.in_stock} عدد`);
+      features.push("تحویل فوری و آنی پس از پرداخت");
+      features.push("گارانتی ۱۰۰٪ فعالسازی و تضمین اصالت");
+      features.push("پشتیبانی ۲۴ ساعته");
     }
-    const description = pickDescription(sp) || `## ${title}\n\nمحصول اوریجینال با تحویل آنی.\n\n### مشخصات\n- قیمت پایه: $${priceUSD}\n- نرخ تبدیل: ${usdRate.toLocaleString("fa-IR")} تومان به ازای هر دلار\n- حاشیه: ${markup}٪`;
-
     const { slug: catSlug, name: catName } = categorizeProduct(sp);
+    const loc = localizeProduct((sp.title || sp.name || title).toString().trim(), catSlug, sp);
+    const finalTitle = loc.title;
+    const shortDesc = loc.shortDesc;
+    const finalDescription = loc.description || pickDescription(sp) || `## ${finalTitle}\n\nمحصول اوریجینال با تحویل آنی و پشتیبانی ۲۴ ساعته.`;
+
     const brand = sp.brand ? String(sp.brand) : null;
     const duration = sp.duration ? String(sp.duration) : (sp.duration_days ? `${sp.duration_days} روز` : null);
     const tags = sp.tags ? String(sp.tags) : (sp.requires_email ? "requires_email" : null);
@@ -630,18 +943,20 @@ export async function importProductsFromSupplier(
       await db.product.update({
         where: { id: existing.id },
         data: {
-          title,
-          shortDesc: sp.shortDesc ? String(sp.shortDesc) : existing.shortDesc,
-          description,
+          title: finalTitle,
+          shortDesc: shortDesc,
+          description: finalDescription,
           features: JSON.stringify(features),
           price: sellPriceToman,
           duration: duration || existing.duration,
           brand,
           tags,
           image: sp.image || sp.imageUrl || sp.images?.[0] || existing.image,
-            isActive: !isVpnProduct(title),
+          isActive: !isVpnProduct(title),
+          stock: stock,
+          lastSyncedAt: new Date(),
           // store supplier product id in specifications for purchasing
-          specifications: JSON.stringify({ supplier_product_id: sp.id, price_usd: priceUSD, pricing_unit: sp.pricing_unit, requires_email: sp.requires_email, requires_link: sp.requires_link }),
+          specifications: JSON.stringify({ supplier_product_id: sp.id, price_usd: priceUSD, pricing_unit: sp.pricing_unit, requires_email: sp.requires_email, requires_link: sp.requires_link, supplier_name: shortDesc, markup_percent: markup }),
           fulfillmentMode: "AUTO",
         },
       });
@@ -650,9 +965,9 @@ export async function importProductsFromSupplier(
     } else {
       await db.product.create({
         data: {
-          title, slug,
-          shortDesc: sp.shortDesc ? String(sp.shortDesc) : title,
-          description,
+          title: finalTitle, slug,
+          shortDesc: shortDesc,
+          description: finalDescription,
           features: JSON.stringify(features),
           price: sellPriceToman,
           duration,
@@ -662,7 +977,7 @@ export async function importProductsFromSupplier(
             isActive: !isVpnProduct(title),
           stock: 0, // we don't pre-stock; purchase on-demand
           rating: 5, reviewCount: 0, salesCount: 0,
-          specifications: JSON.stringify({ supplier_product_id: sp.id, price_usd: priceUSD, pricing_unit: sp.pricing_unit, requires_email: sp.requires_email, requires_link: sp.requires_link }),
+          specifications: JSON.stringify({ supplier_product_id: sp.id, price_usd: priceUSD, pricing_unit: sp.pricing_unit, requires_email: sp.requires_email, requires_link: sp.requires_link, supplier_name: shortDesc, markup_percent: markup }),
           fulfillmentMode: "AUTO",
         },
       });

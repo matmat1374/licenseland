@@ -58,7 +58,10 @@ export default async function ShopPage({
           )}
         </div>
 
-        <ProductFilters totalCount={products.length} />
+        <ProductFilters 
+          totalCount={products.length} 
+          categories={categories.sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0)).map(c => ({ name: c.name, slug: c.slug }))}
+        />
       </div>
 
       {/* products */}

@@ -65,10 +65,10 @@ export function SearchDialog({ children }: { children?: React.ReactNode }) {
         {children || (
           <button
             aria-label="جستجو"
-            className="flex h-10 items-center gap-2 rounded-full border border-border bg-background/60 px-4 text-sm text-muted-foreground transition-colors hover:border-primary/50 hover:text-foreground md:w-64"
+            className="flex h-10 w-full items-center gap-2 rounded-xl border border-border/70 bg-muted/30 px-3.5 text-sm text-muted-foreground transition-all hover:border-primary/50 hover:bg-muted/60 hover:text-foreground"
           >
-            <Search className="h-4 w-4" />
-            <span className="hidden md:inline">جستجوی محصول...</span>
+            <Search className="h-4 w-4 shrink-0 text-muted-foreground" />
+            <span className="truncate text-xs sm:text-sm">جستجوی محصول، برند یا دسته...</span>
           </button>
         )}
       </DialogTrigger>
@@ -100,12 +100,24 @@ export function SearchDialog({ children }: { children?: React.ReactNode }) {
           )}
           {!loading && q && results.length === 0 && (
             <div className="py-10 text-center text-sm text-muted-foreground">
-              نتیجه‌ای یافت نشد. عبارت دیگری امتحان کنید.
+              هیچ محصولی یافت نشد. می‌توانید از این پیشنهادها دیدن کنید:
+              <div className="mt-4 flex flex-wrap justify-center gap-2">
+                <Link href="/shop?search=gemini" onClick={() => setOpen(false)} className="rounded-full bg-accent px-3 py-1 text-xs hover:bg-accent/80">Gemini</Link>
+                <Link href="/shop?search=chatgpt" onClick={() => setOpen(false)} className="rounded-full bg-accent px-3 py-1 text-xs hover:bg-accent/80">ChatGPT</Link>
+                <Link href="/shop?search=midjourney" onClick={() => setOpen(false)} className="rounded-full bg-accent px-3 py-1 text-xs hover:bg-accent/80">Midjourney</Link>
+                <Link href="/shop?search=adobe" onClick={() => setOpen(false)} className="rounded-full bg-accent px-3 py-1 text-xs hover:bg-accent/80">Adobe</Link>
+              </div>
             </div>
           )}
           {!loading && !q && (
-            <div className="py-6 text-center text-sm text-muted-foreground">
-              برای جستجوی سریع محصولات، چیزی تایپ کنید.
+            <div className="py-6 text-center text-sm text-muted-foreground flex flex-col gap-3">
+              <span>برای جستجوی سریع محصولات، چیزی تایپ کنید.</span>
+              <div className="flex flex-wrap justify-center gap-2">
+                <button onClick={() => setQ('gemini')} className="rounded-full bg-accent px-3 py-1 text-xs hover:bg-accent/80">Gemini</button>
+                <button onClick={() => setQ('chatgpt')} className="rounded-full bg-accent px-3 py-1 text-xs hover:bg-accent/80">ChatGPT</button>
+                <button onClick={() => setQ('midjourney')} className="rounded-full bg-accent px-3 py-1 text-xs hover:bg-accent/80">Midjourney</button>
+                <button onClick={() => setQ('spotify')} className="rounded-full bg-accent px-3 py-1 text-xs hover:bg-accent/80">Spotify</button>
+              </div>
             </div>
           )}
           {results.map((p) => (

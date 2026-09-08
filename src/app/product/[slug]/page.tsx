@@ -20,7 +20,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Badge } from "@/components/ui/badge";
-import { Star, Check, ChevronLeft, TrendingUp } from "lucide-react";
+import { Star, Check, ChevronLeft, TrendingUp, AlertTriangle } from "lucide-react";
 import { ProductReviews } from "@/components/site/product-reviews";
 import { toFa } from "@/lib/date";
 import { SITE, FAQS } from "@/lib/constants";
@@ -33,7 +33,8 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const product = await getProductBySlug(slug);
+  const decodedSlug = decodeURIComponent(slug).trim();
+  const product = await getProductBySlug(decodedSlug);
   if (!product) return { title: "محصول یافت نشد" };
 
   const price = product.discountPrice ?? product.price;
@@ -49,7 +50,7 @@ export async function generateMetadata({
       : { index: true, follow: true },
     openGraph: {
       title: product.title,
-      description: `${product.shortDesc} — قیمت: ${toFa(price.toLocaleString("en-US"))} تومان`,
+      description: `${product.shortDesc} — قیمت: ${toFa((price || 0).toLocaleString("en-US"))} تومان`,
       type: "website",
       url: canonical,
     },
@@ -67,8 +68,9 @@ export default async function ProductPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const product = await getProductBySlug(slug);
-  if (!product || !product.isActive) notFound();
+  const decodedSlug = decodeURIComponent(slug).trim();
+  const product = await getProductBySlug(decodedSlug);
+  if (!product) notFound();
 
   const [related, categories] = await Promise.all([
     getRelatedProducts(product.category, product.slug, 4),
@@ -77,7 +79,8 @@ export default async function ProductPage({
 
   const features: string[] = (() => {
     try {
-      return JSON.parse(product.features || "[]");
+      const parsed: any[] = JSON.parse(product.features || "[]");
+      return parsed.filter((f): f is string => typeof f === "string" && !f.includes("$") && !f.includes("قیمت عمومی") && !f.includes("موجود:") && !f.includes("true") && !f.includes("false"));
     } catch {
       return [];
     }
@@ -137,7 +140,7 @@ export default async function ProductPage({
     url: canonical,
     offers: {
       "@type": "Offer",
-      price: finalPrice,
+      price: finalPrice || 0,
       priceCurrency: "IRT",
       priceValidUntil: new Date(
         Date.now() + 30 * 24 * 60 * 60 * 1000
@@ -194,6 +197,13 @@ export default async function ProductPage({
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
+
+      {!product.isActive && (
+        <div className="mb-6 rounded-lg border border-yellow-200 bg-yellow-50 p-4 text-yellow-800 flex items-center gap-3">
+          <AlertTriangle className="h-5 w-5 text-yellow-600" />
+          <p className="text-sm font-medium">این محصول در حال حاضر غیرفعال است و امکان ثبت سفارش وجود ندارد.</p>
+        </div>
+      )}
 
       <div className="grid gap-8 lg:grid-cols-2">
         {/* cover + info */}
@@ -280,7 +290,7 @@ export default async function ProductPage({
         <div className="lg:col-span-2">
           <h2 className="mb-4 text-xl font-black">توضیحات محصول</h2>
           <div className="prose-fa max-w-none rounded-2xl border bg-card p-6 text-sm leading-8">
-            <ReactMarkdown>{product.description}</ReactMarkdown>
+            <ReactMarkdown>{product.description || ""}</ReactMarkdown>
           </div>
         </div>
 

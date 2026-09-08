@@ -73,11 +73,18 @@ export async function getProducts(opts?: {
   if (featured) where.featured = true;
   if (bestseller) where.bestseller = true;
   if (search) {
+    const s = search.trim();
+    const normalized = s.replace(/ي/g, "ی").replace(/ك/g, "ک");
+    
     where.OR = [
-      { title: { contains: search } },
-      { shortDesc: { contains: search } },
-      { tags: { contains: search } },
-      { brand: { contains: search } },
+      { title: { contains: s } },
+      { title: { contains: normalized } },
+      { slug: { contains: s } },
+      { slug: { contains: normalized } },
+      { shortDesc: { contains: s } },
+      { shortDesc: { contains: normalized } },
+      { tags: { contains: s } },
+      { brand: { contains: s } },
     ];
   }
 
@@ -86,11 +93,21 @@ export async function getProducts(opts?: {
   else if (sort === "price-desc") orderBy = { price: "desc" };
   else if (sort === "popular") orderBy = { salesCount: "desc" };
 
-  const products = await db.product.findMany({
-    where,
+  const inStockProducts = await db.product.findMany({
+    where: { ...where, stock: { gt: 0 } },
     orderBy,
     take: limit,
   });
+
+  const remainingLimit = limit ? limit - inStockProducts.length : undefined;
+
+  const outOfStockProducts = (remainingLimit === undefined || remainingLimit > 0) ? await db.product.findMany({
+    where: { ...where, stock: { lte: 0 } },
+    orderBy,
+    take: remainingLimit,
+  }) : [];
+
+  const products = [...inStockProducts, ...outOfStockProducts];
 
   let list = products.map(decorate);
 
@@ -110,26 +127,55 @@ export async function getProducts(opts?: {
   }
 
   if (sort === "discount") {
-    list = list.sort((a, b) => b._discountPercent - a._discountPercent);
+    list = list.sort((a, b) => {
+      const stockDiff = (b._stock > 0 ? 1 : 0) - (a._stock > 0 ? 1 : 0);
+      if (stockDiff !== 0) return stockDiff;
+      return b._discountPercent - a._discountPercent;
+    });
   }
 
   return list;
 }
 
 export async function getProductBySlug(slug: string) {
-  const product = await db.product.findUnique({
-    where: { slug },
-    include: {
-      reviews: {
-        where: { approved: true },
-        orderBy: { createdAt: "desc" },
-        take: 20,
+  try {
+    const raw = (slug || "").trim();
+    const decoded = decodeURIComponent(raw).trim();
+    const normalized = decoded.replace(/ي/g, "ی").replace(/ك/g, "ک");
+
+    const orConditions: any[] = [
+      { slug: decoded },
+      { slug: raw },
+      { slug: normalized },
+      { id: decoded },
+    ];
+
+    const match = normalized.match(/^(\d+)/);
+    if (match) {
+      const prefix = match[1];
+      orConditions.push(
+        { slug: { startsWith: `${prefix}-` } },
+        { slug: { startsWith: prefix } },
+        { id: prefix }
+      );
+    }
+
+    const product = await db.product.findFirst({
+      where: {
+        OR: orConditions,
       },
-      categoryRel: true,
-    },
-  });
-  if (!product) return null;
-  return decorate(product);
+      include: {
+        reviews: { orderBy: { createdAt: "desc" } },
+        categoryRel: true,
+      },
+    });
+
+    if (!product) return null;
+    return decorate(product);
+  } catch (err) {
+    console.error("getProductBySlug error:", err);
+    return null;
+  }
 }
 
 export async function getRelatedProducts(category: string, excludeSlug: string, limit = 4) {
@@ -141,7 +187,7 @@ export async function getRelatedProducts(category: string, excludeSlug: string, 
   return products.slice(0, limit).map(decorate);
 }
 
-export async function getBannerProducts(identifiers: string[], fallbackCategory?: string, limit: number = 3): Promise<ProductListItem[]> {
+export async function getBannerProducts(identifiers: string[], fallbackCategory?: string | string[], limit: number = 3): Promise<ProductListItem[]> {
   const idsOrSlugs = identifiers.map(i => i.trim()).filter(Boolean);
   let products: ProductListItem[] = [];
   
@@ -153,30 +199,64 @@ export async function getBannerProducts(identifiers: string[], fallbackCategory?
           { slug: { in: idsOrSlugs } }
         ],
         isActive: true,
-      }
+        stock: { gt: 0 }
+      },
+      orderBy: [
+        { salesCount: "desc" },
+        { stock: "desc" }
+      ]
     });
     products = fetched.map(decorate);
   }
 
   if (products.length < limit) {
-    const remaining = limit - products.length;
     const existingIds = products.map(p => p.id);
-    
-    const fallbackWhere: any = { isActive: true };
-    if (existingIds.length > 0) {
-      fallbackWhere.id = { notIn: existingIds };
+    const cats = Array.isArray(fallbackCategory) 
+      ? fallbackCategory 
+      : (fallbackCategory && fallbackCategory !== 'all' ? [fallbackCategory] : []);
+
+    // Expand category aliases (e.g. developer -> software, design)
+    const expandedCats: string[] = [];
+    for (const c of cats) {
+      if (c === "developer") expandedCats.push("software", "design", "ai");
+      else expandedCats.push(c);
     }
-    if (fallbackCategory && fallbackCategory !== 'all') {
-      fallbackWhere.category = fallbackCategory;
-    }
     
-    const fallbackProducts = await db.product.findMany({
+    const fallbackWhere: any = { 
+      isActive: true,
+      stock: { gt: 0 },
+      ...(existingIds.length > 0 ? { id: { notIn: existingIds } } : {}),
+      ...(expandedCats.length > 0 ? { category: { in: expandedCats } } : {})
+    };
+    
+    let fallbackProducts = await db.product.findMany({
       where: fallbackWhere,
-      orderBy: { salesCount: "desc" },
-      take: remaining,
+      orderBy: [
+        { salesCount: "desc" },
+        { stock: "desc" }
+      ],
+      take: limit - products.length,
     });
     
-    products.push(...fallbackProducts.map(decorate));
+    // If still empty or fewer than limit, fallback to any top selling active products
+    if (products.length + fallbackProducts.length < limit) {
+      const allExisting = [...existingIds, ...fallbackProducts.map(p => p.id)];
+      const moreProducts = await db.product.findMany({
+        where: {
+          isActive: true,
+          stock: { gt: 0 },
+          ...(allExisting.length > 0 ? { id: { notIn: allExisting } } : {}),
+        },
+        orderBy: [
+          { salesCount: "desc" },
+          { stock: "desc" }
+        ],
+        take: limit - (products.length + fallbackProducts.length),
+      });
+      fallbackProducts = [...fallbackProducts, ...moreProducts];
+    }
+    
+    products = [...products, ...fallbackProducts.map(decorate)];
   }
   
   return products.slice(0, limit);

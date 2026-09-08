@@ -3,6 +3,7 @@ import { authOptions } from "@/lib/auth";
 import { NextRequest, NextResponse } from 'next/server';
 import { importProductsFromSupplier } from '@/lib/supplier';
 import { runTorobRepricer } from '@/lib/repricer';
+import { repriceAllProductsWithLiveRate } from '@/lib/live-repricer';
 
 // GET /api/cron/sync-products?secret=YOUR_SECRET
 // Called by external cron, or by the admin panel's auto-sync timer
@@ -20,6 +21,7 @@ export async function GET(req: NextRequest) {
   }
   
   try {
+    const liveRepriceResult = await repriceAllProductsWithLiveRate();
     const result = await importProductsFromSupplier();
     const repricerResult = await runTorobRepricer();
     
@@ -29,7 +31,11 @@ export async function GET(req: NextRequest) {
       updated: result.updated,
       skipped: result.skipped,
       repriced: repricerResult.repricedCount,
-      message: result.message + (repricerResult.repricedCount > 0 ? ` (و ${repricerResult.repricedCount} قیمت توسط ربات ترب بروز شد)` : ''),
+      liveRepriced: liveRepriceResult.updatedCount,
+      liveRate: liveRepriceResult.liveRate,
+      message: result.message + 
+        (repricerResult.repricedCount > 0 ? ` (و ${repricerResult.repricedCount} قیمت توسط ربات ترب بروز شد)` : '') +
+        (liveRepriceResult.updatedCount > 0 ? ` (و ${liveRepriceResult.updatedCount} قیمت با نرخ زنده ${liveRepriceResult.liveRate} آپدیت شد)` : ''),
       syncedAt: new Date().toISOString(),
     });
   } catch (e: any) {

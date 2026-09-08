@@ -18,14 +18,14 @@ async function main() {
   // ---------------- Admin user ----------------
   await db.user.create({
     data: {
-      email: "admin@licenseland.ir",
+      email: "admin@liceno.ir",
       name: "مدیر سایت",
       phone: "09100000000",
       password: await hashPassword("admin12345"),
       role: "ADMIN",
     },
   });
-  console.log("✅ Admin user created (admin@licenseland.ir / admin12345)");
+  console.log("✅ Admin user created (admin@liceno.ir / admin12345)");
 
   // ---------------- Categories ----------------
   const cats = [
@@ -344,7 +344,7 @@ async function main() {
   console.log("✅ Discount codes created");
 
   console.log("\n🎉 Seed complete!");
-  console.log("Admin login: admin@licenseland.ir / admin12345");
+  console.log("Admin login: admin@liceno.ir / admin12345");
 }
 
 function genKey(brand: string): string {

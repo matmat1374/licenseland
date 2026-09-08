@@ -17,7 +17,7 @@ export const DEFAULT_CONTENT: Record<string, string> = {
   hero_cta2_text: "جستجوی سریع",
 
   // Stats (4 items)
-  stats_1_value: "۵۰٬۰۰۰+",
+  stats_1_value: "۹۵۰+",
   stats_1_label: "مشتری راضی",
   stats_2_value: "۱٬۲۰۰+",
   stats_2_label: "محصول فعال",
@@ -32,24 +32,24 @@ export const DEFAULT_CONTENT: Record<string, string> = {
     "ما به جزئیات اهمیت می‌دهیم تا شما با خیال راحت خرید کنید",
 
   // Promo Banners
-  banner1_badge: "⚡ تحویل زیر ۵ دقیقه",
-  banner1_title_line1: "پکیج سلطنتی",
+  banner1_badge: "⚡ دسترسی سریع و قانونی",
+  banner1_title_line1: "مجموعه برگزیده",
   banner1_title_line2: "هوش مصنوعی",
-  banner1_discount: "-۴۰٪",
-  banner1_description: "قدرتمندترین مدل‌های زبانی جهان را در یک پکیج شگفت‌انگیز تجربه کنید.",
+  banner1_discount: "پیشنهاد ویژه",
+  banner1_description: "اشتراک قانونی برترین هوش‌های مصنوعی جهان (ChatGPT، Claude، Cursor) با فعالسازی آنی.",
   banner1_features: "Claude 3.7 Sonnet & Opus, ChatGPT Plus (GPT-4o), Midjourney Pro",
-  banner1_button_text: "خرید سریع پکیج",
+  banner1_button_text: "مشاهده همه سرویس‌های هوش مصنوعی",
   banner1_link: "/shop?cat=ai",
   banner1_product_ids: "",
 
-  banner2_badge: "💎 لایسنس ۱۰۰٪ قانونی",
-  banner2_title_line1: "کیت تخصصی",
-  banner2_title_line2: "دولوپر و طراح",
-  banner2_discount: "ویژه",
-  banner2_description: "ابزارهای حرفه‌ای برای کدنویسی سریع‌تر و طراحی خلاقانه‌تر.",
+  banner2_badge: "💎 ابزارهای حرفه‌ای",
+  banner2_title_line1: "استودیو تخصصی",
+  banner2_title_line2: "طراحی و کدنویسی",
+  banner2_discount: "ویژه خلاقان",
+  banner2_description: "سرویس‌های اوریجینال برای گرافیست‌ها و برنامه‌نویسان با لایسنس رسمی و پشتیبانی مداوم.",
   banner2_features: "Cursor AI Pro, GitHub Copilot, Canva Pro / Adobe CC",
-  banner2_button_text: "ورود به بخش برنامه‌نویسی",
-  banner2_link: "/shop?cat=developer",
+  banner2_button_text: "مشاهده همه ابزارهای طراحی و توسعه",
+  banner2_link: "/shop?cat=design",
   banner2_product_ids: "",
 };
 
@@ -104,7 +104,7 @@ export const CONTENT_FIELDS: {
   { key: "hero_cta2_text", label: "متن دکمه دوم", group: "بخش هرو (Hero)", placeholder: "جستجوی سریع" },
 
   // Stats
-  { key: "stats_1_value", label: "آمار ۱ — مقدار", group: "آمار‌ها", placeholder: "۵۰٬۰۰۰+" },
+  { key: "stats_1_value", label: "آمار ۱ — مقدار", group: "آمار‌ها", placeholder: "۹۵۰+" },
   { key: "stats_1_label", label: "آمار ۱ — برچسب", group: "آمار‌ها", placeholder: "مشتری راضی" },
   { key: "stats_2_value", label: "آمار ۲ — مقدار", group: "آمار‌ها", placeholder: "۱٬۲۰۰+" },
   { key: "stats_2_label", label: "آمار ۲ — برچسب", group: "آمار‌ها", placeholder: "محصول فعال" },

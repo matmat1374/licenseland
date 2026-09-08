@@ -66,6 +66,7 @@ export async function PUT(
       brand,
       tags,
       image,
+      stock,
       featured,
       bestseller,
       isActive,
@@ -82,6 +83,17 @@ export async function PUT(
       }
     }
 
+    let nextSpecs = existing.specifications;
+    if (specifications !== undefined) {
+      let old = {};
+      try { if (existing.specifications) old = JSON.parse(existing.specifications); } catch(e) {}
+      const merged = { ...old, ...(specifications || {}) };
+      for (const key in merged) {
+        if (merged[key] === null) delete merged[key];
+      }
+      nextSpecs = Object.keys(merged).length > 0 ? JSON.stringify(merged) : null;
+    }
+
     const updated = await db.product.update({
       where: { id },
       data: {
@@ -93,12 +105,7 @@ export async function PUT(
           features !== undefined
             ? JSON.stringify(Array.isArray(features) ? features : [])
             : existing.features,
-        specifications:
-          specifications !== undefined
-            ? specifications
-              ? JSON.stringify(specifications)
-              : null
-            : existing.specifications,
+        specifications: nextSpecs,
         price: price != null ? Number(price) : existing.price,
         discountPrice:
           discountPrice != null
@@ -111,6 +118,7 @@ export async function PUT(
         brand: brand !== undefined ? brand || null : existing.brand,
         tags: tags !== undefined ? tags || null : existing.tags,
         image: image !== undefined ? image || null : existing.image,
+        stock: stock != null ? Number(stock) : existing.stock,
         featured: featured !== undefined ? !!featured : existing.featured,
         bestseller: bestseller !== undefined ? !!bestseller : existing.bestseller,
         isActive: isActive !== undefined ? !!isActive : existing.isActive,

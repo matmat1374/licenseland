@@ -15,6 +15,7 @@ import {
   Download,
   Home,
   Headphones,
+  Clock,
 } from "lucide-react";
 import { PrintButton } from "@/components/site/print-button";
 import { formatJalaliDate, toFa } from "@/lib/date";
@@ -64,30 +65,52 @@ export default async function OrderPage({
 
   const paid = finalOrder.status === "PAID";
   const failed = finalOrder.status === "FAILED" || finalOrder.status === "CANCELLED" || sp.failed;
+  const isAwaitingApproval = paid && finalOrder.items.some((it) => it.fulfillmentStatus === "WAITING_APPROVAL");
 
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="mx-auto max-w-3xl">
         {/* status banner */}
         {paid ? (
-          <Card className="mb-6 overflow-hidden border-emerald-500/30 p-0">
-            <div className="flex flex-col items-center gap-3 bg-gradient-to-br from-emerald-500/10 to-transparent p-8 text-center">
-              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-emerald-500/15">
-                <CheckCircle2 className="h-9 w-9 text-emerald-500" />
-              </div>
-              <div>
-                <h1 className="text-2xl font-black">پرداخت موفق بود!</h1>
-                <p className="mt-1 text-muted-foreground">
-                  سفارش شما با کد <span className="font-bold text-foreground">{finalOrder.code}</span> ثبت شد
+          isAwaitingApproval ? (
+            <Card className="mb-6 overflow-hidden border-amber-500/30 p-0 shadow-lg shadow-amber-500/5">
+              <div className="flex flex-col items-center gap-3 bg-gradient-to-br from-amber-500/10 to-transparent p-8 text-center">
+                <div className="flex h-16 w-16 items-center justify-center rounded-full bg-amber-500/15">
+                  <Clock className="h-9 w-9 text-amber-500 animate-pulse" />
+                </div>
+                <div>
+                  <h1 className="text-2xl font-black">پرداخت موفق — سفارش در صف صدور لایسنس</h1>
+                  <p className="mt-1 text-muted-foreground">
+                    سفارش شما با کد <span className="font-bold text-foreground">{finalOrder.code}</span> پرداخت شد و تاییدیه مالی دریافت گردید
+                  </p>
+                </div>
+                <p className="text-sm text-muted-foreground max-w-lg leading-relaxed">
+                  لایسنس اختصاصی شما در صف بررسی و صدور توسط واحد پشتیبانی و مدیریت قرار گرفت. به محض تایید نهایی مدیریت، اطلاعات لایسنس در همین صفحه فعال شده و به ایمیل{" "}
+                  <span className="font-medium text-foreground" dir="ltr">{finalOrder.guestEmail || user?.email}</span>{" "}
+                  ارسال خواهد شد.
                 </p>
               </div>
-              <p className="text-sm text-muted-foreground">
-                لایسنس‌های شما در زیر نمایش داده شده‌اند. یک کپی نیز به ایمیل{" "}
-                <span className="font-medium text-foreground" dir="ltr">{finalOrder.guestEmail || user?.email}</span>{" "}
-                ارسال شد.
-              </p>
-            </div>
-          </Card>
+            </Card>
+          ) : (
+            <Card className="mb-6 overflow-hidden border-emerald-500/30 p-0 shadow-lg shadow-emerald-500/5">
+              <div className="flex flex-col items-center gap-3 bg-gradient-to-br from-emerald-500/10 to-transparent p-8 text-center">
+                <div className="flex h-16 w-16 items-center justify-center rounded-full bg-emerald-500/15">
+                  <CheckCircle2 className="h-9 w-9 text-emerald-500" />
+                </div>
+                <div>
+                  <h1 className="text-2xl font-black">پرداخت موفق بود!</h1>
+                  <p className="mt-1 text-muted-foreground">
+                    سفارش شما با کد <span className="font-bold text-foreground">{finalOrder.code}</span> ثبت شد
+                  </p>
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  لایسنس‌های شما در زیر نمایش داده شده‌اند. یک کپی نیز به ایمیل{" "}
+                  <span className="font-medium text-foreground" dir="ltr">{finalOrder.guestEmail || user?.email}</span>{" "}
+                  ارسال شد.
+                </p>
+              </div>
+            </Card>
+          )
         ) : failed ? (
           <Card className="mb-6 border-rose-500/30 p-8 text-center">
             <div className="mx-auto mb-3 flex h-16 w-16 items-center justify-center rounded-full bg-rose-500/15">
@@ -182,7 +205,7 @@ export default async function OrderPage({
         </Card>
 
         {/* licenses */}
-        {paid && (
+        {paid && !isAwaitingApproval && (
           <div className="mb-6">
             <h2 className="mb-3 flex items-center gap-2 text-lg font-black">
               <Download className="h-5 w-5 text-primary" />
@@ -199,6 +222,15 @@ export default async function OrderPage({
               ))}
             </div>
           </div>
+        )}
+
+        {paid && isAwaitingApproval && (
+          <Card className="mb-6 p-6 border border-amber-500/20 bg-amber-500/5 text-center">
+            <h3 className="font-bold text-base text-amber-600 dark:text-amber-400 mb-2">⏳ سفارش در مرحله بررسی و صدور امن</h3>
+            <p className="text-sm text-muted-foreground max-w-lg mx-auto leading-relaxed">
+              جهت حفظ امنیت و تضمین فعال‌سازی، لایسنس‌های شما پس از تایید نهایی مدیریت فوراً صادر و در این کادر قرار خواهد گرفت. همچنین یک نسخه به ایمیل شما ارسال می‌شود.
+            </p>
+          </Card>
         )}
 
         {/* actions */}

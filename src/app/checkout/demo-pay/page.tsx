@@ -11,6 +11,15 @@ function DemoPayContent() {
   const authority = params.get("Authority") || "";
   const [status, setStatus] = useState<"idle" | "paying" | "done">("idle");
 
+  if (!authority.startsWith("DEMO")) {
+    return (
+      <Card className="w-full max-w-md p-6 text-center">
+        <h2 className="text-lg font-bold text-destructive">درگاه غیرفعال است</h2>
+        <p className="mt-2 text-sm text-muted-foreground">حالت نمایشی فقط برای تراکنش‌های شبیه‌سازی‌شده معتبر است.</p>
+      </Card>
+    );
+  }
+
   function pay() {
     setStatus("paying");
     setTimeout(() => {

@@ -1,0 +1,948 @@
+{
+  "categoriesStats": [
+    {
+      "slug": "ai",
+      "name": "هوش مصنوعی",
+      "totalProducts": 205,
+      "inStock": 56,
+      "minPrice": 6150,
+      "maxPrice": 381841000,
+      "avgPrice": 26888471
+    },
+    {
+      "slug": "streaming",
+      "name": "فیلم و موسیقی",
+      "totalProducts": 49,
+      "inStock": 10,
+      "minPrice": 824000,
+      "maxPrice": 80276000,
+      "avgPrice": 7011480
+    },
+    {
+      "slug": "gaming",
+      "name": "بازی و سرگرمی",
+      "totalProducts": 40,
+      "inStock": 4,
+      "minPrice": 695000,
+      "maxPrice": 366417000,
+      "avgPrice": 52151689
+    },
+    {
+      "slug": "design",
+      "name": "طراحی و ویرایش",
+      "totalProducts": 65,
+      "inStock": 25,
+      "minPrice": 240000,
+      "maxPrice": 43050000,
+      "avgPrice": 4757887
+    },
+    {
+      "slug": "other",
+      "name": "سایر محصولات",
+      "totalProducts": 0,
+      "inStock": 0,
+      "minPrice": 0,
+      "maxPrice": 0,
+      "avgPrice": 0
+    },
+    {
+      "slug": "productivity",
+      "name": "ابزارهای بهره‌وری",
+      "totalProducts": 0,
+      "inStock": 0,
+      "minPrice": 0,
+      "maxPrice": 0,
+      "avgPrice": 0
+    },
+    {
+      "slug": "social",
+      "name": "شبکه‌های اجتماعی",
+      "totalProducts": 29,
+      "inStock": 16,
+      "minPrice": 49200,
+      "maxPrice": 49938000,
+      "avgPrice": 8210119
+    },
+    {
+      "slug": "virtual-numbers",
+      "name": "شماره مجازی و وریفای",
+      "totalProducts": 270,
+      "inStock": 268,
+      "minPrice": 6000,
+      "maxPrice": 7528000,
+      "avgPrice": 344652
+    },
+    {
+      "slug": "software",
+      "name": "نرم‌افزار و توسعه",
+      "totalProducts": 254,
+      "inStock": 104,
+      "minPrice": 6000,
+      "maxPrice": 360734000,
+      "avgPrice": 16720184
+    },
+    {
+      "slug": "giftcards",
+      "name": "گیفت کارت",
+      "totalProducts": 0,
+      "inStock": 0,
+      "minPrice": 0,
+      "maxPrice": 0,
+      "avgPrice": 0
+    },
+    {
+      "slug": "ai-media",
+      "name": "هوش مصنوعی تصویر و ویدیو",
+      "totalProducts": 0,
+      "inStock": 0,
+      "minPrice": 0,
+      "maxPrice": 0,
+      "avgPrice": 0
+    },
+    {
+      "slug": "education",
+      "name": "آموزش",
+      "totalProducts": 10,
+      "inStock": 7,
+      "minPrice": 1464000,
+      "maxPrice": 16365000,
+      "avgPrice": 7782320
+    },
+    {
+      "slug": "security",
+      "name": "امنیت و آنتی‌ویروس",
+      "totalProducts": 2,
+      "inStock": 1,
+      "minPrice": 325950,
+      "maxPrice": 2460000,
+      "avgPrice": 1392975
+    },
+    {
+      "slug": "api-credits",
+      "name": "توکن و کردیت API",
+      "totalProducts": 106,
+      "inStock": 36,
+      "minPrice": 301000,
+      "maxPrice": 655756000,
+      "avgPrice": 28847047
+    }
+  ],
+  "samples": {
+    "ai": [
+      {
+        "title": "اشتراک رسمی گوگل ویدیو (Google VEO) ۳ ماهه",
+        "shortDesc": "اشتراک رسمی گوگل ویدیو (Google VEO) ۳ ماهه",
+        "price": 206535000,
+        "stock": 2
+      },
+      {
+        "title": "اشتراک رسمی آکول پرو (Akool AI) ۱ ماهه",
+        "shortDesc": "اشتراک رسمی آکول پرو (Akool AI) ۱ ماهه",
+        "price": 6525000,
+        "stock": 0
+      },
+      {
+        "title": "اشتراک رسمی آکول پرو (Akool AI) ۱ ماهه",
+        "shortDesc": "اشتراک رسمی آکول پرو (Akool AI) ۱ ماهه",
+        "price": 6525000,
+        "stock": 0
+      },
+      {
+        "title": "اشتراک هوش مصنوعی لایسنس ارتقا هوش مصنوعی xAI Grok 2 / SuperGrok 1 ماهه",
+        "shortDesc": "لایسنس ارتقا هوش مصنوعی xAI Grok 2 / SuperGrok 1 ماهه",
+        "price": 29514000,
+        "stock": 0
+      },
+      {
+        "title": "اشتراک رسمی چت‌جی‌پی‌تی (ChatGPT) ۱ ماهه",
+        "shortDesc": "اشتراک رسمی چت‌جی‌پی‌تی (ChatGPT) ۱ ماهه",
+        "price": 12915000,
+        "stock": 0
+      },
+      {
+        "title": "اشتراک رسمی چت‌جی‌پی‌تی (ChatGPT)",
+        "shortDesc": "اشتراک رسمی چت‌جی‌پی‌تی (ChatGPT)",
+        "price": 5547000,
+        "stock": 0
+      },
+      {
+        "title": "اشتراک هوش مصنوعی اکانت اختصاصی کلود آنتروپیک (Claude AI)",
+        "shortDesc": "اکانت اختصاصی کلود آنتروپیک (Claude AI)",
+        "price": 6150,
+        "stock": 83
+      },
+      {
+        "title": "اشتراک رسمی کورسور پرو (Cursor AI Pro) ۱ ساله",
+        "shortDesc": "اشتراک رسمی کورسور پرو (Cursor AI Pro) ۱ ساله",
+        "price": 64575000,
+        "stock": 0
+      },
+      {
+        "title": "اشتراک رسمی الون‌لبز (ElevenLabs) ۱ ساله",
+        "shortDesc": "اشتراک رسمی الون‌لبز (ElevenLabs) ۱ ساله",
+        "price": 21525000,
+        "stock": 19
+      },
+      {
+        "title": "اشتراک هوش مصنوعی اکانت اختصاصی نورد وی‌پی‌ان (NordVPN)",
+        "shortDesc": "اکانت اختصاصی نورد وی‌پی‌ان (NordVPN)",
+        "price": 953000,
+        "stock": 1
+      },
+      {
+        "title": "اشتراک رسمی گوگل جمینی (Google Gemini)",
+        "shortDesc": "اشتراک رسمی گوگل جمینی (Google Gemini)",
+        "price": 1230000,
+        "stock": 561
+      },
+      {
+        "title": "اشتراک رسمی گوگل ویدیو (Google VEO) ۱ ماهه",
+        "shortDesc": "اشتراک رسمی گوگل ویدیو (Google VEO) ۱ ماهه",
+        "price": 16008000,
+        "stock": 0
+      },
+      {
+        "title": "اشتراک رسمی جن‌اسپارک (Genspark AI) ۱ ماهه",
+        "shortDesc": "اشتراک رسمی جن‌اسپارک (Genspark AI) ۱ ماهه",
+        "price": 9151000,
+        "stock": 0
+      },
+      {
+        "title": "اشتراک هوش مصنوعی لایسنس ارتقا هوش مصنوعی xAI Grok 2 / SuperGrok 7 روزه",
+        "shortDesc": "لایسنس ارتقا هوش مصنوعی xAI Grok 2 / SuperGrok 7 روزه",
+        "price": 3278000,
+        "stock": 0
+      },
+      {
+        "title": "اشتراک هوش مصنوعی لایسنس ارتقا هوش مصنوعی xAI Grok 2 / SuperGrok 1 ماهه",
+        "shortDesc": "لایسنس ارتقا هوش مصنوعی xAI Grok 2 / SuperGrok 1 ماهه",
+        "price": 49163000,
+        "stock": 15
+      }
+    ],
+    "streaming": [
+      {
+        "title": "اشتراک پریمیوم اکانت نتفلیکس ۴K پریمیوم Ultra HD",
+        "shortDesc": "اکانت نتفلیکس ۴K پریمیوم Ultra HD",
+        "price": 1611000,
+        "stock": 0
+      },
+      {
+        "title": "اشتراک پریمیوم اکانت نتفلیکس ۴K پریمیوم Ultra HD 1 ماهه",
+        "shortDesc": "اکانت نتفلیکس ۴K پریمیوم Ultra HD 1 ماهه",
+        "price": 861000,
+        "stock": 0
+      },
+      {
+        "title": "اشتراک رسمی آمازون پرایم (Amazon Prime) ۶ ماهه",
+        "shortDesc": "اشتراک رسمی آمازون پرایم (Amazon Prime) ۶ ماهه",
+        "price": 1722000,
+        "stock": 1
+      },
+      {
+        "title": "اشتراک پریمیوم اکانت نتفلیکس ۴K پریمیوم Ultra HD 1 ماهه",
+        "shortDesc": "اکانت نتفلیکس ۴K پریمیوم Ultra HD 1 ماهه",
+        "price": 4889000,
+        "stock": 0
+      },
+      {
+        "title": "اشتراک یوتیوب پریمیوم YouTube Premium بدون تبلیغ",
+        "shortDesc": "اشتراک یوتیوب پریمیوم YouTube Premium بدون تبلیغ",
+        "price": 1611000,
+        "stock": 0
+      },
+      {
+        "title": "اشتراک پریمیوم اکانت نتفلیکس ۴K پریمیوم Ultra HD",
+        "shortDesc": "اکانت نتفلیکس ۴K پریمیوم Ultra HD",
+        "price": 1292000,
+        "stock": 9
+      },
+      {
+        "title": "اشتراک پریمیوم اکانت نتفلیکس ۴K پریمیوم Ultra HD",
+        "shortDesc": "اکانت نتفلیکس ۴K پریمیوم Ultra HD",
+        "price": 2134000,
+        "stock": 0
+      },
+      {
+        "title": "اشتراک یوتیوب پریمیوم YouTube Premium بدون تبلیغ 12 ماهه",
+        "shortDesc": "اشتراک یوتیوب پریمیوم YouTube Premium بدون تبلیغ 12 ماهه",
+        "price": 13702000,
+        "stock": 0
+      },
+      {
+        "title": "اشتراک یوتیوب پریمیوم YouTube Premium بدون تبلیغ 6 ماهه",
+        "shortDesc": "اشتراک یوتیوب پریمیوم YouTube Premium بدون تبلیغ 6 ماهه",
+        "price": 7540000,
+        "stock": 0
+      },
+      {
+        "title": "اشتراک یوتیوب پریمیوم YouTube Premium بدون تبلیغ",
+        "shortDesc": "اشتراک یوتیوب پریمیوم YouTube Premium بدون تبلیغ",
+        "price": 1482000,
+        "stock": 0
+      },
+      {
+        "title": "اشتراک یوتیوب پریمیوم YouTube Premium بدون تبلیغ 3 ماهه",
+        "shortDesc": "اشتراک یوتیوب پریمیوم YouTube Premium بدون تبلیغ 3 ماهه",
+        "price": 1722000,
+        "stock": 110
+      },
+      {
+        "title": "اشتراک یوتیوب پریمیوم YouTube Premium بدون تبلیغ 1 ماهه",
+        "shortDesc": "اشتراک یوتیوب پریمیوم YouTube Premium بدون تبلیغ 1 ماهه",
+        "price": 861000,
+        "stock": 0
+      },
+      {
+        "title": "اشتراک یوتیوب پریمیوم YouTube Premium بدون تبلیغ 3 ماهه",
+        "shortDesc": "اشتراک یوتیوب پریمیوم YouTube Premium بدون تبلیغ 3 ماهه",
+        "price": 2970000,
+        "stock": 0
+      },
+      {
+        "title": "اشتراک پریمیوم اکانت نتفلیکس ۴K پریمیوم Ultra HD 1 ماهه",
+        "shortDesc": "اکانت نتفلیکس ۴K پریمیوم Ultra HD 1 ماهه",
+        "price": 1636000,
+        "stock": 0
+      },
+      {
+        "title": "اشتراک پریمیوم اکانت نتفلیکس ۴K پریمیوم Ultra HD 1 ماهه",
+        "shortDesc": "اکانت نتفلیکس ۴K پریمیوم Ultra HD 1 ماهه",
+        "price": 2952000,
+        "stock": 0
+      }
+    ],
+    "gaming": [
+      {
+        "title": "اشتراک بازی 1,500 + 300 UC",
+        "shortDesc": "1,500 + 300 UC",
+        "price": 17165000,
+        "stock": 0
+      },
+      {
+        "title": "اشتراک 16000 + 6400 CP",
+        "shortDesc": "16000 + 6400 CP",
+        "price": 146561000,
+        "stock": 0
+      },
+      {
+        "title": "اشتراک 2000 + 600 CP",
+        "shortDesc": "2000 + 600 CP",
+        "price": 18315000,
+        "stock": 0
+      },
+      {
+        "title": "اشتراک 24000 + 9600 CP",
+        "shortDesc": "24000 + 9600 CP",
+        "price": 219850000,
+        "stock": 0
+      },
+      {
+        "title": "اشتراک بازی 3,000 + 850 UC",
+        "shortDesc": "3,000 + 850 UC",
+        "price": 34323000,
+        "stock": 0
+      },
+      {
+        "title": "اشتراک بازی 300 + 25 UC",
+        "shortDesc": "300 + 25 UC",
+        "price": 3432000,
+        "stock": 0
+      },
+      {
+        "title": "اشتراک 400 + 60 CP",
+        "shortDesc": "400 + 60 CP",
+        "price": 3659000,
+        "stock": 0
+      },
+      {
+        "title": "اشتراک 4000 + 1400 CP",
+        "shortDesc": "4000 + 1400 CP",
+        "price": 36636000,
+        "stock": 0
+      },
+      {
+        "title": "اشتراک 40000 + 16000 CP",
+        "shortDesc": "40000 + 16000 CP",
+        "price": 366417000,
+        "stock": 0
+      },
+      {
+        "title": "اشتراک بازی 6,000 + 2,100 UC",
+        "shortDesc": "6,000 + 2,100 UC",
+        "price": 68646000,
+        "stock": 0
+      },
+      {
+        "title": "اشتراک بازی 60 UC",
+        "shortDesc": "60 UC",
+        "price": 695000,
+        "stock": 0
+      },
+      {
+        "title": "اشتراک بازی 600 + 60 UC",
+        "shortDesc": "600 + 60 UC",
+        "price": 6863000,
+        "stock": 0
+      },
+      {
+        "title": "اشتراک 80 + 8 CP",
+        "shortDesc": "80 + 8 CP",
+        "price": 726000,
+        "stock": 0
+      },
+      {
+        "title": "اشتراک 800 + 160 CP",
+        "shortDesc": "800 + 160 CP",
+        "price": 7319000,
+        "stock": 0
+      },
+      {
+        "title": "اشتراک 8000 + 3200 CP",
+        "shortDesc": "8000 + 3200 CP",
+        "price": 72552000,
+        "stock": 0
+      }
+    ],
+    "design": [
+      {
+        "title": "اشتراک رسمی کنوا پرو (Canva Pro)",
+        "shortDesc": "اشتراک رسمی کنوا پرو (Canva Pro)",
+        "price": 2589000,
+        "stock": 0
+      },
+      {
+        "title": "اشتراک Adobe Express 12m",
+        "shortDesc": "Adobe Express 12m",
+        "price": 861000,
+        "stock": 14
+      },
+      {
+        "title": "اشتراک رسمی کنوا پرو (Canva Pro) ۱ ساله",
+        "shortDesc": "اشتراک رسمی کنوا پرو (Canva Pro) ۱ ساله",
+        "price": 43050000,
+        "stock": 0
+      },
+      {
+        "title": "اشتراک رسمی کنوا پرو (Canva Pro) ۳ ماهه",
+        "shortDesc": "اشتراک رسمی کنوا پرو (Canva Pro) ۳ ماهه",
+        "price": 3333000,
+        "stock": 0
+      },
+      {
+        "title": "اشتراک رسمی کنوا پرو (Canva Pro) ۱ ماهه",
+        "shortDesc": "اشتراک رسمی کنوا پرو (Canva Pro) ۱ ماهه",
+        "price": 498000,
+        "stock": 0
+      },
+      {
+        "title": "کپ‌کات پرو اشتراک رسمی کپ‌کات پرو (CapCut Pro) ۶ ماهه",
+        "shortDesc": "اشتراک رسمی کپ‌کات پرو (CapCut Pro) ۶ ماهه",
+        "price": 14207000,
+        "stock": 26
+      },
+      {
+        "title": "کپ‌کات پرو اشتراک رسمی کپ‌کات پرو (CapCut Pro) ۶ ماهه",
+        "shortDesc": "اشتراک رسمی کپ‌کات پرو (CapCut Pro) ۶ ماهه",
+        "price": 8991000,
+        "stock": 49
+      },
+      {
+        "title": "کپ‌کات پرو اشتراک رسمی کپ‌کات پرو (CapCut Pro) ۷ روزه",
+        "shortDesc": "اشتراک رسمی کپ‌کات پرو (CapCut Pro) ۷ روزه",
+        "price": 406000,
+        "stock": 0
+      },
+      {
+        "title": "کپ‌کات پرو اشتراک رسمی کپ‌کات پرو (CapCut Pro) ۱ ماهه",
+        "shortDesc": "اشتراک رسمی کپ‌کات پرو (CapCut Pro) ۱ ماهه",
+        "price": 1999000,
+        "stock": 16
+      },
+      {
+        "title": "کپ‌کات پرو اشتراک رسمی کپ‌کات پرو (CapCut Pro) ۶ ماهه",
+        "shortDesc": "اشتراک رسمی کپ‌کات پرو (CapCut Pro) ۶ ماهه",
+        "price": 10332000,
+        "stock": 32
+      },
+      {
+        "title": "کپ‌کات پرو اشتراک رسمی کپ‌کات پرو (CapCut Pro) ۷ روزه",
+        "shortDesc": "اشتراک رسمی کپ‌کات پرو (CapCut Pro) ۷ روزه",
+        "price": 301000,
+        "stock": 88
+      },
+      {
+        "title": "کپ‌کات پرو اشتراک رسمی کپ‌کات پرو (CapCut Pro)",
+        "shortDesc": "اشتراک رسمی کپ‌کات پرو (CapCut Pro)",
+        "price": 394000,
+        "stock": 0
+      },
+      {
+        "title": "کپ‌کات پرو اشتراک رسمی کپ‌کات پرو (CapCut Pro) ۷ روزه",
+        "shortDesc": "اشتراک رسمی کپ‌کات پرو (CapCut Pro) ۷ روزه",
+        "price": 301000,
+        "stock": 0
+      },
+      {
+        "title": "کپ‌کات پرو اشتراک رسمی کپ‌کات پرو (CapCut Pro) ۷ روزه",
+        "shortDesc": "اشتراک رسمی کپ‌کات پرو (CapCut Pro) ۷ روزه",
+        "price": 240000,
+        "stock": 0
+      },
+      {
+        "title": "کپ‌کات پرو اشتراک رسمی کپ‌کات پرو (CapCut Pro) ۶ ماهه",
+        "shortDesc": "اشتراک رسمی کپ‌کات پرو (CapCut Pro) ۶ ماهه",
+        "price": 9969000,
+        "stock": 4
+      }
+    ],
+    "other": [],
+    "productivity": [],
+    "social": [
+      {
+        "title": "اشتراک رسمی تلگرام پرمیوم (Telegram)",
+        "shortDesc": "اشتراک رسمی تلگرام پرمیوم (Telegram)",
+        "price": 1046000,
+        "stock": 0
+      },
+      {
+        "title": "اشتراک رسمی تلگرام پرمیوم (Telegram)",
+        "shortDesc": "اشتراک رسمی تلگرام پرمیوم (Telegram)",
+        "price": 10455000,
+        "stock": 0
+      },
+      {
+        "title": "اشتراک رسمی تلگرام پرمیوم (Telegram)",
+        "shortDesc": "اشتراک رسمی تلگرام پرمیوم (Telegram)",
+        "price": 2614000,
+        "stock": 0
+      },
+      {
+        "title": "اشتراک رسمی تلگرام پرمیوم (Telegram)",
+        "shortDesc": "اشتراک رسمی تلگرام پرمیوم (Telegram)",
+        "price": 523000,
+        "stock": 0
+      },
+      {
+        "title": "اشتراک رسمی تلگرام پرمیوم (Telegram)",
+        "shortDesc": "اشتراک رسمی تلگرام پرمیوم (Telegram)",
+        "price": 5228000,
+        "stock": 0
+      },
+      {
+        "title": "اشتراک رسمی تلگرام پرمیوم (Telegram) ۱ ماهه",
+        "shortDesc": "اشتراک رسمی تلگرام پرمیوم (Telegram) ۱ ماهه",
+        "price": 5215000,
+        "stock": 25
+      },
+      {
+        "title": "اشتراک Blue Facebook Verified Account Soaked 1 Login",
+        "shortDesc": "Blue Facebook Verified Account Soaked 1-8 Months Full Warranty Login",
+        "price": 4237000,
+        "stock": 12
+      },
+      {
+        "title": "اشتراک اشتراک (اشتراک اکانت تایید شده فیسبوک با تیک آبی)",
+        "shortDesc": "اشتراک اشتراک (اشتراک اکانت تایید شده فیسبوک با تیک آبی)",
+        "price": 49200,
+        "stock": 0
+      },
+      {
+        "title": "اشتراک Linkedin Busines 2m New User 2 ماهه 2 ماهه",
+        "shortDesc": "Linkedin Busines 2m New User 2 ماهه 2 ماهه",
+        "price": 1033000,
+        "stock": 0
+      },
+      {
+        "title": "اشتراک Linkedin Business Premium ۱۲ ماهه 12 ماهه 12 ماهه",
+        "shortDesc": "Linkedin Business Premium ۱۲ ماهه 12 ماهه 12 ماهه",
+        "price": 49938000,
+        "stock": 0
+      },
+      {
+        "title": "اشتراک Linkedin Career 3M 3 ماهه 3 ماهه",
+        "shortDesc": "Linkedin Career 3M 3 ماهه 3 ماهه",
+        "price": 775000,
+        "stock": 29
+      },
+      {
+        "title": "اشتراک Linkedin Career Premium ۱۲ ماهه 12 ماهه 12 ماهه",
+        "shortDesc": "Linkedin Career Premium ۱۲ ماهه 12 ماهه 12 ماهه",
+        "price": 37884000,
+        "stock": 0
+      },
+      {
+        "title": "اشتراک Linkedin Pre Career Code ۳ ماهه 3 ماهه 3 ماهه",
+        "shortDesc": "Linkedin Pre Career Code ۳ ماهه 3 ماهه 3 ماهه",
+        "price": 2921000,
+        "stock": 105
+      },
+      {
+        "title": "اشتراک LinkedIn Premium Career For 75% OFF 12 ماهه 12 ماهه (۱ ساله)",
+        "shortDesc": "LinkedIn Premium Career For 12 Months - 75% OFF 12 ماهه 12 ماهه",
+        "price": 12915000,
+        "stock": 1
+      },
+      {
+        "title": "اشتراک LinkedIn Premium Sales Navigator Core For 75% OFF 12 ماهه (۱ ساله)",
+        "shortDesc": "LinkedIn Premium Sales Navigator Core For 12 Months - 75% OFF 12 ماهه",
+        "price": 12915000,
+        "stock": 1
+      }
+    ],
+    "virtual-numbers": [
+      {
+        "title": "شماره مجازی وریفای OpenAI — 115Com  England 🇬🇧",
+        "shortDesc": "شماره مجازی وریفای 115Com — England 🇬🇧 (دریافت پیامک)",
+        "price": 49000,
+        "stock": 45950
+      },
+      {
+        "title": "شماره مجازی وریفای OpenAI — سیم‌کارت و  اختصاصی کنیا 163Som Kenya",
+        "shortDesc": "سیم‌کارت و شماره اختصاصی کنیا (163Som Kenya)",
+        "price": 31000,
+        "stock": 162
+      },
+      {
+        "title": "شماره مجازی وریفای OpenAI — 7Eleven  USA 🇺🇸",
+        "shortDesc": "شماره مجازی وریفای 7Eleven — USA 🇺🇸 (دریافت پیامک)",
+        "price": 105000,
+        "stock": 125183
+      },
+      {
+        "title": "شماره مجازی وریفای OpenAI — سیم‌کارت و  اختصاصی لهستان Amazon Poland",
+        "shortDesc": "سیم‌کارت و شماره اختصاصی لهستان (Amazon Poland)",
+        "price": 123000,
+        "stock": 370
+      },
+      {
+        "title": "شماره مجازی وریفای Apple — Estonia 🇪🇪 ⭐",
+        "shortDesc": "شماره مجازی وریفای Apple — Estonia 🇪🇪 ⭐ (دریافت پیامک)",
+        "price": 92000,
+        "stock": 128481
+      },
+      {
+        "title": "شماره مجازی وریفای Apple — سیم‌کارت و  اختصاصی اندونزی  Indonesia",
+        "shortDesc": "سیم‌کارت و شماره اختصاصی اندونزی (Apple Indonesia)",
+        "price": 6000,
+        "stock": 1319
+      },
+      {
+        "title": "اشتراک لایسنس قانونی و اورجینال Apple Mozambique 🇲🇿",
+        "shortDesc": "لایسنس قانونی و اورجینال Apple — Mozambique 🇲🇿",
+        "price": 203000,
+        "stock": 25000
+      },
+      {
+        "title": "شماره مجازی وریفای Apple — سیم‌کارت و  اختصاصی هلند  Netherlands",
+        "shortDesc": "سیم‌کارت و شماره اختصاصی هلند (Apple Netherlands)",
+        "price": 49000,
+        "stock": 24431
+      },
+      {
+        "title": "شماره مجازی وریفای Apple — سیم‌کارت و  اختصاصی آمریکا  United States",
+        "shortDesc": "سیم‌کارت و شماره اختصاصی آمریکا (Apple United States)",
+        "price": 117000,
+        "stock": 10000
+      },
+      {
+        "title": "شماره مجازی وریفای Apple — USA 🇺🇸 ⭐",
+        "shortDesc": "شماره مجازی وریفای Apple — USA 🇺🇸 ⭐ (دریافت پیامک)",
+        "price": 92000,
+        "stock": 7711
+      },
+      {
+        "title": "شماره مجازی وریفای Apple — USA 🇺🇸 ⭐",
+        "shortDesc": "شماره مجازی وریفای Apple — USA 🇺🇸 ⭐ (دریافت پیامک)",
+        "price": 80000,
+        "stock": 90009
+      },
+      {
+        "title": "اشتراک لایسنس قانونی و اورجینال Apple Viet nam 🇻🇳 ⭐",
+        "shortDesc": "لایسنس قانونی و اورجینال Apple — Viet nam 🇻🇳 ⭐",
+        "price": 49000,
+        "stock": 1000
+      },
+      {
+        "title": "شماره مجازی وریفای OpenAI — Bpme  England 🇬🇧 ⭐",
+        "shortDesc": "شماره مجازی وریفای Bpme — England 🇬🇧 ⭐ (دریافت پیامک)",
+        "price": 80000,
+        "stock": 117
+      },
+      {
+        "title": "شماره مجازی وریفای ChatGPT — Afghanistan 🇦🇫 ⭐",
+        "shortDesc": "شماره مجازی وریفای ChatGPT — Afghanistan 🇦🇫 ⭐ (دریافت پیامک)",
+        "price": 332000,
+        "stock": 290
+      },
+      {
+        "title": "شماره مجازی وریفای ChatGPT — Angola 🇦🇴 ⭐",
+        "shortDesc": "شماره مجازی وریفای ChatGPT — Angola 🇦🇴 ⭐ (دریافت پیامک)",
+        "price": 49000,
+        "stock": 1000
+      }
+    ],
+    "software": [
+      {
+        "title": "ردیم کد API Codex 1 با گارانتی کامل 100 ماهه با گارانتی کامل (۱۰۰ میلیون کردیت - با گارانتی)",
+        "shortDesc": "100M Credit API Codex 1 Day - با گارانتی کامل 100 ماهه با گارانتی کامل",
+        "price": 3247200,
+        "stock": 999
+      },
+      {
+        "title": "اشتراک لایسنس HMA Android PC 20 با گارانتی کامل 30 روزه با گارانتی کا",
+        "shortDesc": "لایسنس HMA Android PC 20 30 Days با گارانتی کامل 30 روزه با گارانتی کا",
+        "price": 522750,
+        "stock": 0
+      },
+      {
+        "title": "اشتراک لایسنس قانونی و اورجینال Account X Stock 20092022 US BullBearBH24H",
+        "shortDesc": "لایسنس قانونی و اورجینال Account X Stock 2009-2022 US Bull-Bear-BH24H",
+        "price": 1937000,
+        "stock": 0
+      },
+      {
+        "title": "اشتراک ADMIN MS365 5 با گارانتی کامل 5 کاربره 6 ماهه [اسلات اخت (اختصاصی ۶ ماهه)",
+        "shortDesc": "ADMIN MS365 5 SLOT 6 MONTHS با گارانتی کامل 5 کاربره 6 ماهه [اسلات اخت",
+        "price": 4926000,
+        "stock": 0
+      },
+      {
+        "title": "ردیم کد هوش مصنوعی API DeepSeek VFlash Unlimited 30 بدون گارانتی 30 روزه (۴ توکن - با گارانتی)",
+        "shortDesc": "API DeepSeek V4 Flash Unlimited Tokens 30 days - بدون گارانتی 30 روزه",
+        "price": 4576000,
+        "stock": 0
+      },
+      {
+        "title": "ردیم کد هوش مصنوعی API DeepSeek VFlash Unlimited 30 بدون گارانتی 30 روزه (۴ توکن - با گارانتی)",
+        "shortDesc": "API DeepSeek V4 Flash Unlimited Tokens 30 days - بدون گارانتی 30 روزه",
+        "price": 3247000,
+        "stock": 0
+      },
+      {
+        "title": "ردیم کد API Qwenmax (full model) 2D with با گارانتی کامل 50 ماه (۳.۸ توکن - با گارانتی)",
+        "shortDesc": "API Qwen3.8-max (full model) 50M 2D tokens with با گارانتی کامل 50 ماه",
+        "price": 861000,
+        "stock": 0
+      },
+      {
+        "title": "اشتراک Apple Music 5M 5 ماهه 5 ماهه",
+        "shortDesc": "Apple Music 5M 5 ماهه 5 ماهه",
+        "price": 861000,
+        "stock": 14
+      },
+      {
+        "title": "اشتراک رسمی اتودسک (Autodesk) ۱ ساله",
+        "shortDesc": "اشتراک رسمی اتودسک (Autodesk) ۱ ساله",
+        "price": 1937000,
+        "stock": 66
+      },
+      {
+        "title": "کپ‌کات پرو اشتراک رسمی کپ‌کات پرو (CapCut Pro) ۱ ماهه",
+        "shortDesc": "اشتراک رسمی کپ‌کات پرو (CapCut Pro) ۱ ماهه",
+        "price": 1614375,
+        "stock": 56
+      },
+      {
+        "title": "اشتراک Career 2m New User 2 ماهه 2 ماهه",
+        "shortDesc": "Career 2m New User 2 ماهه 2 ماهه",
+        "price": 2583000,
+        "stock": 0
+      },
+      {
+        "title": "اشتراک ChatPRD ۱۲ ماهه 12 ماهه 12 ماهه",
+        "shortDesc": "ChatPRD ۱۲ ماهه 12 ماهه 12 ماهه",
+        "price": 12915000,
+        "stock": 0
+      },
+      {
+        "title": "اشتراک رسمی گاما پرو (Gamma App) ۱ ساله",
+        "shortDesc": "اشتراک رسمی گاما پرو (Gamma App) ۱ ساله",
+        "price": 17220000,
+        "stock": 116
+      },
+      {
+        "title": "اشتراک رسمی گاما پرو (Gamma App) ۱ ماهه",
+        "shortDesc": "اشتراک رسمی گاما پرو (Gamma App) ۱ ماهه",
+        "price": 9809000,
+        "stock": 3
+      },
+      {
+        "title": "اشتراک رسمی گاما پرو (Gamma App) ۱ ماهه",
+        "shortDesc": "اشتراک رسمی گاما پرو (Gamma App) ۱ ماهه",
+        "price": 11476000,
+        "stock": 3
+      }
+    ],
+    "giftcards": [],
+    "ai-media": [],
+    "education": [
+      {
+        "title": "اشتراک Memrise Pro lifetime 20 years with ۱ ماهه 20 ساله 20 ساله",
+        "shortDesc": "Memrise Pro lifetime 20 years with ۱ ماهه warranty 20 ساله 20 ساله",
+        "price": 9840000,
+        "stock": 0
+      },
+      {
+        "title": "اشتراک Memrise Pro lifetime 20 years with ۱ ماهه 20 ساله 20 ساله",
+        "shortDesc": "Memrise Pro lifetime 20 years with ۱ ماهه warranty 20 ساله 20 ساله",
+        "price": 5543200,
+        "stock": 999
+      },
+      {
+        "title": "اشتراک Udemy Personal Plan 1M 1 ماهه",
+        "shortDesc": "Udemy Personal Plan 1M 1 ماهه",
+        "price": 1464000,
+        "stock": 8
+      },
+      {
+        "title": "اشتراک Memrise Pro lifetime 20 years ۱ ماهه 20 ساله 20 ساله",
+        "shortDesc": "Memrise Pro lifetime 20 years warranty ۱ ماهه 20 ساله 20 ساله",
+        "price": 9809000,
+        "stock": 0
+      },
+      {
+        "title": "اشتراک Duolingo Max (۱ ساله)",
+        "shortDesc": "Duolingo Max 12 Months full warranty",
+        "price": 16365000,
+        "stock": 4
+      },
+      {
+        "title": "اشتراک Duolingo Max (۳ ماهه)",
+        "shortDesc": "Duolingo Max 3 Months full warranty",
+        "price": 6525000,
+        "stock": 1
+      },
+      {
+        "title": "اشتراک Duolingo Max (۶ ماهه)",
+        "shortDesc": "Duolingo Max 6 Months full warranty",
+        "price": 9477000,
+        "stock": 5
+      },
+      {
+        "title": "اشتراک Duolingo Super (۶ ماهه)",
+        "shortDesc": "Duolingo Super 6 Months full warranty",
+        "price": 5547000,
+        "stock": 1
+      },
+      {
+        "title": "اشتراک Super Duolingo 1Y",
+        "shortDesc": "Super Duolingo 1Y",
+        "price": 3444000,
+        "stock": 9
+      },
+      {
+        "title": "اشتراک Memrise Pro lifetime 20 years (۱ ماهه)",
+        "shortDesc": "Memrise Pro lifetime 20 years warranty 1 month",
+        "price": 9809000,
+        "stock": 0
+      }
+    ],
+    "security": [
+      {
+        "title": "اشتراک اکانت اختصاصی نورد وی‌پی‌ان (NordVPN) ۷ روزه",
+        "shortDesc": "اکانت اختصاصی نورد وی‌پی‌ان (NordVPN) ۷ روزه",
+        "price": 325950,
+        "stock": 0
+      },
+      {
+        "title": "اشتراک اختصاصی Proton Unlimited ۱ ماهه 1 ماهه 30 روز",
+        "shortDesc": "اشتراک اختصاصی Proton Unlimited ۱ ماهه - 30 Day warranty 1 ماهه 30 روز",
+        "price": 2460000,
+        "stock": 8
+      }
+    ],
+    "api-credits": [
+      {
+        "title": "ردیم کد API Codex 1 با گارانتی کامل 50 ماهه با گارانتی کامل 5 (۵۰ میلیون کردیت - با گارانتی)",
+        "shortDesc": "50M Credit API Codex 1 Day - با گارانتی کامل 50 ماهه با گارانتی کامل 5",
+        "price": 2300000,
+        "stock": 44
+      },
+      {
+        "title": "ردیم کد Admin Family Ultra 5 slots ۱ ماهه 15 5 کاربره (۲۵ هزار کردیت - با گارانتی)",
+        "shortDesc": "Admin Family Ultra 25k Credit 5 slots ۱ ماهه warranty 15 days 5 کاربره",
+        "price": 79901000,
+        "stock": 0
+      },
+      {
+        "title": "اشتراک رسمی آکول پرو (Akool AI) ۱ ماهه",
+        "shortDesc": "اشتراک رسمی آکول پرو (Akool AI) ۱ ماهه",
+        "price": 9809000,
+        "stock": 0
+      },
+      {
+        "title": "اشتراک رسمی آکول پرو (Akool AI) ۱ ساله",
+        "shortDesc": "اشتراک رسمی آکول پرو (Akool AI) ۱ ساله",
+        "price": 10498000,
+        "stock": 0
+      },
+      {
+        "title": "اشتراک هوش مصنوعی کلید API اختصاصی کلود آنتروپیک (Claude AI)",
+        "shortDesc": "کلید API اختصاصی کلود آنتروپیک (Claude AI)",
+        "price": 3665000,
+        "stock": 7
+      },
+      {
+        "title": "اشتراک هوش مصنوعی کلید API اختصاصی کلود آنتروپیک (Claude AI)",
+        "shortDesc": "کلید API اختصاصی کلود آنتروپیک (Claude AI)",
+        "price": 5215000,
+        "stock": 3
+      },
+      {
+        "title": "اشتراک هوش مصنوعی کلید API اختصاصی کلود آنتروپیک (Claude AI)",
+        "shortDesc": "کلید API اختصاصی کلود آنتروپیک (Claude AI)",
+        "price": 1611000,
+        "stock": 0
+      },
+      {
+        "title": "اشتراک هوش مصنوعی کلید API اختصاصی کلود آنتروپیک (Claude AI)",
+        "shortDesc": "کلید API اختصاصی کلود آنتروپیک (Claude AI)",
+        "price": 5338000,
+        "stock": 7
+      },
+      {
+        "title": "اشتراک هوش مصنوعی کلید API اختصاصی کلود آنتروپیک (Claude AI)",
+        "shortDesc": "کلید API اختصاصی کلود آنتروپیک (Claude AI)",
+        "price": 6667000,
+        "stock": 4
+      },
+      {
+        "title": "اشتراک هوش مصنوعی کلید API اختصاصی کلود آنتروپیک (Claude AI)",
+        "shortDesc": "کلید API اختصاصی کلود آنتروپیک (Claude AI)",
+        "price": 3247000,
+        "stock": 0
+      },
+      {
+        "title": "اشتراک رسمی کورسور پرو (Cursor AI Pro) ۱ ماهه",
+        "shortDesc": "اشتراک رسمی کورسور پرو (Cursor AI Pro) ۱ ماهه",
+        "price": 10498000,
+        "stock": 1
+      },
+      {
+        "title": "ردیم کد API Qwenmax (full model) 2D با گارانتی کامل توکن 50 (۳.۸ توکن - با گارانتی)",
+        "shortDesc": "API Qwen3.8-max (full model) 50M token 2D با گارانتی کامل 50M توکن 50",
+        "price": 1482000,
+        "stock": 0
+      },
+      {
+        "title": "اشتراک رسمی کورسور پرو (Cursor AI Pro) ۱ ساله",
+        "shortDesc": "اشتراک رسمی کورسور پرو (Cursor AI Pro) ۱ ساله",
+        "price": 51660000,
+        "stock": 11
+      },
+      {
+        "title": "اشتراک رسمی جن‌اسپارک (Genspark AI) ۱ ماهه",
+        "shortDesc": "اشتراک رسمی جن‌اسپارک (Genspark AI) ۱ ماهه",
+        "price": 9809000,
+        "stock": 0
+      },
+      {
+        "title": "اشتراک رسمی گوگل جمینی (Google Gemini) ۳ ماهه",
+        "shortDesc": "اشتراک رسمی گوگل جمینی (Google Gemini) ۳ ماهه",
+        "price": 229887000,
+        "stock": 3
+      }
+    ]
+  }
+}

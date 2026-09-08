@@ -1,17 +1,18 @@
 import { PrismaClient } from "@prisma/client";
 const db = new PrismaClient();
-const orders = await db.order.findMany({
-  select: { id: true, code: true, status: true, total: true, zarinpalAuthority: true, paidAt: true, createdAt: true },
-  orderBy: { createdAt: "asc" },
+
+await db.siteContent.upsert({
+  where: { key: "banner1_product_ids" },
+  update: { value: "cmtc17zb300s9u2ycjtrgxj5w,cmtc17qk0002ju2yccsd4hp2h,cmtc17qkh002lu2ycbhijyjxw" },
+  create: { key: "banner1_product_ids", value: "cmtc17zb300s9u2ycjtrgxj5w,cmtc17qk0002ju2yccsd4hp2h,cmtc17qkh002lu2ycbhijyjxw" },
 });
-console.log("=== ORDERS ===");
-for (const o of orders) console.log(JSON.stringify(o));
-const keys = await db.licenseKey.groupBy({ by: ["status"], _count: true });
-console.log("=== LICENSE STATUS COUNTS ===", JSON.stringify(keys));
-const office = await db.product.findUnique({ where: { slug: "office-365-5-devices" }, select: { stock: true, salesCount: true } });
-console.log("=== OFFICE PRODUCT ===", JSON.stringify(office));
-const soldKeys = await db.licenseKey.findFirst({ where: { status: "SOLD" }, select: { id: true, productId: true, orderItemId: true, key: true, source: true } });
-console.log("=== SAMPLE SOLD KEY ===", JSON.stringify(soldKeys));
-const dc = await db.discountCode.findMany({ select: { code: true, usedCount: true, maxUses: true } });
-console.log("=== DISCOUNTS ===", JSON.stringify(dc));
+
+await db.siteContent.upsert({
+  where: { key: "banner2_product_ids" },
+  update: { value: "cmtc17qw4003pu2ycb0tvoqhn,cmtc17qdb001vu2yc3sey01rs,cmtc17qkh002lu2ycbhijyjxw" },
+  create: { key: "banner2_product_ids", value: "cmtc17qw4003pu2ycb0tvoqhn,cmtc17qdb001vu2yc3sey01rs,cmtc17qkh002lu2ycbhijyjxw" },
+});
+
+console.log("Banner product IDs successfully configured!");
 await db.$disconnect();
+

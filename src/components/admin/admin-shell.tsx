@@ -30,15 +30,7 @@ import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
 import { ThemeToggle } from "@/components/site/theme-toggle";
 import { signOut, useSession } from "next-auth/react";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { UserNavMenu } from "@/components/site/user-nav-menu";
 import { SITE } from "@/lib/constants";
 
 const NAV = [
@@ -107,39 +99,7 @@ function Logo() {
 function UserMenu() {
   const { data: session } = useSession();
   if (!session?.user) return null;
-  return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <button className="flex items-center gap-2 rounded-full p-1 transition-colors hover:bg-accent">
-          <Avatar className="h-9 w-9 border">
-            <AvatarFallback className="bg-primary/15 text-xs font-bold text-primary">
-              {session.user.name?.[0] || session.user.email?.[0]?.toUpperCase()}
-            </AvatarFallback>
-          </Avatar>
-        </button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-56">
-        <DropdownMenuLabel className="truncate">
-          <div className="font-medium">{session.user.name || "مدیر"}</div>
-          <div className="truncate text-xs font-normal text-muted-foreground">
-            {session.user.email}
-          </div>
-        </DropdownMenuLabel>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem asChild>
-          <Link href="/">
-            <Home className="ml-2 h-4 w-4" /> مشاهده سایت
-          </Link>
-        </DropdownMenuItem>
-        <DropdownMenuItem
-          onClick={async () => { await signOut({ redirect: false }); window.location.href = "/"; }}
-          className="text-rose-500 focus:text-rose-500"
-        >
-          <LogOut className="ml-2 h-4 w-4" /> خروج از حساب
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
-  );
+  return <UserNavMenu user={session.user} inAdmin={true} />;
 }
 
 export function AdminShell({ children }: { children: React.ReactNode }) {

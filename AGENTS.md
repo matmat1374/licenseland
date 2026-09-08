@@ -52,6 +52,12 @@
 ❌ طولانی: «عالی! مشکل شما اینست که متغیر usdRate تعریف نشده. باید آن را از API دریافت کرده و در state ذخیره کنید. در اینجا کد اصلاح‌شده را می‌بینید:»  
 ✅ فشرده: «`usdRate` undefined. fix:»
 
+---
+
+## 🛠️ استفاده از ابزار agentic-awesome-skills
+در هر تسک، ایجنت مجاز است با اجرای `npx -y agentic-awesome-skills` مهارتهای جدید مرتبط با تسک را جستجو کرده و لود کند (نصب در پوشه `.agents/skills`).
+
+
 <!-- BEGIN:nextjs-agent-rules -->
 
 # This is NOT the Next.js you know

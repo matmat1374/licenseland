@@ -80,23 +80,21 @@ export async function POST(req: NextRequest) {
       brand,
       tags,
       image,
-      featured,
-      bestseller,
-      isActive,
+      stock,
+      featured = false,
+      bestseller = false,
+      isActive = true,
     } = body || {};
 
-    if (!title || !shortDesc || !description || !category || price == null) {
+    if (!title || !slug || !category || price == null) {
       return NextResponse.json(
-        { ok: false, message: "فیلدهای ضروری ناقص است" },
+        { ok: false, message: "فیلدهای الزامی: عنوان، شناسه، دسته‌بندی، قیمت" },
         { status: 400 }
       );
     }
 
-    const finalSlug = (slug && slug.trim()) || slugifyFa(title);
-
-    // ensure unique slug
-    const exists = await db.product.findUnique({ where: { slug: finalSlug } });
-    if (exists) {
+    const dup = await db.product.findUnique({ where: { slug } });
+    if (dup) {
       return NextResponse.json(
         { ok: false, message: "این شناسه (slug) قبلاً استفاده شده" },
         { status: 400 }
@@ -106,9 +104,9 @@ export async function POST(req: NextRequest) {
     const product = await db.product.create({
       data: {
         title: title.trim(),
-        slug: finalSlug,
-        shortDesc: shortDesc.trim(),
-        description,
+        slug: slug.trim(),
+        shortDesc: shortDesc?.trim() || "",
+        description: description || "",
         features: JSON.stringify(Array.isArray(features) ? features : []),
         specifications: specifications ? JSON.stringify(specifications) : null,
         price: Number(price),
@@ -118,9 +116,10 @@ export async function POST(req: NextRequest) {
         brand: brand || null,
         tags: tags || null,
         image: image || null,
+        stock: stock != null ? Number(stock) : 999,
         featured: !!featured,
         bestseller: !!bestseller,
-        isActive: isActive !== false,
+        isActive: !!isActive,
       },
     });
 

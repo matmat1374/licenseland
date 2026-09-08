@@ -1,0 +1,986 @@
+[
+  {
+    "id": "cmtc17qa5001hu2yc11fq9qjr",
+    "title": "اکانت نتفلیکس ۴K پریمیوم Ultra HD",
+    "brand": "دیجیتال",
+    "category": "streaming"
+  },
+  {
+    "id": "cmtc17qaq001lu2ycv3i0du8e",
+    "title": "اشتراک و لایسنس قانونی اشتراک رسمی کنوا پرو (Canva Pro)",
+    "brand": "Canva",
+    "category": "design"
+  },
+  {
+    "id": "cmtc17qbx001pu2ycwwgi1o8u",
+    "title": "اشتراک و لایسنس قانونی اشتراک ساخت ویدیو گوگل ویو (Google VEO)",
+    "brand": "Google",
+    "category": "ai"
+  },
+  {
+    "id": "cmtc17qci001tu2ycx2z4vut4",
+    "title": "اکانت نتفلیکس ۴K پریمیوم Ultra HD 1 ماهه",
+    "brand": "دیجیتال",
+    "category": "streaming"
+  },
+  {
+    "id": "cmtc17qdb001vu2yc3sey01rs",
+    "title": "اشتراک ادوبی اکسپرس ۱۲ ماهه",
+    "brand": "دیجیتال",
+    "category": "design"
+  },
+  {
+    "id": "cmtc17qh80029u2ycmbkxtn23",
+    "title": "اشتراک و لایسنس قانونی اشتراک هوش مصنوعی کلاود آنتروپیک (Claude AI)",
+    "brand": "Anthropic",
+    "category": "other"
+  },
+  {
+    "id": "cmtc17qho002bu2yceaf3ts35",
+    "title": "اشتراک و لایسنس قانونی اشتراک هوش مصنوعی کلاود آنتروپیک (Claude AI)",
+    "brand": "Anthropic",
+    "category": "software"
+  },
+  {
+    "id": "cmtc17qi4002du2yclwccdojr",
+    "title": "اشتراک و لایسنس قانونی اشتراک هوش مصنوعی کلاود آنتروپیک (Claude AI)",
+    "brand": "Anthropic",
+    "category": "software"
+  },
+  {
+    "id": "cmtc17qil002fu2ycqgfy1n9p",
+    "title": "اشتراک و لایسنس قانونی اشتراک هوش مصنوعی کلاود آنتروپیک (Claude AI)",
+    "brand": "Anthropic",
+    "category": "other"
+  },
+  {
+    "id": "cmtc17qjk002hu2yc6sbf5yqf",
+    "title": "اشتراک و لایسنس قانونی اشتراک هوش مصنوعی کلاود آنتروپیک (Claude AI)",
+    "brand": "Anthropic",
+    "category": "other"
+  },
+  {
+    "id": "cmtc17qk0002ju2yccsd4hp2h",
+    "title": "اشتراک و لایسنس قانونی اشتراک هوش مصنوعی کلاود آنتروپیک (Claude AI)",
+    "brand": "Anthropic",
+    "category": "software"
+  },
+  {
+    "id": "cmtc17qkh002lu2ycbhijyjxw",
+    "title": "اشتراک و لایسنس قانونی اشتراک ادیتور هوشمند کورسور پرو (Cursor AI)",
+    "brand": "Cursor AI",
+    "category": "software"
+  },
+  {
+    "id": "cmtc17qsx003hu2yckt20ki2h",
+    "title": "اکانت تایید شده فیسبوک با تیک آبی 8 ماهه با گارانتی کامل 8 ماهه",
+    "brand": "دیجیتال",
+    "category": "ai"
+  },
+  {
+    "id": "cmtc17qu9003lu2ycjysufdmh",
+    "title": "اشتراک و لایسنس قانونی اشتراک رسمی کنوا پرو (Canva Pro)",
+    "brand": "Canva",
+    "category": "design"
+  },
+  {
+    "id": "cmtc17qvf003nu2yc42x8iymm",
+    "title": "اشتراک و لایسنس قانونی اشتراک رسمی کنوا پرو (Canva Pro)",
+    "brand": "Canva",
+    "category": "design"
+  },
+  {
+    "id": "cmtc17qw4003pu2ycb0tvoqhn",
+    "title": "اشتراک و لایسنس قانونی اشتراک رسمی کنوا پرو (Canva Pro)",
+    "brand": "Canva",
+    "category": "design"
+  },
+  {
+    "id": "cmtc17r6a004lu2yckgtymld5",
+    "title": "لایسنس ارتقا هوش مصنوعی xAI Grok 2 / SuperGrok 1 ماهه",
+    "brand": "xAI",
+    "category": "ai"
+  },
+  {
+    "id": "cmtc17r6j004nu2ycq8qjk28u",
+    "title": "اشتراک و لایسنس قانونی اشتراک هوش مصنوعی چت‌جی‌پی‌تی (ChatGPT)",
+    "brand": "OpenAI",
+    "category": "ai"
+  },
+  {
+    "id": "cmtc17r7c004pu2ycm8b6lq12",
+    "title": "اشتراک و لایسنس قانونی اشتراک هوش مصنوعی چت‌جی‌پی‌تی (ChatGPT)",
+    "brand": "OpenAI",
+    "category": "ai"
+  },
+  {
+    "id": "cmtc17r7o004ru2ycsbtawva6",
+    "title": "اشتراک و لایسنس قانونی اشتراک هوش مصنوعی چت‌جی‌پی‌تی (ChatGPT)",
+    "brand": "OpenAI",
+    "category": "virtual-numbers"
+  },
+  {
+    "id": "cmtc17r7z004tu2ycu2xb7e1e",
+    "title": "اشتراک و لایسنس قانونی اشتراک هوش مصنوعی چت‌جی‌پی‌تی (ChatGPT)",
+    "brand": "OpenAI",
+    "category": "virtual-numbers"
+  },
+  {
+    "id": "cmtc17r8d004vu2ycjh8xttxe",
+    "title": "اشتراک و لایسنس قانونی اشتراک هوش مصنوعی چت‌جی‌پی‌تی (ChatGPT)",
+    "brand": "OpenAI",
+    "category": "virtual-numbers"
+  },
+  {
+    "id": "cmtc17r97004xu2ycrflqq3g5",
+    "title": "اشتراک و لایسنس قانونی اشتراک هوش مصنوعی چت‌جی‌پی‌تی (ChatGPT)",
+    "brand": "OpenAI",
+    "category": "virtual-numbers"
+  },
+  {
+    "id": "cmtc17rlv0069u2yc5xp1nsrh",
+    "title": "اشتراک و لایسنس قانونی اشتراک صداگذاری هوش مصنوعی الون‌لبز (ElevenLabs)",
+    "brand": "ElevenLabs",
+    "category": "ai"
+  },
+  {
+    "id": "cmtc17rzr007fu2yc95balowp",
+    "title": "اشتراک و لایسنس قانونی اشتراک ساخت ویدیو گوگل ویو (Google VEO)",
+    "brand": "Google",
+    "category": "ai"
+  },
+  {
+    "id": "cmtc17s2n007lu2ycxhbakl3a",
+    "title": "ایمیل موقت و دامنه اختصاصی جیمیل با وب‌میل سریع",
+    "brand": "Google",
+    "category": "ai"
+  },
+  {
+    "id": "cmtc17s3e007nu2ycjzw4zfby",
+    "title": "ایمیل موقت و دامنه اختصاصی جیمیل با وب‌میل سریع",
+    "brand": "Google",
+    "category": "ai"
+  },
+  {
+    "id": "cmtc17s45007pu2yc3952gq5t",
+    "title": "ایمیل موقت و دامنه اختصاصی جیمیل با وب‌میل سریع",
+    "brand": "Google",
+    "category": "ai"
+  },
+  {
+    "id": "cmtc17s4w007ru2ycpos08twg",
+    "title": "ایمیل موقت و دامنه اختصاصی جیمیل با وب‌میل سریع",
+    "brand": "Google",
+    "category": "ai"
+  },
+  {
+    "id": "cmtc17s68007tu2ycfcjqnihx",
+    "title": "ایمیل موقت و دامنه اختصاصی جیمیل با وب‌میل سریع 7 روزه",
+    "brand": "Google",
+    "category": "ai"
+  },
+  {
+    "id": "cmtc17s6z007vu2ycqwyafcpo",
+    "title": "ایمیل موقت و دامنه اختصاصی جیمیل با وب‌میل سریع 7 روزه",
+    "brand": "Google",
+    "category": "ai"
+  },
+  {
+    "id": "cmtc17s8g007zu2ycxh268d0j",
+    "title": "ایمیل موقت و دامنه اختصاصی جیمیل با وب‌میل سریع",
+    "brand": "Google",
+    "category": "ai"
+  },
+  {
+    "id": "cmtc17sui009fu2yc5a0s1j8b",
+    "title": "لایسنس ارتقا هوش مصنوعی xAI Grok 2 / SuperGrok 7 روزه",
+    "brand": "xAI",
+    "category": "ai"
+  },
+  {
+    "id": "cmtc17svj009hu2yc4k7pzke5",
+    "title": "لایسنس ارتقا هوش مصنوعی xAI Grok 2 / SuperGrok 1 ماهه",
+    "brand": "xAI",
+    "category": "ai"
+  },
+  {
+    "id": "cmtc17sw3009lu2ycaqf6ad9o",
+    "title": "اشتراک و لایسنس قانونی هوش مصنوعی ساخت آواتار و ویدیو هی‌جن (HeyGen)",
+    "brand": "HeyGen",
+    "category": "ai"
+  },
+  {
+    "id": "cmtc17swy009nu2ycpizczrkw",
+    "title": "اشتراک اختصاصی هوش مصنوعی ساخت ویدیو هیگزفیلد (Higgsfield AI) ۱ ماهه",
+    "brand": "Higgsfield",
+    "category": "ai"
+  },
+  {
+    "id": "cmtc17sxi009ru2ycgb3w2664",
+    "title": "اشتراک و لایسنس قانونی اکانت اختصاصی مایکروسافت هات‌میل / اوت‌لوک (Outlook)",
+    "brand": "دیجیتال",
+    "category": "ai"
+  },
+  {
+    "id": "cmtc17sys009tu2ycdhsg3864",
+    "title": "اشتراک و لایسنس قانونی اکانت اختصاصی مایکروسافت هات‌میل / اوت‌لوک (Outlook) ۲۴ ساعته",
+    "brand": "دیجیتال",
+    "category": "ai"
+  },
+  {
+    "id": "cmtc17szi009vu2ycudx16nxw",
+    "title": "اشتراک و لایسنس قانونی اکانت اختصاصی مایکروسافت هات‌میل / اوت‌لوک (Outlook)",
+    "brand": "دیجیتال",
+    "category": "ai"
+  },
+  {
+    "id": "cmtc17ten00bhu2yc404jxl18",
+    "title": "اشتراک اختصاصی هوش مصنوعی ساخت ویدیو کلینگ (Kling AI Ultra/Pro) ۱ ماهه",
+    "brand": "دیجیتال",
+    "category": "ai"
+  },
+  {
+    "id": "cmtc17tf900bju2ycesljae0q",
+    "title": "اشتراک اختصاصی هوش مصنوعی ساخت ویدیو کلینگ (Kling AI Ultra/Pro) ۱ ماهه",
+    "brand": "دیجیتال",
+    "category": "ai"
+  },
+  {
+    "id": "cmtc17tfv00blu2ycatta3men",
+    "title": "اشتراک اختصاصی هوش مصنوعی ساخت ویدیو کلینگ (Kling AI Ultra/Pro) ۱ ماهه",
+    "brand": "دیجیتال",
+    "category": "ai"
+  },
+  {
+    "id": "cmtc17u4e00dnu2yciouh4nxr",
+    "title": "اکانت تایید شده فیسبوک با تیک آبی",
+    "brand": "دیجیتال",
+    "category": "ai"
+  },
+  {
+    "id": "cmtc17u4w00dpu2ycj725qboh",
+    "title": "ایمیل موقت و دامنه اختصاصی جیمیل با وب‌میل سریع",
+    "brand": "Google",
+    "category": "ai"
+  },
+  {
+    "id": "cmtc17uad00e7u2yctt7mqd8z",
+    "title": "اشتراک رسمی پرپلکسیتی پرو (Perplexity Pro)",
+    "brand": "دیجیتال",
+    "category": "ai"
+  },
+  {
+    "id": "cmtc17uax00e9u2yczvub43sg",
+    "title": "اشتراک رسمی پرپلکسیتی پرو (Perplexity Pro) ۱ ساله",
+    "brand": "دیجیتال",
+    "category": "ai"
+  },
+  {
+    "id": "cmtc17uby00edu2ychi7qqubc",
+    "title": "ایمیل موقت و دامنه اختصاصی جیمیل با وب‌میل سریع 90 روزه",
+    "brand": "Google",
+    "category": "ai"
+  },
+  {
+    "id": "cmtc17unf00fbu2ycz6tg7xoa",
+    "title": "اشتراک و لایسنس قانونی اشتراک ساخت ویدیو ران‌وی (Runway Gen-3)",
+    "brand": "دیجیتال",
+    "category": "ai"
+  },
+  {
+    "id": "cmtc17uo300fdu2ycsl9n8bux",
+    "title": "اشتراک و لایسنس قانونی اشتراک ساخت ویدیو ران‌وی (Runway Gen-3)",
+    "brand": "دیجیتال",
+    "category": "ai"
+  },
+  {
+    "id": "cmtc17uoo00ffu2yczqilt32v",
+    "title": "اشتراک و لایسنس قانونی اشتراک ساخت ویدیو ران‌وی (Runway Gen-3)",
+    "brand": "دیجیتال",
+    "category": "ai"
+  },
+  {
+    "id": "cmtc17usy00fnu2ycd5v8lj6e",
+    "title": "اشتراک و لایسنس قانونی کردیت هوش مصنوعی انیمیشن سیدنس (Seedance) ۲۴ ساعته",
+    "brand": "دیجیتال",
+    "category": "ai"
+  },
+  {
+    "id": "cmtc17uu600fpu2ycz362kqzr",
+    "title": "Slot Add Family 0 Credit(antigravity 20x) Flow 1M includes 30D 1 ماهه [اسلات اختصاصی] 0 کردیت 1 ماهه [اسلات اختصاصی]",
+    "brand": "دیجیتال",
+    "category": "ai"
+  },
+  {
+    "id": "cmtc17w5v00kbu2yc4kzh8b63",
+    "title": "اشتراک و لایسنس قانونی اشتراک آهنگسازی هوش مصنوعی یودیو (Udio AI)",
+    "brand": "دیجیتال",
+    "category": "ai"
+  },
+  {
+    "id": "cmtc17w6d00kdu2ycbxwje1t0",
+    "title": "اشتراک و لایسنس قانونی اشتراک آهنگسازی هوش مصنوعی یودیو (Udio AI)",
+    "brand": "دیجیتال",
+    "category": "ai"
+  },
+  {
+    "id": "cmtc17w7100kfu2yconnr2ltr",
+    "title": "اشتراک و لایسنس قانونی اشتراک آهنگسازی هوش مصنوعی یودیو (Udio AI)",
+    "brand": "دیجیتال",
+    "category": "ai"
+  },
+  {
+    "id": "cmtc17w8a00khu2yckxxfypxs",
+    "title": "لایسنس قانونی و اورجینال TikTok USA (US) 2024",
+    "brand": "دیجیتال",
+    "category": "ai"
+  },
+  {
+    "id": "cmtc17wcl00ktu2yc23cnw3h4",
+    "title": "اشتراک و لایسنس قانونی اشتراک ساخت ویدیو گوگل ویو (Google VEO)",
+    "brand": "Google",
+    "category": "ai"
+  },
+  {
+    "id": "cmtc17wd100kvu2ycscft95xf",
+    "title": "اشتراک و لایسنس قانونی اشتراک ساخت ویدیو گوگل ویو (Google VEO)",
+    "brand": "Google",
+    "category": "ai"
+  },
+  {
+    "id": "cmtc17wdj00kxu2ycgx35nkrh",
+    "title": "اشتراک و لایسنس قانونی اشتراک ساخت ویدیو گوگل ویو (Google VEO)",
+    "brand": "Google",
+    "category": "ai"
+  },
+  {
+    "id": "cmtc17wdz00kzu2yc5dwg7442",
+    "title": "اشتراک و لایسنس قانونی اشتراک ساخت ویدیو گوگل ویو (Google VEO)",
+    "brand": "Google",
+    "category": "ai"
+  },
+  {
+    "id": "cmtc17wez00l1u2yc0qcq71ra",
+    "title": "اشتراک و لایسنس قانونی اشتراک ساخت ویدیو گوگل ویو (Google VEO)",
+    "brand": "Google",
+    "category": "ai"
+  },
+  {
+    "id": "cmtc17wfe00l3u2yc1yzirzxf",
+    "title": "اشتراک و لایسنس قانونی اشتراک ساخت ویدیو گوگل ویو (Google VEO)",
+    "brand": "Google",
+    "category": "ai"
+  },
+  {
+    "id": "cmtc17wft00l5u2yci4oocndx",
+    "title": "اشتراک و لایسنس قانونی اشتراک ساخت ویدیو گوگل ویو (Google VEO)",
+    "brand": "Google",
+    "category": "ai"
+  },
+  {
+    "id": "cmtc17x7400mru2ycrkhlomq6",
+    "title": "اشتراک رسمی ایکس‌باکس (Xbox) ۱ ساله",
+    "brand": "Xbox",
+    "category": "ai"
+  },
+  {
+    "id": "cmtc17x7w00mtu2ycqqbqcc8m",
+    "title": "اشتراک رسمی ایکس‌باکس (Xbox) ۱ ساله",
+    "brand": "Xbox",
+    "category": "ai"
+  },
+  {
+    "id": "cmtc17xgr00ndu2yc9fk0fa2g",
+    "title": "اشتراک و لایسنس قانونی اشتراک صداگذاری هوش مصنوعی الون‌لبز (ElevenLabs)",
+    "brand": "ElevenLabs",
+    "category": "ai"
+  },
+  {
+    "id": "cmtc17xhl00nfu2yces9ofh13",
+    "title": "اشتراک و لایسنس قانونی اشتراک صداگذاری هوش مصنوعی الون‌لبز (ElevenLabs)",
+    "brand": "ElevenLabs",
+    "category": "ai"
+  },
+  {
+    "id": "cmtc17xiu00nhu2yc8qyzis62",
+    "title": "اشتراک و لایسنس قانونی اشتراک صداگذاری هوش مصنوعی الون‌لبز (ElevenLabs)",
+    "brand": "ElevenLabs",
+    "category": "ai"
+  },
+  {
+    "id": "cmtc17xjl00nju2ycerouvw28",
+    "title": "اشتراک و لایسنس قانونی اشتراک صداگذاری هوش مصنوعی الون‌لبز (ElevenLabs)",
+    "brand": "ElevenLabs",
+    "category": "ai"
+  },
+  {
+    "id": "cmtc17xkf00nlu2yckq4qf5ip",
+    "title": "اشتراک و لایسنس قانونی اشتراک صداگذاری هوش مصنوعی الون‌لبز (ElevenLabs)",
+    "brand": "ElevenLabs",
+    "category": "ai"
+  },
+  {
+    "id": "cmtc17yo300qju2yc7lc06ffl",
+    "title": "اشتراک و لایسنس قانونی اشتراک کپ‌کات پرو (CapCut Pro)",
+    "brand": "CapCut",
+    "category": "ai"
+  },
+  {
+    "id": "cmtc17z1s00rlu2ycawk8gb9s",
+    "title": "اشتراک و لایسنس قانونی اشتراک هوش مصنوعی چت‌جی‌پی‌تی (ChatGPT)",
+    "brand": "OpenAI",
+    "category": "ai"
+  },
+  {
+    "id": "cmtc17z2r00rpu2yce52zc004",
+    "title": "اشتراک و لایسنس قانونی اشتراک هوش مصنوعی چت‌جی‌پی‌تی (ChatGPT)",
+    "brand": "OpenAI",
+    "category": "ai"
+  },
+  {
+    "id": "cmtc17z3700rru2ycyd4d02y3",
+    "title": "اشتراک و لایسنس قانونی اشتراک هوش مصنوعی چت‌جی‌پی‌تی (ChatGPT)",
+    "brand": "OpenAI",
+    "category": "ai"
+  },
+  {
+    "id": "cmtc17z4e00rtu2ycll570u6z",
+    "title": "اشتراک و لایسنس قانونی اشتراک هوش مصنوعی چت‌جی‌پی‌تی (ChatGPT)",
+    "brand": "OpenAI",
+    "category": "ai"
+  },
+  {
+    "id": "cmtc17z5100rvu2yce87812q9",
+    "title": "اشتراک و لایسنس قانونی اشتراک هوش مصنوعی چت‌جی‌پی‌تی (ChatGPT)",
+    "brand": "OpenAI",
+    "category": "ai"
+  },
+  {
+    "id": "cmtc17z5q00rxu2yc2hsfazra",
+    "title": "اشتراک و لایسنس قانونی اشتراک هوش مصنوعی چت‌جی‌پی‌تی (ChatGPT)",
+    "brand": "OpenAI",
+    "category": "ai"
+  },
+  {
+    "id": "cmtc17z6x00rzu2yc8d50vif9",
+    "title": "اشتراک و لایسنس قانونی اشتراک هوش مصنوعی چت‌جی‌پی‌تی (ChatGPT)",
+    "brand": "OpenAI",
+    "category": "ai"
+  },
+  {
+    "id": "cmtc17z7n00s1u2ycn0cziy54",
+    "title": "اشتراک و لایسنس قانونی اشتراک هوش مصنوعی چت‌جی‌پی‌تی (ChatGPT)",
+    "brand": "OpenAI",
+    "category": "ai"
+  },
+  {
+    "id": "cmtc17z8c00s3u2yc0qsz673g",
+    "title": "اشتراک و لایسنس قانونی اشتراک هوش مصنوعی چت‌جی‌پی‌تی (ChatGPT)",
+    "brand": "OpenAI",
+    "category": "ai"
+  },
+  {
+    "id": "cmtc17zaa00s7u2ycdk7ynrml",
+    "title": "اشتراک و لایسنس قانونی اشتراک هوش مصنوعی چت‌جی‌پی‌تی (ChatGPT)",
+    "brand": "OpenAI",
+    "category": "ai"
+  },
+  {
+    "id": "cmtc17zb300s9u2ycjtrgxj5w",
+    "title": "اشتراک و لایسنس قانونی اشتراک هوش مصنوعی چت‌جی‌پی‌تی (ChatGPT)",
+    "brand": "OpenAI",
+    "category": "ai"
+  },
+  {
+    "id": "cmtc17zfk00sju2yc6uxmaips",
+    "title": "اشتراک و لایسنس قانونی اشتراک صداگذاری هوش مصنوعی الون‌لبز (ElevenLabs)",
+    "brand": "ElevenLabs",
+    "category": "ai"
+  },
+  {
+    "id": "cmtc17zgw00slu2ycyxucf1gw",
+    "title": "اشتراک و لایسنس قانونی اشتراک صداگذاری هوش مصنوعی الون‌لبز (ElevenLabs)",
+    "brand": "ElevenLabs",
+    "category": "ai"
+  },
+  {
+    "id": "cmtc17zor00szu2ycxnsgc2gf",
+    "title": "ایمیل موقت و دامنه اختصاصی جیمیل با وب‌میل سریع",
+    "brand": "Google",
+    "category": "ai"
+  },
+  {
+    "id": "cmtc17zpp00t1u2ycrbjv6oxw",
+    "title": "ایمیل موقت و دامنه اختصاصی جیمیل با وب‌میل سریع",
+    "brand": "Google",
+    "category": "ai"
+  },
+  {
+    "id": "cmtc17zpw00t3u2yct1lzwsog",
+    "title": "ایمیل موقت و دامنه اختصاصی جیمیل با وب‌میل سریع",
+    "brand": "Google",
+    "category": "ai"
+  },
+  {
+    "id": "cmtc17zq500t5u2ycyfxx0tah",
+    "title": "ایمیل موقت و دامنه اختصاصی جیمیل با وب‌میل سریع",
+    "brand": "Google",
+    "category": "ai"
+  },
+  {
+    "id": "cmtc17zqd00t7u2yclciyv2hi",
+    "title": "ایمیل موقت و دامنه اختصاصی جیمیل با وب‌میل سریع",
+    "brand": "Google",
+    "category": "ai"
+  },
+  {
+    "id": "cmtc17zr700t9u2ycn0mvq5ln",
+    "title": "ایمیل موقت و دامنه اختصاصی جیمیل با وب‌میل سریع 1 روزه",
+    "brand": "Google",
+    "category": "ai"
+  },
+  {
+    "id": "cmtc17zri00tbu2ycoi2fzlmr",
+    "title": "ایمیل موقت و دامنه اختصاصی جیمیل با وب‌میل سریع 1 روزه",
+    "brand": "Google",
+    "category": "ai"
+  },
+  {
+    "id": "cmtc17zrs00tdu2ycktldx8nb",
+    "title": "ایمیل موقت و دامنه اختصاصی جیمیل با وب‌میل سریع",
+    "brand": "Google",
+    "category": "ai"
+  },
+  {
+    "id": "cmtc17zsm00tfu2yc03frijoi",
+    "title": "ایمیل موقت و دامنه اختصاصی جیمیل با وب‌میل سریع",
+    "brand": "Google",
+    "category": "ai"
+  },
+  {
+    "id": "cmtc17zt700tju2ycvm8pj3gj",
+    "title": "ایمیل موقت و دامنه اختصاصی جیمیل با وب‌میل سریع",
+    "brand": "Google",
+    "category": "ai"
+  },
+  {
+    "id": "cmtc17zuf00tnu2ycv8pqujee",
+    "title": "ایمیل موقت و دامنه اختصاصی جیمیل با وب‌میل سریع",
+    "brand": "Google",
+    "category": "ai"
+  },
+  {
+    "id": "cmtc17zur00tpu2yc1ss9nsv8",
+    "title": "ایمیل موقت و دامنه اختصاصی جیمیل با وب‌میل سریع",
+    "brand": "Google",
+    "category": "ai"
+  },
+  {
+    "id": "cmtc17zv200tru2ycfgfz2mab",
+    "title": "ایمیل موقت و دامنه اختصاصی جیمیل با وب‌میل سریع",
+    "brand": "Google",
+    "category": "ai"
+  },
+  {
+    "id": "cmtc17zvd00ttu2yca760hamw",
+    "title": "ایمیل موقت و دامنه اختصاصی جیمیل با وب‌میل سریع",
+    "brand": "Google",
+    "category": "ai"
+  },
+  {
+    "id": "cmtc17zy400u3u2yco5v1g45s",
+    "title": "لایسنس ارتقا هوش مصنوعی xAI Grok 2 / SuperGrok 1 ماهه",
+    "brand": "xAI",
+    "category": "ai"
+  },
+  {
+    "id": "cmtc17zyf00u5u2yc7vpyxa7r",
+    "title": "لایسنس ارتقا هوش مصنوعی xAI Grok 2 / SuperGrok 7 روزه",
+    "brand": "xAI",
+    "category": "ai"
+  },
+  {
+    "id": "cmtc17zyr00u7u2yc28rr0bhb",
+    "title": "لایسنس ارتقا هوش مصنوعی xAI Grok 2 / SuperGrok 7 روزه",
+    "brand": "xAI",
+    "category": "ai"
+  },
+  {
+    "id": "cmtc17zz300u9u2ycahhk7qy6",
+    "title": "لایسنس ارتقا هوش مصنوعی xAI Grok 2 / SuperGrok 7 روزه",
+    "brand": "xAI",
+    "category": "ai"
+  },
+  {
+    "id": "cmtc1800b00ubu2yc6o8mvg3q",
+    "title": "لایسنس ارتقا هوش مصنوعی xAI Grok 2 / SuperGrok 7 روزه",
+    "brand": "xAI",
+    "category": "ai"
+  },
+  {
+    "id": "cmtc1800u00udu2ycykfkkoeo",
+    "title": "لایسنس ارتقا هوش مصنوعی xAI Grok 2 / SuperGrok 7 روزه",
+    "brand": "xAI",
+    "category": "ai"
+  },
+  {
+    "id": "cmtc1802200ufu2ycffnqzjv0",
+    "title": "لایسنس ارتقا هوش مصنوعی xAI Grok 2 / SuperGrok 7 روزه",
+    "brand": "xAI",
+    "category": "ai"
+  },
+  {
+    "id": "cmtc1802m00uhu2ycpvzytid2",
+    "title": "لایسنس ارتقا هوش مصنوعی xAI Grok 2 / SuperGrok 7 روزه",
+    "brand": "xAI",
+    "category": "ai"
+  },
+  {
+    "id": "cmtc1803o00uju2yc0grveoj3",
+    "title": "لایسنس ارتقا هوش مصنوعی xAI Grok 2 / SuperGrok 7 روزه",
+    "brand": "xAI",
+    "category": "ai"
+  },
+  {
+    "id": "cmtc1804700ulu2yc4aw5e7at",
+    "title": "اشتراک و لایسنس قانونی هوش مصنوعی ساخت آواتار و ویدیو هی‌جن (HeyGen) ۱ ماهه",
+    "brand": "HeyGen",
+    "category": "ai"
+  },
+  {
+    "id": "cmtc1804p00unu2yc4a7st2ff",
+    "title": "اشتراک و لایسنس قانونی هوش مصنوعی ساخت آواتار و ویدیو هی‌جن (HeyGen) ۱ ماهه",
+    "brand": "HeyGen",
+    "category": "ai"
+  },
+  {
+    "id": "cmtc1808j00uxu2ycaitzlwb2",
+    "title": "اشتراک اختصاصی هوش مصنوعی ساخت ویدیو هیگزفیلد (Higgsfield AI) ۳ روزه",
+    "brand": "Higgsfield",
+    "category": "ai"
+  },
+  {
+    "id": "cmtc180al00v3u2yc7p2v5q1u",
+    "title": "اشتراک اختصاصی هوش مصنوعی ساخت ویدیو هیگزفیلد (Higgsfield AI) ۱ ماهه",
+    "brand": "Higgsfield",
+    "category": "ai"
+  },
+  {
+    "id": "cmtc180b300v5u2yc9go01gdt",
+    "title": "اشتراک اختصاصی هوش مصنوعی ساخت ویدیو هیگزفیلد (Higgsfield AI) ۳ روزه",
+    "brand": "Higgsfield",
+    "category": "ai"
+  },
+  {
+    "id": "cmtc180d800vbu2ycl5b09dbb",
+    "title": "اشتراک و لایسنس قانونی اکانت اختصاصی مایکروسافت هات‌میل / اوت‌لوک (Outlook)",
+    "brand": "دیجیتال",
+    "category": "ai"
+  },
+  {
+    "id": "cmtc180ds00vdu2yc1sq6qbia",
+    "title": "اشتراک اختصاصی هوش مصنوعی ساخت ویدیو کلینگ (Kling AI Ultra/Pro) ۱ ماهه",
+    "brand": "دیجیتال",
+    "category": "ai"
+  },
+  {
+    "id": "cmtc180eg00vfu2yci71pap98",
+    "title": "اشتراک اختصاصی هوش مصنوعی ساخت ویدیو کلینگ (Kling AI Ultra/Pro) ۷ روزه",
+    "brand": "دیجیتال",
+    "category": "ai"
+  },
+  {
+    "id": "cmtc180fp00vhu2ycvxs2yyk6",
+    "title": "اشتراک اختصاصی هوش مصنوعی ساخت ویدیو کلینگ (Kling AI Ultra/Pro) ۷ روزه",
+    "brand": "دیجیتال",
+    "category": "ai"
+  },
+  {
+    "id": "cmtc180gi00vju2ycbeyvbq1d",
+    "title": "اشتراک اختصاصی هوش مصنوعی ساخت ویدیو کلینگ (Kling AI Ultra/Pro) ۷ روزه",
+    "brand": "دیجیتال",
+    "category": "ai"
+  },
+  {
+    "id": "cmtc180hy00vnu2yc927k2hdb",
+    "title": "اشتراک اختصاصی هوش مصنوعی ساخت ویدیو کلینگ (Kling AI Ultra/Pro) ۱ ماهه",
+    "brand": "دیجیتال",
+    "category": "ai"
+  },
+  {
+    "id": "cmtc180j200vpu2yc90k93631",
+    "title": "اشتراک اختصاصی هوش مصنوعی ساخت ویدیو کلینگ (Kling AI Ultra/Pro) ۱ ماهه",
+    "brand": "دیجیتال",
+    "category": "ai"
+  },
+  {
+    "id": "cmtc180jq00vru2ycpma5fqmi",
+    "title": "اشتراک اختصاصی هوش مصنوعی ساخت ویدیو کلینگ (Kling AI Ultra/Pro) ۱ ماهه",
+    "brand": "دیجیتال",
+    "category": "ai"
+  },
+  {
+    "id": "cmtc180kg00vtu2ycrdnzsqah",
+    "title": "اشتراک اختصاصی هوش مصنوعی ساخت ویدیو کلینگ (Kling AI Ultra/Pro) ۱ ماهه",
+    "brand": "دیجیتال",
+    "category": "ai"
+  },
+  {
+    "id": "cmtc180l400vvu2ycy42wjgvu",
+    "title": "اشتراک اختصاصی هوش مصنوعی ساخت ویدیو کلینگ (Kling AI Ultra/Pro) ۱ ماهه",
+    "brand": "دیجیتال",
+    "category": "ai"
+  },
+  {
+    "id": "cmtc180mf00vxu2yciapadtrv",
+    "title": "اشتراک اختصاصی هوش مصنوعی ساخت ویدیو کلینگ (Kling AI Ultra/Pro) ۱ ماهه",
+    "brand": "دیجیتال",
+    "category": "ai"
+  },
+  {
+    "id": "cmtc181g400y3u2ycj2cb7bwb",
+    "title": "اشتراک و لایسنس قانونی اکانت اختصاصی مایکروسافت هات‌میل / اوت‌لوک (Outlook)",
+    "brand": "دیجیتال",
+    "category": "ai"
+  },
+  {
+    "id": "cmtc181m800yju2yc1qp8tr5g",
+    "title": "اشتراک و لایسنس قانونی اشتراک ساخت ویدیو ران‌وی (Runway Gen-3)",
+    "brand": "دیجیتال",
+    "category": "ai"
+  },
+  {
+    "id": "cmtc181n400ylu2yc87bijaes",
+    "title": "اشتراک و لایسنس قانونی کردیت هوش مصنوعی انیمیشن سیدنس (Seedance) ۱ ماهه",
+    "brand": "دیجیتال",
+    "category": "ai"
+  },
+  {
+    "id": "cmtc181o000ypu2ycwbgsc2tv",
+    "title": "اشتراک و لایسنس قانونی کردیت هوش مصنوعی انیمیشن سیدنس (Seedance) ۱ ماهه",
+    "brand": "دیجیتال",
+    "category": "ai"
+  },
+  {
+    "id": "cmtc181ss00z3u2ycixwfy0px",
+    "title": "اشتراک و لایسنس قانونی اشتراک ساخت ویدیو گوگل ویو (Google VEO)",
+    "brand": "Google",
+    "category": "ai"
+  },
+  {
+    "id": "cmtc181th00z5u2ycwecad6fj",
+    "title": "اشتراک و لایسنس قانونی اشتراک ساخت ویدیو گوگل ویو (Google VEO)",
+    "brand": "Google",
+    "category": "ai"
+  },
+  {
+    "id": "cmtc181un00z7u2ycjs56ey3z",
+    "title": "اشتراک و لایسنس قانونی اشتراک ساخت ویدیو گوگل ویو (Google VEO)",
+    "brand": "Google",
+    "category": "ai"
+  },
+  {
+    "id": "cmtc181vc00z9u2yc1puzilfz",
+    "title": "اشتراک و لایسنس قانونی اشتراک آهنگسازی هوش مصنوعی سونو (Suno AI)",
+    "brand": "دیجیتال",
+    "category": "ai"
+  },
+  {
+    "id": "cmtc181xy00zfu2ycf0itwx6j",
+    "title": "لایسنس قانونی و اورجینال TikTok new registration, blank profile",
+    "brand": "دیجیتال",
+    "category": "ai"
+  },
+  {
+    "id": "cmtc181yl00zhu2ycrw0feu3x",
+    "title": "لایسنس قانونی و اورجینال Tiktok Open Cart - Live (Real FL)",
+    "brand": "دیجیتال",
+    "category": "ai"
+  },
+  {
+    "id": "cmtc1821200znu2ycowuyvozv",
+    "title": "اشتراک و لایسنس قانونی اشتراک ساخت ویدیو گوگل ویو (Google VEO)",
+    "brand": "Google",
+    "category": "ai"
+  },
+  {
+    "id": "cmtc1821p00zpu2ycj1x47s1m",
+    "title": "اشتراک و لایسنس قانونی اشتراک ساخت ویدیو گوگل ویو (Google VEO)",
+    "brand": "Google",
+    "category": "ai"
+  },
+  {
+    "id": "cmtc1822r00zru2yc0zisporm",
+    "title": "اشتراک و لایسنس قانونی اشتراک ساخت ویدیو گوگل ویو (Google VEO)",
+    "brand": "Google",
+    "category": "ai"
+  },
+  {
+    "id": "cmtc1823800ztu2yctwurz069",
+    "title": "اشتراک و لایسنس قانونی اشتراک ساخت ویدیو گوگل ویو (Google VEO)",
+    "brand": "Google",
+    "category": "ai"
+  },
+  {
+    "id": "cmtc1823o00zvu2yc0ez5g1ie",
+    "title": "اشتراک و لایسنس قانونی اشتراک ساخت ویدیو گوگل ویو (Google VEO)",
+    "brand": "Google",
+    "category": "ai"
+  },
+  {
+    "id": "cmtc1824600zxu2yco4u7hoct",
+    "title": "ایمیل موقت و دامنه اختصاصی جیمیل با وب‌میل سریع 10 ماهه",
+    "brand": "Google",
+    "category": "ai"
+  },
+  {
+    "id": "cmtc182660101u2ycy10tqf3j",
+    "title": "اشتراک رسمی ایکس‌باکس (Xbox) ۱ ساله",
+    "brand": "Xbox",
+    "category": "ai"
+  },
+  {
+    "id": "cmtc1827a0103u2ycciic5qvi",
+    "title": "اشتراک رسمی ایکس‌باکس (Xbox) ۱ ساله",
+    "brand": "Xbox",
+    "category": "ai"
+  },
+  {
+    "id": "cmtc1827y0105u2ycibx18dtz",
+    "title": "اشتراک رسمی ایکس‌باکس (Xbox) ۱ ساله",
+    "brand": "Xbox",
+    "category": "ai"
+  },
+  {
+    "id": "cmtc182b4010du2ycdycv957c",
+    "title": "اشتراک و لایسنس قانونی اشتراک صداگذاری هوش مصنوعی الون‌لبز (ElevenLabs)",
+    "brand": "ElevenLabs",
+    "category": "ai"
+  },
+  {
+    "id": "cmtc182bs010fu2yc9owsrpzr",
+    "title": "اشتراک و لایسنس قانونی اشتراک صداگذاری هوش مصنوعی الون‌لبز (ElevenLabs)",
+    "brand": "ElevenLabs",
+    "category": "ai"
+  },
+  {
+    "id": "cmtc182cf010hu2yc90pkncu6",
+    "title": "اشتراک و لایسنس قانونی اشتراک صداگذاری هوش مصنوعی الون‌لبز (ElevenLabs)",
+    "brand": "ElevenLabs",
+    "category": "ai"
+  },
+  {
+    "id": "cmtc182do010ju2yccoc5xtzl",
+    "title": "اشتراک و لایسنس قانونی اشتراک صداگذاری هوش مصنوعی الون‌لبز (ElevenLabs)",
+    "brand": "ElevenLabs",
+    "category": "ai"
+  },
+  {
+    "id": "cmtco214n0005u2pgcxqjox2w",
+    "title": "ایمیل موقت و دامنه اختصاصی جیمیل با وب‌میل سریع",
+    "brand": "Google",
+    "category": "ai"
+  },
+  {
+    "id": "cmtco21510007u2pgu7ch2gh6",
+    "title": "ایمیل موقت و دامنه اختصاصی جیمیل با وب‌میل سریع",
+    "brand": "Google",
+    "category": "ai"
+  },
+  {
+    "id": "cmtco23xi000fu2pgcul4h1ch",
+    "title": "اشتراک اختصاصی هوش مصنوعی ساخت ویدیو کلینگ (Kling AI Ultra/Pro) ۱ ماهه",
+    "brand": "دیجیتال",
+    "category": "ai"
+  },
+  {
+    "id": "cmtco24bi000hu2pgufeygipb",
+    "title": "اشتراک و لایسنس قانونی کردیت هوش مصنوعی انیمیشن سیدنس (Seedance) ۲۴ ساعته",
+    "brand": "دیجیتال",
+    "category": "ai"
+  },
+  {
+    "id": "cmtcwse5j0003u2jch33t6m7v",
+    "title": "ایمیل موقت و دامنه اختصاصی جیمیل با وب‌میل سریع 80 روزه",
+    "brand": "Google",
+    "category": "ai"
+  },
+  {
+    "id": "cmte4ie6a000gu2x8r3n02smj",
+    "title": "اشتراک رسمی پرپلکسیتی پرو (Perplexity Pro) ۱ ساله",
+    "brand": "دیجیتال",
+    "category": "ai"
+  },
+  {
+    "id": "cmte4iexu000ku2x8rppmsbkd",
+    "title": "اشتراک و لایسنس قانونی اشتراک صداگذاری هوش مصنوعی الون‌لبز (ElevenLabs)",
+    "brand": "ElevenLabs",
+    "category": "ai-media"
+  },
+  {
+    "id": "cmte4iinw000uu2x81judp2fw",
+    "title": "اشتراک و لایسنس قانونی اکانت اختصاصی مایکروسافت هات‌میل / اوت‌لوک (Outlook)",
+    "brand": "دیجیتال",
+    "category": "ai-media"
+  },
+  {
+    "id": "cmte4ikjh000wu2x8kjiz0yjn",
+    "title": "اشتراک اختصاصی هوش مصنوعی ساخت ویدیو کلینگ (Kling AI Ultra/Pro) ۱ ساله",
+    "brand": "دیجیتال",
+    "category": "ai-media"
+  },
+  {
+    "id": "cmte4inkv0016u2x8owpuvuhl",
+    "title": "اشتراک و لایسنس قانونی اشتراک ساخت ویدیو ران‌وی (Runway Gen-3)",
+    "brand": "دیجیتال",
+    "category": "ai-media"
+  },
+  {
+    "id": "cmte4ip93001au2x8xfbe8o9x",
+    "title": "اشتراک و لایسنس قانونی کردیت هوش مصنوعی انیمیشن سیدنس (Seedance) ۲۴ ساعته",
+    "brand": "دیجیتال",
+    "category": "ai-media"
+  },
+  {
+    "id": "cmte4ipgs001eu2x8s77ooxqe",
+    "title": "لایسنس ارتقا هوش مصنوعی xAI Grok 2 / SuperGrok 7 روزه",
+    "brand": "xAI",
+    "category": "ai"
+  },
+  {
+    "id": "cmte4ite8001wu2x8pziytld8",
+    "title": "اشتراک و لایسنس قانونی اشتراک صداگذاری هوش مصنوعی الون‌لبز (ElevenLabs)",
+    "brand": "ElevenLabs",
+    "category": "ai-media"
+  },
+  {
+    "id": "cmte4iuto001yu2x8bhgf6ji1",
+    "title": "اشتراک و لایسنس قانونی اشتراک هوش مصنوعی جن‌اسپارک (Genspark AI)",
+    "brand": "دیجیتال",
+    "category": "ai-media"
+  },
+  {
+    "id": "cmte4iwom0022u2x8xwlbl0ue",
+    "title": "لایسنس ارتقا هوش مصنوعی xAI Grok 2 / SuperGrok 7 روزه",
+    "brand": "xAI",
+    "category": "ai"
+  },
+  {
+    "id": "cmte4iws00024u2x8br1gkfk9",
+    "title": "اشتراک و لایسنس قانونی هوش مصنوعی ساخت آواتار و ویدیو هی‌جن (HeyGen)",
+    "brand": "HeyGen",
+    "category": "ai-media"
+  },
+  {
+    "id": "cmte4ixtd0026u2x81nprk7jn",
+    "title": "اشتراک اختصاصی هوش مصنوعی ساخت ویدیو هیگزفیلد (Higgsfield AI) ۱ ماهه",
+    "brand": "Higgsfield",
+    "category": "ai-media"
+  },
+  {
+    "id": "cmte4j1q3002ku2x8vovhl3tj",
+    "title": "اشتراک رسمی ایکس‌باکس (Xbox) ۱ ساله",
+    "brand": "Xbox",
+    "category": "ai-media"
+  }
+]

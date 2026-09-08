@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import {
   Send,
   Instagram,
@@ -24,6 +25,10 @@ const trustItems = [
 ];
 
 export function SiteFooter() {
+  const pathname = usePathname();
+  if (pathname?.startsWith("/admin")) {
+    return null;
+  }
   return (
     <footer className="mt-auto border-t bg-card/50">
       {/* trust strip */}
@@ -44,7 +49,7 @@ export function SiteFooter() {
       </div>
 
       {/* main */}
-      <div className="container mx-auto grid grid-cols-2 gap-8 px-4 py-12 md:grid-cols-4 lg:grid-cols-5">
+      <div className="container mx-auto grid grid-cols-2 gap-8 px-4 py-12 md:grid-cols-4 lg:grid-cols-6">
         {/* brand */}
         <div className="col-span-2 lg:col-span-2">
           <Link href="/" className="group flex items-center gap-3">
@@ -143,16 +148,25 @@ export function SiteFooter() {
           <h4 className="mb-4 text-sm font-bold">تماس با ما</h4>
           <ul className="space-y-3 text-sm text-muted-foreground">
             <li className="flex items-center gap-2">
-              <Phone className="h-4 w-4 text-primary" />
-              <span dir="ltr">تلفن: {SITE.phone}</span>
+              <Phone className="h-4 w-4 text-primary shrink-0" />
+              <span>تلفن ثابت:</span>
+              <a href="tel:07644458791" className="text-foreground hover:text-primary transition-colors font-medium" dir="ltr">
+                ۰۷۶-۴۴۴۵۸۷۹۱
+              </a>
             </li>
             <li className="flex items-center gap-2">
-              <Phone className="h-4 w-4 text-primary" />
-              <span dir="ltr">موبایل: {(SITE as any).mobile || "۰۹۱۲۱۱۴۵۶۸۷"}</span>
+              <Phone className="h-4 w-4 text-primary shrink-0" />
+              <span>موبایل:</span>
+              <a href="tel:09121145687" className="text-foreground hover:text-primary transition-colors font-medium" dir="ltr">
+                ۰۹۱۲-۱۱۴۵۶۸۷
+              </a>
             </li>
             <li className="flex items-center gap-2">
-              <Mail className="h-4 w-4 text-primary" />
-              <span dir="ltr">{SITE.email}</span>
+              <Mail className="h-4 w-4 text-primary shrink-0" />
+              <span>ایمیل:</span>
+              <a href={`mailto:${SITE.email}`} className="font-mono text-foreground hover:text-primary transition-colors" dir="ltr">
+                {SITE.email}
+              </a>
             </li>
             <li className="flex items-start gap-2">
               <MapPin className="h-4 w-4 text-primary shrink-0 mt-0.5" />
@@ -162,6 +176,16 @@ export function SiteFooter() {
           <div className="mt-4 flex items-center gap-2 rounded-lg border bg-background/50 px-3 py-2 text-xs text-muted-foreground">
             <CreditCard className="h-4 w-4 text-emerald-500" />
             پرداخت امن با درگاه زرین‌پال
+          </div>
+        </div>
+
+        {/* enamad */}
+        <div className="flex flex-col items-center justify-center">
+          <h4 className="mb-4 text-sm font-bold w-full text-right">نمادها</h4>
+          <div className="flex h-32 w-32 items-center justify-center overflow-hidden rounded-2xl bg-white p-2 shadow-sm transition-transform hover:scale-105">
+            <a referrerPolicy='origin' target='_blank' href='https://trustseal.enamad.ir/?id=7659841&Code=rLdieswp6iADLFY2xqoMYaOdEDroIuoi'>
+              <img referrerPolicy='origin' src='https://trustseal.enamad.ir/logo.aspx?id=7659841&Code=rLdieswp6iADLFY2xqoMYaOdEDroIuoi' alt='نماد اعتماد الکترونیکی (اینماد)' style={{cursor:'pointer'}} data-code='rLdieswp6iADLFY2xqoMYaOdEDroIuoi' className="w-full h-full object-contain" />
+            </a>
           </div>
         </div>
       </div>

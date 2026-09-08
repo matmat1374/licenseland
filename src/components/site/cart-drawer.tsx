@@ -9,10 +9,16 @@ import { useCart } from "@/store/cart";
 import { ProductCover } from "./product-cover";
 import { toToman } from "@/lib/format";
 import { useMounted } from "@/hooks/use-mounted";
+import { usePathname } from "next/navigation";
 
 export function CartDrawer() {
+  const pathname = usePathname();
   const { items, isOpen, close, setQty, remove, subtotal, count } = useCart();
   const mounted = useMounted();
+
+  if (pathname?.startsWith("/admin")) {
+    return null;
+  }
 
   const total = mounted ? subtotal() : 0;
   const cnt = mounted ? count() : 0;

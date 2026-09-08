@@ -1,0 +1,1 @@
+const { PrismaClient } = require('@prisma/client'); const prisma = new PrismaClient(); async function main() { const p = await prisma.product.findFirst({ where: { slug: { contains: '3656' } } }); console.log(JSON.stringify(p, null, 2)); } main();  

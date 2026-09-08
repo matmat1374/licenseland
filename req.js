@@ -1,0 +1,1 @@
+const http = require('http'); http.get('http://localhost:3000/product/3656-chatgpt-plus-1-month-full-warranty', res = let data = ''; res.on('data', c = += c); res.on('end', () = const matches = data.match(/.{0,80}43.{0,80}/g); console.log(matches); }); });  

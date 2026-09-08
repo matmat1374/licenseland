@@ -3,9 +3,10 @@ import { db } from "@/lib/db";
 import { SITE } from "@/lib/constants";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const [products, articles] = await Promise.all([
+  const [products, articles, categories] = await Promise.all([
     db.product.findMany({ where: { isActive: true }, select: { slug: true, updatedAt: true } }),
     db.article.findMany({ where: { published: true }, select: { slug: true, updatedAt: true } }),
+    db.category.findMany({ select: { slug: true, createdAt: true } }),
   ]);
 
   const now = new Date();
@@ -21,19 +22,26 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${SITE.url}/privacy`, lastModified: now, priority: 0.3, changeFrequency: "yearly" },
   ];
 
+  const categoryPages: MetadataRoute.Sitemap = categories.map((c) => ({
+    url: `${SITE.url}/shop?cat=${c.slug}`,
+    lastModified: c.createdAt,
+    priority: 0.85,
+    changeFrequency: "daily",
+  }));
+
   const productPages: MetadataRoute.Sitemap = products.map((p) => ({
     url: `${SITE.url}/product/${p.slug}`,
     lastModified: p.updatedAt,
-    priority: 0.7,
+    priority: 0.75,
     changeFrequency: "weekly",
   }));
 
   const articlePages: MetadataRoute.Sitemap = articles.map((a) => ({
     url: `${SITE.url}/blog/${a.slug}`,
     lastModified: a.updatedAt,
-    priority: 0.6,
+    priority: 0.65,
     changeFrequency: "monthly",
   }));
 
-  return [...staticPages, ...productPages, ...articlePages];
+  return [...staticPages, ...categoryPages, ...productPages, ...articlePages];
 }

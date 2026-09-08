@@ -95,11 +95,20 @@ export function ProductManager({ mode, product, categories, activeUsdRate, child
         
         let costUsd = "";
         let markupPercent = "";
+        let torobUrl = "";
+        let torobUndercut = "";
+        let torobFloor = "";
+        let isPriceLocked = false;
         try {
           if (p.specifications) {
             const spec = typeof p.specifications === 'string' ? JSON.parse(p.specifications) : p.specifications;
-            if (spec.cost_usd) costUsd = spec.cost_usd;
+            if (spec.price_usd) costUsd = spec.price_usd;
+            else if (spec.cost_usd) costUsd = spec.cost_usd;
             if (spec.markup_percent) markupPercent = spec.markup_percent;
+            if (spec.torob_url) torobUrl = spec.torob_url;
+            if (spec.torob_undercut) torobUndercut = spec.torob_undercut;
+            if (spec.torob_floor) torobFloor = spec.torob_floor;
+            if (spec.is_price_locked !== undefined) isPriceLocked = spec.is_price_locked;
           }
         } catch {}
 
@@ -112,6 +121,7 @@ export function ProductManager({ mode, product, categories, activeUsdRate, child
           features,
           price: p.price,
           discountPrice: p.discountPrice ?? "",
+          stock: p.stock ?? 999,
           duration: p.duration || "",
           category: p.category,
           brand: p.brand || "",
@@ -122,6 +132,10 @@ export function ProductManager({ mode, product, categories, activeUsdRate, child
           isActive: p.isActive,
           costUsd,
           markupPercent,
+          torobUrl,
+          torobUndercut,
+          torobFloor,
+          isPriceLocked,
         });
       }
     } catch (e) {

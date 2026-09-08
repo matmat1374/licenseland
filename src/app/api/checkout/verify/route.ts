@@ -7,6 +7,7 @@ import { signOrderAccessToken } from "@/lib/order-access";
 import { sealKey } from "@/lib/licenses";
 import { transitionOrder } from "@/lib/domain/orders";
 import { topUpWallet, chargeWallet } from "@/lib/domain/wallet";
+import { shouldRequireAdminApproval, fulfillAndDeliverOrder } from "@/lib/order-fulfillment";
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
@@ -78,77 +79,25 @@ export async function GET(req: NextRequest) {
     return NextResponse.redirect(new URL(`/order/${order.id}?paid=1&token=${t}`, base));
   }
 
-  // success: sell keys, update product stats — single transaction
-  await db.$transaction(async (tx) => {
-    await tx.licenseKey.updateMany({
-      where: { orderItem: { orderId: order.id } },
-      data: { status: "SOLD", soldAt: new Date() },
+  // discount code count increment
+  if (order.discountCode) {
+    await db.discountCode
+      .update({ where: { code: order.discountCode }, data: { usedCount: { increment: 1 } } })
+      .catch(() => {});
+  }
+
+  // Check admin manual approval policy
+  const requireApproval = await shouldRequireAdminApproval();
+  if (requireApproval) {
+    // Hold fulfillment: keep keys safely RESERVED, mark items as WAITING_APPROVAL
+    await db.orderItem.updateMany({
+      where: { orderId: order.id },
+      data: { fulfillmentStatus: "WAITING_APPROVAL" },
     });
-
-    const items = await tx.orderItem.findMany({ where: { orderId: order.id } });
-    for (const it of items) {
-      const soldCount = await tx.licenseKey.count({ where: { orderItemId: it.id, status: "SOLD" } });
-      await tx.product.update({
-        where: { id: it.productId },
-        data: {
-          stock: { decrement: soldCount },
-          salesCount: { increment: it.quantity },
-        },
-      });
-    }
-
-    if (order.discountCode) {
-      await tx.discountCode
-        .update({ where: { code: order.discountCode }, data: { usedCount: { increment: 1 } } })
-        .catch(() => {});
-    }
-  });
-
-  // Auto-fulfill supplier products (irMarket): buy from supplier and save accounts as license keys
-  // This runs AFTER the transaction so fetch calls don't block it.
-  try {
-    const orderItems = await db.orderItem.findMany({ where: { orderId: order.id }, include: { product: true } });
-    for (const it of orderItems) {
-      let isSupplierProduct = false;
-      try {
-        const specs = JSON.parse(it.product.specifications || "{}");
-        isSupplierProduct = !!specs.supplier_product_id;
-      } catch {}
-      if (isSupplierProduct) {
-        const result = await purchaseFromSupplier(
-          it.productId,
-          it.quantity,
-          order.guestEmail || undefined,
-          `${order.code}-${it.id}`
-        );
-        // trace irMarket's numeric order id on the item (webhook + polling match on it)
-        if (result.orderId) {
-          await db.orderItem.update({
-            where: { id: it.id },
-            data: { supplierOrderId: `irm:${result.orderId}`, fulfillmentStatus: result.ok ? "FULFILLED" : "PENDING_MANUAL" },
-          });
-        }
-        if (result.ok && result.accounts && result.accounts.length > 0) {
-          for (const account of result.accounts) {
-            await db.licenseKey.create({
-              data: {
-                productId: it.productId,
-                key: sealKey(it.productId, account), // C5 fix: sealed at rest
-                note: `سفارش ${order.code} | تأمین‌کننده: irMarket #${result.orderId || ""}`,
-                status: "SOLD",
-                source: "supplier_api",
-                orderItemId: it.id,
-                soldAt: new Date(),
-              },
-            });
-          }
-        } else {
-          console.error(`[supplier] auto-fulfill failed for ${it.productTitle}: ${result.message}`);
-        }
-      }
-    }
-  } catch (e) {
-    console.error("[supplier] auto-fulfill error:", e);
+    console.log(`[fulfillment] Order ${order.code} paid successfully, awaiting admin approval.`);
+  } else {
+    // Auto-pilot: instant automatic fulfillment and email delivery
+    await fulfillAndDeliverOrder(order.id);
   }
 
   const token = signOrderAccessToken(order.id);

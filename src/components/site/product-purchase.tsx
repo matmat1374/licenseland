@@ -82,20 +82,23 @@ export function ProductPurchase({ product }: { product: ProductListItem }) {
           )}
         </div>
 
-        {/* stock */}
-        <div className="mb-4 flex items-center gap-2 text-sm">
+        {/* Stock & Guarantee assurance */}
+        <div className="mb-4 rounded-xl border border-primary/20 bg-primary/5 p-3 text-xs space-y-2">
           {inStock ? (
-            <>
-              <span className="flex h-2.5 w-2.5 rounded-full bg-emerald-500" />
-              <span className="font-medium text-emerald-600 dark:text-emerald-400">موجود در انبار</span>
-              <span className="text-muted-foreground">({product._stock} عدد آماده تحویل)</span>
-            </>
+            <div className="flex items-center gap-1.5 font-bold text-emerald-600 dark:text-emerald-400">
+              <Zap className="h-4 w-4 fill-current text-emerald-500" />
+              <span>موجود در انبار — تحویل آنی و خودکار پس از پرداخت</span>
+            </div>
           ) : (
-            <>
-              <span className="flex h-2.5 w-2.5 rounded-full bg-rose-500" />
-              <span className="font-medium text-rose-500">ناموجود</span>
-            </>
+            <div className="flex items-center gap-1.5 font-bold text-rose-500">
+              <span>در حال حاضر ناموجود</span>
+            </div>
           )}
+
+          <div className="text-[11px] font-medium text-muted-foreground flex items-center gap-1.5 pt-1.5 border-t border-primary/10">
+            <ShieldCheck className="h-4 w-4 text-primary shrink-0" />
+            <span>لایسنس ۱۰۰٪ اورجینال با پشتیبانی ۲۴ ساعته</span>
+          </div>
         </div>
 
         {/* actions */}

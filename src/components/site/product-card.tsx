@@ -55,7 +55,6 @@ export function ProductCard({ product }: { product: ProductListItem }) {
             brand={product.brand}
             seed={product.slug}
             image={product.image}
-            icon={<Icon className="h-full w-full" />}
             className="h-full w-full transition-transform duration-700 group-hover:scale-110"
           />
           {/* overlay gradient */}

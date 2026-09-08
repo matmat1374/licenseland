@@ -12,10 +12,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { CATEGORIES } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 
-export function ProductFilters({ totalCount }: { totalCount: number }) {
+export function ProductFilters({ 
+  totalCount,
+  categories,
+}: { 
+  totalCount: number;
+  categories: { name: string; slug: string }[];
+}) {
   const router = useRouter();
   const pathname = usePathname();
   const params = useSearchParams();
@@ -64,7 +69,7 @@ export function ProductFilters({ totalCount }: { totalCount: number }) {
         <CategoryPill active={cat === "all"} onClick={() => update("cat", "all")}>
           همه
         </CategoryPill>
-        {CATEGORIES.map((c) => (
+        {categories.map((c) => (
           <CategoryPill key={c.slug} active={cat === c.slug} onClick={() => update("cat", c.slug)}>
             {c.name}
           </CategoryPill>
