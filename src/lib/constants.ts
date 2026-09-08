@@ -14,7 +14,7 @@ export const SITE = {
   telegramHandle: "@matinmazi",
   instagram: "https://instagram.com/liceno",
   whatsapp: "https://wa.me/989121145687",
-  address: "جزیره کیش، بازار شارستان، پلاک ۳۰",
+  address: "جزیره کیش، بازار شارستان، پلاک ۲۹",
 };
 
 export const NAV_LINKS = [

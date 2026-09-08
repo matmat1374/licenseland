@@ -271,7 +271,7 @@ export default async function HomePage() {
               <div className="flex flex-col md:flex-row items-center justify-center gap-4 text-sm text-muted-foreground text-right md:text-center">
                 <div className="flex items-center gap-2">
                   <div className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-                  <span>دفتر مرکزی: جزیره کیش، برج نوآوری، طبقه ۷، واحد ۷۰۲</span>
+                  <span>دفتر مرکزی: جزیره کیش، بازار شارستان، پلاک ۲۹</span>
                 </div>
                 <div className="hidden md:block w-px h-4 bg-white/10" />
                 <div className="flex items-center gap-2">

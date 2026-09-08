@@ -67,10 +67,10 @@ export function BrandMarquee() {
       {/* Marquee Wrapper */}
       <div className="relative flex w-full flex-col gap-6 overflow-hidden">
         {/* Top Fade */}
-        <div className="pointer-events-none absolute left-0 top-0 z-10 h-full w-[15%] bg-gradient-to-r from-background to-transparent"></div>
+        <div className="pointer-events-none absolute left-0 top-0 z-10 h-full w-6 sm:w-16 md:w-[15%] bg-gradient-to-r from-background to-transparent"></div>
         
         {/* Bottom Fade */}
-        <div className="pointer-events-none absolute right-0 top-0 z-10 h-full w-[15%] bg-gradient-to-l from-background to-transparent"></div>
+        <div className="pointer-events-none absolute right-0 top-0 z-10 h-full w-6 sm:w-16 md:w-[15%] bg-gradient-to-l from-background to-transparent"></div>
         
         {/* First Marquee Row */}
         <div className="flex w-max animate-marquee-fast hover:[animation-play-state:paused]">
@@ -95,7 +95,7 @@ function BrandCard({ brand }: { brand: typeof brands[0] }) {
     <Link
       href={brand.href}
       className={cn(
-        "group relative mx-3 flex h-24 w-64 items-center justify-start gap-4 rounded-2xl border border-white/10 bg-white/5 p-4 transition-all duration-300 hover:-translate-y-1 hover:bg-white/10 dark:bg-black/20 dark:hover:bg-black/40",
+        "group relative w-36 sm:w-48 md:w-64 mx-1.5 sm:mx-3 p-2 sm:p-4 flex h-24 items-center justify-start gap-4 rounded-2xl border border-white/10 bg-white/5 transition-all duration-300 hover:-translate-y-1 hover:bg-white/10 dark:bg-black/20 dark:hover:bg-black/40",
         "backdrop-blur-md"
       )}
     >
@@ -106,14 +106,14 @@ function BrandCard({ brand }: { brand: typeof brands[0] }) {
       ></div>
 
       <div
-        className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-background/50 text-foreground transition-colors group-hover:text-white"
+        className="flex h-8 w-8 sm:h-12 sm:w-12 shrink-0 items-center justify-center rounded-xl bg-background/50 text-foreground transition-colors group-hover:text-white"
         style={{ color: brand.color }}
       >
         {brand.svg}
       </div>
 
       <div className="flex flex-col">
-        <span className="text-base font-bold text-foreground">{brand.name}</span>
+        <span className="text-xs sm:text-base font-bold text-foreground">{brand.name}</span>
         <span className="text-xs text-muted-foreground">{brand.tag}</span>
       </div>
     </Link>

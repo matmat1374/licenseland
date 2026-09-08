@@ -130,7 +130,7 @@ export function OrbitalCarousel({ products }: { products: Product[] }) {
               }}
               transition={{ type: "spring", stiffness: 120, damping: 25, mass: 1 }}
               onClick={() => !isFront && goToSlide(i)}
-              className={`absolute w-[200px] sm:w-[240px] md:w-[260px] lg:w-[280px] rounded-2xl border border-white/20 bg-background/50 backdrop-blur-xl p-4 shadow-2xl transition-colors duration-300 ${isFront ? 'cursor-default shadow-primary/40 ring-2 ring-primary/80 bg-background/70' : 'cursor-pointer hover:border-primary/50 hover:bg-background/60'}`}
+              className={`absolute w-[240px] sm:w-[260px] md:w-[280px] lg:w-[280px] rounded-2xl border border-white/20 bg-background/50 backdrop-blur-xl p-4 shadow-2xl transition-colors duration-300 ${isFront ? 'cursor-default shadow-primary/40 ring-2 ring-primary/80 bg-background/70' : 'cursor-pointer hover:border-primary/50 hover:bg-background/60'}`}
               style={{ 
                 zIndex: zIndex,
               }}
@@ -142,7 +142,7 @@ export function OrbitalCarousel({ products }: { products: Product[] }) {
                 image={p.image}
                 className="mb-4 aspect-[4/3] w-full rounded-xl object-cover shadow-inner"
               />
-              <div className="line-clamp-1 text-lg font-bold text-foreground text-start">{p.title}</div>
+              <div className="line-clamp-2 text-xs sm:text-base font-bold text-foreground text-start min-h-[2.2rem] sm:min-h-[2.5rem] leading-snug">{p.title}</div>
               
               <AnimatePresence>
                 {isFront && (

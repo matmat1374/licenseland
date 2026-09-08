@@ -132,6 +132,8 @@ export async function getProducts(opts?: {
       if (stockDiff !== 0) return stockDiff;
       return b._discountPercent - a._discountPercent;
     });
+  } else {
+    list.sort((a, b) => ((b._stock > 0 ? 1 : 0) - (a._stock > 0 ? 1 : 0)));
   }
 
   return list;
@@ -184,7 +186,9 @@ export async function getRelatedProducts(category: string, excludeSlug: string, 
     take: limit + 4,
     orderBy: { salesCount: "desc" },
   });
-  return products.slice(0, limit).map(decorate);
+  const mapped = products.slice(0, limit).map(decorate);
+  mapped.sort((a, b) => ((b._stock > 0 ? 1 : 0) - (a._stock > 0 ? 1 : 0)));
+  return mapped;
 }
 
 export async function getBannerProducts(identifiers: string[], fallbackCategory?: string | string[], limit: number = 3): Promise<ProductListItem[]> {
@@ -259,7 +263,9 @@ export async function getBannerProducts(identifiers: string[], fallbackCategory?
     products = [...products, ...fallbackProducts.map(decorate)];
   }
   
-  return products.slice(0, limit);
+  products = products.slice(0, limit);
+  products.sort((a, b) => ((b._stock > 0 ? 1 : 0) - (a._stock > 0 ? 1 : 0)));
+  return products;
 }
 
 // ----------------------------- Articles -----------------------------

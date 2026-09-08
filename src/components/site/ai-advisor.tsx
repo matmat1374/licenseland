@@ -192,7 +192,7 @@ export function AiAdvisor() {
   if (!mounted) return null;
 
   return (
-    <div className="fixed bottom-6 left-6 z-50 flex flex-col items-start">
+    <div className="fixed bottom-20 md:bottom-6 left-4 md:left-6 z-40 flex flex-col items-start">
       <div
         className={cn(
           "mb-4 overflow-hidden rounded-3xl border border-primary/30 bg-background/95 p-0 shadow-[0_10px_40px_rgba(0,0,0,0.5)] backdrop-blur-2xl transition-all duration-300 ease-out",
