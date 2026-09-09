@@ -22,21 +22,23 @@ import { ProductCard } from "@/components/site/product-card";
 import { SearchDialog } from "@/components/site/search-dialog";
 import { getProducts, getCategories, getArticles, getBannerProducts } from "@/lib/queries";
 import { CATEGORIES, SITE } from "@/lib/constants";
-import { getContentMap } from "@/lib/content";
+import { getContentMap, getHeroSlides } from "@/lib/content";
 import * as Icons from "lucide-react";
 import { ProductCover } from "@/components/site/product-cover";
 import { ArticleCover } from "@/components/site/article-cover";
 import { toFa, formatJalaliDate } from "@/lib/date";
+import { HeroCampaignSlider } from "@/components/site/hero-campaign-slider";
 import { CreativeHero } from "@/components/site/creative-hero";
 import { BrandMarquee } from "@/components/site/brand-marquee";
 import { PromoBentoBanners } from "@/components/site/promo-bento-banners";
 import { CategoryProductRow } from "@/components/site/category-product-row";
 
 export default async function HomePage() {
-  const [bestsellers, articles, content] = await Promise.all([
+  const [bestsellers, articles, content, heroSlides] = await Promise.all([
     getProducts({ bestseller: true, limit: 6, sort: "price-asc" }),
     getArticles({ limit: 3 }),
     getContentMap(),
+    getHeroSlides(),
   ]);
 
   const banner1Ids = content.banner1_product_ids ? content.banner1_product_ids.split(",") : [];
@@ -78,8 +80,48 @@ export default async function HomePage() {
     { value: content.stats_4_value, label: content.stats_4_label },
   ];
 
+  // JSON-LD ItemList Schema for Campaign Offers
+  const campaignSchema = {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    "name": "پیشنهادات شگفت‌انگیز و کمپین‌های تخفیف لایسنو",
+    "description": "تخفیف‌های ویژه اشتراک هوش مصنوعی، ابزارهای برنامه‌نویسی و طراحی",
+    "itemListElement": heroSlides
+      .filter((s) => s.active !== false)
+      .map((slide, index) => ({
+        "@type": "ListItem",
+        "position": index + 1,
+        "item": {
+          "@type": "Product",
+          "name": `${slide.titleLine1} - ${slide.titleLine2}`,
+          "description": slide.description,
+          "offers": {
+            "@type": "Offer",
+            "price": slide.salePrice,
+            "priceCurrency": "IRR",
+            "priceSpecification": {
+              "@type": "PriceSpecification",
+              "price": slide.salePrice,
+              "priceCurrency": "IRR",
+              "valueAddedTaxIncluded": true,
+            },
+            "availability": "https://schema.org/InStock",
+            "url": `https://liceno.ir${slide.ctaLink.startsWith("/") ? slide.ctaLink : `/${slide.ctaLink}`}`,
+          },
+        },
+      })),
+  };
+
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(campaignSchema) }}
+      />
+      
+      {/* ============ HERO CAMPAIGN SLIDER ============ */}
+      <HeroCampaignSlider slides={heroSlides} />
+
       <CreativeHero content={content} categories={CATEGORIES} heroProducts={heroProducts} />
       
       {/* ============ BRANDS MARQUEE ============ */}

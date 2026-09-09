@@ -4,8 +4,127 @@
 
 import { db } from "@/lib/db";
 
+export interface HeroSlideItem {
+  id: string;
+  active: boolean;
+  badge: string; // مثل: ⚡ پیشنهاد شگفت‌انگیز یا 🔥 پرچمدار هوش مصنوعی
+  badgeColor: "emerald" | "purple" | "amber" | "cyan" | "rose";
+  titleLine1: string;
+  titleLine2: string;
+  description: string;
+  originalPrice: number; // قیمت خط‌خورده به تومان
+  salePrice: number; // قیمت با تخفیف به تومان
+  discountPercent: number; // درصد تخفیف مثلا ۳۰
+  features: string[]; // ۳ ویژگی کلیدی ترغیب‌کننده
+  urgencyText: string; // متن اضطرار مثل: تنها ۴ عدد با این قیمت باقیمانده
+  ctaText: string; // دکمه خرید اصلی
+  ctaLink: string; // لینک به صفحه محصول
+  secondaryCtaText?: string;
+  secondaryCtaLink?: string;
+  productSlug?: string;
+  image?: string;
+}
+
+export const DEFAULT_HERO_SLIDES: HeroSlideItem[] = [
+  {
+    id: "slide-claude-pro",
+    active: true,
+    badge: "🔥 پرچمدار هوش مصنوعی ۲۰۲۵",
+    badgeColor: "purple",
+    titleLine1: "اشتراک اختصاصی Claude Pro",
+    titleLine2: "دسترسی نامحدود به Claude 3.7 Sonnet",
+    description: "قدرتمندترین مدل استدلال و کدنویسی جهان با پنجره کانتکست ۲۰۰K توکن، سرعت بی‌نظیر و فعال‌سازی روی ایمیل شخصی شما.",
+    originalPrice: 1650000,
+    salePrice: 1190000,
+    discountPercent: 28,
+    features: [
+      "تحویل فوری زیر ۳ دقیقه",
+      "فعال‌سازی ۱۰۰٪ قانونی روی اکانت شخصی",
+      "ضمانت کامل کارکرد تا روز آخر اشتراک",
+    ],
+    urgencyText: "تنها ۴ اکانت با تخفیف این دوره باقی‌مانده است",
+    ctaText: "خرید اشتراک Claude Pro",
+    ctaLink: "/product/claude-pro-1-month",
+    secondaryCtaText: "بررسی مشخصات",
+    secondaryCtaLink: "/product/claude-pro-1-month",
+    productSlug: "claude-pro-1-month",
+  },
+  {
+    id: "slide-chatgpt-plus",
+    active: true,
+    badge: "⚡ پیشنهاد شگفت‌انگیز و پرفروش",
+    badgeColor: "emerald",
+    titleLine1: "اکانت رسمی ChatGPT Plus",
+    titleLine2: "مجهز به آخرین موتورهای GPT-4o و o3-mini",
+    description: "تولید نامحدود عکس DALL-E 3، کد پایتون پیشرفته، جستجوی زنده وب، تحلیل فایل‌های سنگین و بدون قطعی در اوج مصرف.",
+    originalPrice: 1580000,
+    salePrice: 1150000,
+    discountPercent: 27,
+    features: [
+      "تحویل آنی و خودکار بلافاصله پس از پرداخت",
+      "پایداری ۱۰۰٪ بدون خطر بن شدن اکانت",
+      "پشتیبانی فنی و سریع ۲۴/۷ لایسنو",
+    ],
+    urgencyText: "تخفیف ویژه جشنواره — انقضا تا ۲۴ ساعت آینده",
+    ctaText: "دریافت ChatGPT Plus",
+    ctaLink: "/product/chatgpt-plus-1-month",
+    secondaryCtaText: "مشاهده پلن‌ها",
+    secondaryCtaLink: "/product/chatgpt-plus-1-month",
+    productSlug: "chatgpt-plus-1-month",
+  },
+  {
+    id: "slide-cursor-pro",
+    active: true,
+    badge: "💻 دستیار شماره ۱ برنامه‌نویسان",
+    badgeColor: "cyan",
+    titleLine1: "اشتراک حرفه‌ای Cursor AI Pro",
+    titleLine2: "کدنویسی ۱۰ برابر سریع‌تر با ادیتور هوشمند",
+    description: "ادیتور انقلابی بر پایه VS Code با ۵۰۰ درخواست فست ماهانه Claude 3.7 و GPT-4o برای تسلط کامل روی کل پروژه و ریپازیتوری شما.",
+    originalPrice: 1450000,
+    salePrice: 980000,
+    discountPercent: 32,
+    features: [
+      "۵۰۰ درخواست Fast و نامحدود استاندارد",
+      "تحلیل جامع ساختار پروژه و Codebase",
+      "گارانتی تعویض و بازگشت وجه کامل",
+    ],
+    urgencyText: "ظرفیت محدود — تنها ۳ لایسنس با این قیمت",
+    ctaText: "ارتقا به Cursor Pro",
+    ctaLink: "/shop?cat=ai",
+    secondaryCtaText: "کاتالوگ هوش مصنوعی",
+    secondaryCtaLink: "/shop?cat=ai",
+    productSlug: "cursor-ai-pro",
+  },
+  {
+    id: "slide-midjourney-standard",
+    active: true,
+    badge: "🎨 برترین ابزار خلق تصاویر واقع‌گرایانه",
+    badgeColor: "amber",
+    titleLine1: "اکانت اوریجینال Midjourney",
+    titleLine2: "تولید تصویر نامحدود با موتور v6.1",
+    description: "بهترین موتور هوش مصنوعی فوتورئالیستی دنیا برای طراحان و هنرمندان دیجیتال؛ با ۱۵ ساعت رندر پرسرعت ماهانه و لایسنس تجاری کامل.",
+    originalPrice: 1850000,
+    salePrice: 1350000,
+    discountPercent: 27,
+    features: [
+      "حالت محرمانه Stealth Mode بدون نمایش عمومی",
+      "دسترسی سریع به سرورهای Fast Hours",
+      "پشتیبانی فنی و آموزش اختصاصی لایسنو",
+    ],
+    urgencyText: "پیشنهاد اختصاصی کاربران جدید — زمان محدود",
+    ctaText: "خرید اکانت Midjourney",
+    ctaLink: "/product/midjourney-monthly",
+    secondaryCtaText: "مشاهده جزئیات",
+    secondaryCtaLink: "/product/midjourney-monthly",
+    productSlug: "midjourney-monthly",
+  },
+];
+
 // Default content (used on first run, before admin edits anything)
 export const DEFAULT_CONTENT: Record<string, string> = {
+  // Hero Campaign Slides (JSON array of HeroSlideItem)
+  hero_campaign_slides: JSON.stringify(DEFAULT_HERO_SLIDES),
+
   // Hero section
   hero_badge: "بازار لایسنس دیجیتال ایران",
   hero_title: "لایسنس اوریجینال",
@@ -78,6 +197,22 @@ export async function getContentValue(key: string): Promise<string> {
     // ignore
   }
   return DEFAULT_CONTENT[key] || "";
+}
+
+// Get Hero Campaign Slides parsed from DB or return defaults
+export async function getHeroSlides(): Promise<HeroSlideItem[]> {
+  try {
+    const row = await db.siteContent.findUnique({ where: { key: "hero_campaign_slides" } });
+    if (row?.value) {
+      const parsed = JSON.parse(row.value);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        return parsed;
+      }
+    }
+  } catch (err) {
+    console.error("Failed to parse hero_campaign_slides from DB:", err);
+  }
+  return DEFAULT_HERO_SLIDES;
 }
 
 // Define which keys are supported and their labels/descriptions for the admin UI

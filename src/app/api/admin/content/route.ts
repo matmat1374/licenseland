@@ -44,7 +44,11 @@ export async function POST(req: NextRequest) {
     const keys = Object.keys(content);
     let updated = 0;
     for (const key of keys) {
-      const value = String(content[key] ?? "");
+      const rawVal = content[key];
+      const value =
+        typeof rawVal === "object" && rawVal !== null
+          ? JSON.stringify(rawVal)
+          : String(rawVal ?? "");
       await db.siteContent.upsert({
         where: { key },
         update: { value },
