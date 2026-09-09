@@ -1,4 +1,6 @@
 import { getProducts, getCategories } from "@/lib/queries";
+import { getHeroSlides } from "@/lib/content";
+import { HeroCampaignSlider } from "@/components/site/hero-campaign-slider";
 import { ProductCard } from "@/components/site/product-card";
 import { ProductFilters } from "@/components/site/product-filters";
 import * as Icons from "lucide-react";
@@ -21,69 +23,118 @@ export default async function ShopPage({
   const search = sp.search || "";
   const sort = (sp.sort as any) || "newest";
 
-  const [products, categories] = await Promise.all([
+  const [products, categories, heroSlides] = await Promise.all([
     getProducts({ category: cat, search, sort, limit: 100 }),
     getCategories(),
+    getHeroSlides(),
   ]);
 
   const currentCat = categories.find((c) => c.slug === cat);
 
+  const activeSlides = heroSlides.filter((s) => s.active !== false);
+
+  const campaignSchema =
+    activeSlides.length > 0
+      ? {
+          "@context": "https://schema.org",
+          "@type": "ItemList",
+          name: "پیشنهادات شگفت‌انگیز و کمپین‌های تخفیف لایسنو",
+          description: "تخفیف‌های ویژه اشتراک هوش مصنوعی، ابزارهای برنامه‌نویسی و طراحی",
+          itemListElement: activeSlides.map((slide, index) => ({
+            "@type": "ListItem",
+            position: index + 1,
+            item: {
+              "@type": "Product",
+              name: `${slide.titleLine1} - ${slide.titleLine2}`,
+              description: slide.description,
+              offers: {
+                "@type": "Offer",
+                price: slide.salePrice,
+                priceCurrency: "IRR",
+                priceSpecification: {
+                  "@type": "PriceSpecification",
+                  price: slide.salePrice,
+                  priceCurrency: "IRR",
+                  valueAddedTaxIncluded: true,
+                },
+                availability: "https://schema.org/InStock",
+                url: `https://liceno.ir${slide.ctaLink.startsWith("/") ? slide.ctaLink : `/${slide.ctaLink}`}`,
+              },
+            },
+          })),
+        }
+      : null;
+
   return (
-    <div className="container mx-auto px-4 py-8">
-      {/* header */}
-      <div className="mb-6 flex flex-col gap-4">
-        <div className="flex items-center gap-3">
-          {currentCat ? (
-            <>
-              <div
-                className={`flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br ${currentCat.color} text-white shadow-lg`}
-              >
-                {(() => {
-                  const Icon = (Icons as any)[currentCat.icon || "Folder"] || Icons.Folder;
-                  return <Icon className="h-6 w-6" />;
-                })()}
-              </div>
+    <>
+      {campaignSchema && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(campaignSchema) }}
+        />
+      )}
+
+      {/* ============ HERO CAMPAIGN SLIDER ============ */}
+      <HeroCampaignSlider slides={heroSlides} className="pb-4 md:pb-6" />
+
+      <div className="container mx-auto px-4 pb-8 pt-2">
+        {/* header */}
+        <div className="mb-6 flex flex-col gap-4">
+          <div className="flex items-center gap-3">
+            {currentCat ? (
+              <>
+                <div
+                  className={`flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br ${currentCat.color} text-white shadow-lg`}
+                >
+                  {(() => {
+                    const Icon = (Icons as any)[currentCat.icon || "Folder"] || Icons.Folder;
+                    return <Icon className="h-6 w-6" />;
+                  })()}
+                </div>
+                <div>
+                  <h1 className="text-2xl font-black">{currentCat.name}</h1>
+                  <p className="text-sm text-muted-foreground">{currentCat.description}</p>
+                </div>
+              </>
+            ) : (
               <div>
-                <h1 className="text-2xl font-black">{currentCat.name}</h1>
-                <p className="text-sm text-muted-foreground">{currentCat.description}</p>
+                <h1 className="text-2xl font-black">فروشگاه لایسنس</h1>
+                <p className="text-sm text-muted-foreground">
+                  {search ? `نتایج جستجو برای «${search}»` : "تمام محصولات موجود در یک نگاه"}
+                </p>
               </div>
-            </>
-          ) : (
+            )}
+          </div>
+
+          <ProductFilters
+            totalCount={products.length}
+            categories={categories
+              .sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0))
+              .map((c) => ({ name: c.name, slug: c.slug }))}
+          />
+        </div>
+
+        {/* products */}
+        {products.length === 0 ? (
+          <div className="flex flex-col items-center justify-center gap-4 rounded-2xl border border-dashed py-20 text-center">
+            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-muted">
+              <PackageX className="h-8 w-8 text-muted-foreground" />
+            </div>
             <div>
-              <h1 className="text-2xl font-black">فروشگاه لایسنس</h1>
-              <p className="text-sm text-muted-foreground">
-                {search ? `نتایج جستجو برای «${search}»` : "تمام محصولات موجود در یک نگاه"}
+              <p className="font-bold">محصولی یافت نشد</p>
+              <p className="mt-1 text-sm text-muted-foreground">
+                فیلترها را تغییر دهید یا عبارت دیگری جستجو کنید
               </p>
             </div>
-          )}
-        </div>
-
-        <ProductFilters 
-          totalCount={products.length} 
-          categories={categories.sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0)).map(c => ({ name: c.name, slug: c.slug }))}
-        />
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
+            {products.map((p) => (
+              <ProductCard key={p.id} product={p} />
+            ))}
+          </div>
+        )}
       </div>
-
-      {/* products */}
-      {products.length === 0 ? (
-        <div className="flex flex-col items-center justify-center gap-4 rounded-2xl border border-dashed py-20 text-center">
-          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-muted">
-            <PackageX className="h-8 w-8 text-muted-foreground" />
-          </div>
-          <div>
-            <p className="font-bold">محصولی یافت نشد</p>
-            <p className="mt-1 text-sm text-muted-foreground">
-              فیلترها را تغییر دهید یا عبارت دیگری جستجو کنید
-            </p>
-          </div>
-        </div>
-      ) : (
-        <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
-          {products.map((p) => (
-            <ProductCard key={p.id} product={p} />
-          ))}
-        </div>
-      )}
-    </div>
+    </>
   );
 }

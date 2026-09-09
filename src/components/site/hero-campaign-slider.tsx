@@ -25,10 +25,12 @@ import { HeroSlideItem } from "@/lib/content";
 import { toToman, toTomanWithUnit } from "@/lib/format";
 import { toFa } from "@/lib/date";
 import { ProductCover } from "@/components/site/product-cover";
+import { cn } from "@/lib/utils";
 
 interface HeroCampaignSliderProps {
   slides: HeroSlideItem[];
   autoplayIntervalMs?: number;
+  className?: string;
 }
 
 // Color theme definitions mapped to slide.badgeColor
@@ -128,6 +130,7 @@ const THEMES = {
 export function HeroCampaignSlider({
   slides,
   autoplayIntervalMs = 7000,
+  className,
 }: HeroCampaignSliderProps) {
   // Filter active slides only
   const activeSlides = slides && slides.length > 0
@@ -222,7 +225,10 @@ export function HeroCampaignSlider({
 
   return (
     <section
-      className="relative w-full overflow-hidden pt-4 pb-8 md:pt-6 md:pb-12"
+      className={cn(
+        "relative w-full overflow-hidden pt-4 pb-8 md:pt-6 md:pb-12",
+        className
+      )}
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
       onTouchStart={handleTouchStart}
