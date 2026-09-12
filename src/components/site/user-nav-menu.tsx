@@ -20,6 +20,7 @@ interface UserNavMenuProps {
   user: {
     name?: string | null;
     email?: string | null;
+    phone?: string | null;
     role?: string | null;
   };
   inAdmin?: boolean;
@@ -31,8 +32,17 @@ export function UserNavMenu({ user, inAdmin = false }: UserNavMenuProps) {
   const router = useRouter();
   const isAdmin = user.role === "ADMIN";
 
-  // Initial letter (Persian or English)
-  const initial = (user.name?.[0] || user.email?.[0] || "U").toUpperCase();
+  const displayName = user.name?.trim() || user.phone || "کاربر گرامی";
+  // Avatar text: if no name, show last 2 digits of phone, or email initial, or U
+  const avatarText = user.name?.trim()
+    ? user.name.trim()[0].toUpperCase()
+    : user.phone
+    ? user.phone.slice(-2)
+    : (user.email?.[0] || "U").toUpperCase();
+
+  const displaySubtitle = user.email && !user.email.endsWith("@liceno.ir")
+    ? user.email
+    : (user.phone || "");
 
   // Close when clicking outside
   useEffect(() => {
@@ -74,7 +84,7 @@ export function UserNavMenu({ user, inAdmin = false }: UserNavMenuProps) {
       >
         <Avatar className="h-8 w-8 sm:h-9 sm:w-9 border-2 border-primary/25 shadow-xs">
           <AvatarFallback className="bg-gradient-to-br from-primary/25 to-emerald-500/25 text-primary text-xs sm:text-sm font-black">
-            {initial}
+            {avatarText}
           </AvatarFallback>
         </Avatar>
         <ChevronDown
@@ -94,13 +104,13 @@ export function UserNavMenu({ user, inAdmin = false }: UserNavMenuProps) {
           <div className="flex items-center gap-2.5 p-2.5 rounded-xl bg-muted/40 mb-1 border border-border/40">
             <Avatar className="h-9 w-9 border border-primary/30 shrink-0">
               <AvatarFallback className="bg-primary/20 text-primary font-black text-sm">
-                {initial}
+                {avatarText}
               </AvatarFallback>
             </Avatar>
             <div className="min-w-0 flex-1">
               <div className="flex items-center justify-between gap-1">
                 <span className="font-bold text-xs sm:text-sm text-foreground truncate">
-                  {user.name || "کاربر گرامی"}
+                  {displayName}
                 </span>
                 {isAdmin && (
                   <Badge className="h-5 px-1.5 text-[10px] bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border-emerald-500/30">
@@ -108,9 +118,11 @@ export function UserNavMenu({ user, inAdmin = false }: UserNavMenuProps) {
                   </Badge>
                 )}
               </div>
-              <div className="text-[11px] text-muted-foreground truncate" dir="ltr">
-                {user.email}
-              </div>
+              {displaySubtitle && (
+                <div className="text-[11px] text-muted-foreground truncate" dir="ltr">
+                  {displaySubtitle}
+                </div>
+              )}
             </div>
           </div>
 

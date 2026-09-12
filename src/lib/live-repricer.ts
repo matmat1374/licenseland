@@ -1,4 +1,5 @@
 import { db } from "./db";
+import { calculateSellPrice, loadPricingTiers } from "./pricing-calculator";
 
 export async function fetchLiveUsdtRate(): Promise<number> {
   const isValid = (rate: number) => rate && !isNaN(rate) && rate >= 100000 && rate <= 500000 && rate !== 95000;
@@ -56,13 +57,13 @@ export async function repriceAllProductsWithLiveRate() {
     create: { key: "usd_to_toman_rate_auto", value: liveRate.toString() }
   });
 
-  const settings = await db.setting.findMany();
+  const [settings, pricingTiers, products] = await Promise.all([
+    db.setting.findMany(),
+    loadPricingTiers(),
+    db.product.findMany({ where: { isActive: true } }),
+  ]);
   const globalMarkupSetting = settings.find(s => s.key === "supplier_markup_percent");
   const globalMarkup = globalMarkupSetting ? Number(globalMarkupSetting.value) : null;
-
-  const products = await db.product.findMany({
-    where: { isActive: true }
-  });
 
   let updatedCount = 0;
 
@@ -81,18 +82,18 @@ export async function repriceAllProductsWithLiveRate() {
     const priceUsd = Number(specs.price_usd || specs.cost_usd);
     if (isNaN(priceUsd) || priceUsd <= 0) continue;
 
-    let markup = 0;
-    if (specs.custom_markup !== undefined && specs.custom_markup !== null && specs.custom_markup !== "") {
-      markup = Number(specs.custom_markup);
-    } else if (globalMarkup !== null && !isNaN(globalMarkup)) {
-      markup = globalMarkup;
-    } else {
-      if (priceUsd < 10) markup = 50;
-      else if (priceUsd <= 20) markup = 30;
-      else markup = 20;
-    }
+    const customMarkup = (specs.custom_markup !== undefined && specs.custom_markup !== null && specs.custom_markup !== "")
+      ? Number(specs.custom_markup)
+      : (specs.markup_percent !== undefined && specs.markup_percent !== null && specs.markup_percent !== "")
+      ? Number(specs.markup_percent)
+      : (globalMarkup !== null && !isNaN(globalMarkup) && globalMarkup > 0 ? globalMarkup : null);
 
-    const finalPrice = Math.ceil((priceUsd * liveRate * (1 + markup / 100)) / 1000) * 1000;
+    const { sellPriceToman: finalPrice } = calculateSellPrice(
+      priceUsd,
+      liveRate,
+      customMarkup,
+      pricingTiers
+    );
 
     if (finalPrice !== p.price) {
       await db.product.update({

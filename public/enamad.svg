@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" width="160" height="160">
+  <defs>
+    <linearGradient id="enamadBlue" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1e40af" />
+      <stop offset="100%" stop-color="#0284c7" />
+    </linearGradient>
+  </defs>
+  <rect x="8" y="8" width="144" height="144" rx="20" fill="#f8fafc" stroke="#e2e8f0" stroke-width="2"/>
+  <circle cx="80" cy="65" r="40" fill="none" stroke="url(#enamadBlue)" stroke-width="5" stroke-dasharray="210 15" stroke-linecap="round" />
+  <path d="M62 55 C 62 42, 85 40, 95 50 C 105 60, 95 80, 80 82 C 68 83, 60 75, 60 65" fill="none" stroke="url(#enamadBlue)" stroke-width="6" stroke-linecap="round"/>
+  <circle cx="80" cy="62" r="7" fill="#0284c7" />
+  <polygon points="80,26 83,34 91,34 85,39 87,47 80,42 73,47 75,39 69,34 77,34" fill="#f59e0b" stroke="#d97706" stroke-width="1" />
+  <text x="80" y="122" font-family="Tahoma, sans-serif" font-size="13" font-weight="bold" fill="#0f172a" text-anchor="middle">نماد اعتماد الکترونیکی</text>
+  <text x="80" y="138" font-family="Arial, sans-serif" font-size="10" font-weight="bold" fill="#64748b" text-anchor="middle">e-Namad Verified</text>
+</svg>

@@ -33,6 +33,7 @@ const securityHeaders = [
 
 const nextConfig: NextConfig = {
   typescript: { ignoreBuildErrors: true },
+  // @ts-expect-error Next 15 type compatibility
   eslint: { ignoreDuringBuilds: true },
   reactStrictMode: true,
   async headers() {

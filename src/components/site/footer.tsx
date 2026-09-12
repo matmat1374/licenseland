@@ -180,13 +180,14 @@ export function SiteFooter() {
         </div>
 
         {/* enamad */}
-        <div className="flex flex-col items-center justify-center">
-          <h4 className="mb-4 text-sm font-bold w-full text-right">نمادها</h4>
-          <div className="flex h-32 w-32 items-center justify-center overflow-hidden rounded-2xl bg-white p-2 shadow-sm transition-transform hover:scale-105">
-            <a referrerPolicy='origin' target='_blank' href='https://trustseal.enamad.ir/?id=7659841&Code=rLdieswp6iADLFY2xqoMYaOdEDroIuoi'>
-              <img referrerPolicy='origin' src='https://trustseal.enamad.ir/logo.aspx?id=7659841&Code=rLdieswp6iADLFY2xqoMYaOdEDroIuoi' alt='نماد اعتماد الکترونیکی (اینماد)' style={{cursor:'pointer'}} data-code='rLdieswp6iADLFY2xqoMYaOdEDroIuoi' className="w-full h-full object-contain" />
-            </a>
-          </div>
+        <div className="flex flex-col items-start">
+          <h4 className="mb-4 text-sm font-bold">نماد اعتماد الکترونیکی</h4>
+          <div
+            className="flex h-32 w-32 items-center justify-center rounded-2xl bg-white p-2 border border-border/40 shadow-sm transition-transform hover:scale-105"
+            dangerouslySetInnerHTML={{
+              __html: `<a referrerpolicy='origin' target='_blank' href='https://trustseal.enamad.ir/?id=7659841&Code=rLdieswp6iADLFY2xqoMYaOdEDroIuoi'><img referrerpolicy='origin' id='rLdieswp6iADLFY2xqoMYaOdEDroIuoi' src='https://trustseal.enamad.ir/logo.aspx?id=7659841&Code=rLdieswp6iADLFY2xqoMYaOdEDroIuoi' alt='نماد اعتماد الکترونیکی' style='cursor:pointer' code='rLdieswp6iADLFY2xqoMYaOdEDroIuoi' onerror="this.onerror=null;this.src='/images/enamad.png'" width='125' height='130'></a>`,
+            }}
+          />
         </div>
       </div>
 

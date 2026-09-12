@@ -4,17 +4,20 @@ import { sealKey } from "./licenses";
 import { sendOrderFulfillmentEmail } from "./email";
 
 /** Check whether orders require manual admin approval before dispatching licenses. */
-export async function shouldRequireAdminApproval(): Promise<boolean> {
+export async function shouldRequireAdminApproval(orderId?: string): Promise<boolean> {
   try {
     const row = await db.setting.findUnique({
       where: { key: "require_admin_order_approval" },
     });
-    if (row?.value) {
-      return row.value === "true";
+    // Only require approval if explicitly configured as "true" in settings
+    if (!row || row.value !== "true") {
+      return false;
     }
-  } catch {}
-  // Default to true (safe for test and early launch phases)
-  return true;
+    return true;
+  } catch {
+    // Default to false (safe for automated delivery without blocking)
+    return false;
+  }
 }
 
 /**
@@ -22,14 +25,17 @@ export async function shouldRequireAdminApproval(): Promise<boolean> {
  * 1. Claims or converts RESERVED keys to SOLD.
  * 2. Decrements product stock.
  * 3. Triggers supplier API if it is an automated supplier product.
- * 4. Sets OrderItem.fulfillmentStatus = "FULFILLED".
- * 5. Dispatches customer email with license keys and exact activation instructions.
+ * 4. Records SupplierOrder and SupplierLog with request/response metadata.
+ * 5. Handles 402 (insufficient balance) and 409 (out of stock) gracefully with critical alerts.
+ * 6. Sets OrderItem.fulfillmentStatus appropriately.
+ * 7. Dispatches customer email with license keys and exact activation instructions.
  */
 export async function fulfillAndDeliverOrder(orderId: string): Promise<{ ok: boolean; message: string }> {
   try {
     const order = await db.order.findUnique({
       where: { id: orderId },
       include: {
+        user: true,
         items: {
           include: {
             product: true,
@@ -43,37 +49,173 @@ export async function fulfillAndDeliverOrder(orderId: string): Promise<{ ok: boo
       return { ok: false, message: "سفارش یافت نشد" };
     }
 
-    if (order.status !== "PAID") {
+    if (order.status !== "PAID" && order.status !== "PROCESSING") {
       return { ok: false, message: "تنها سفارش‌های پرداخت‌شده قابل صدور لایسنس هستند" };
     }
 
     for (const item of order.items) {
-      let isSupplierProduct = false;
+      let isSupplierProduct = item.product.fulfillmentMode === "AUTO";
       try {
         const specs = JSON.parse(item.product.specifications || "{}");
-        isSupplierProduct = !!specs.supplier_product_id;
+        if (specs.supplier_product_id) {
+          isSupplierProduct = true;
+        }
       } catch {}
 
       if (isSupplierProduct) {
         // Auto-fulfill from external supplier API (irMarket)
+        const startTime = Date.now();
+        const idempotencyKey = `LL-${order.code}-${item.id}`;
+        const customerEmail = order.guestEmail || order.user?.email || undefined;
+
         const result = await purchaseFromSupplier(
           item.productId,
           item.quantity,
-          order.guestEmail || undefined,
-          `${order.code}-${item.id}`
+          customerEmail,
+          idempotencyKey
         );
 
-        if (result.orderId) {
+        const randomSuffix = Math.random().toString(36).substring(2, 7).toUpperCase();
+        const supplierOrderCode = `SO-${Date.now().toString().slice(-6)}-${randomSuffix}`;
+        const soStatus = result.status === "delivered"
+          ? "FULFILLED"
+          : result.status === "processing"
+          ? "PENDING"
+          : "FAILED";
+
+        // 1. Create and store record in SupplierOrder
+        const supplierOrder = await db.supplierOrder.create({
+          data: {
+            code: supplierOrderCode,
+            productId: item.productId,
+            productTitle: item.productTitle,
+            quantity: item.quantity,
+            status: soStatus,
+            direction: "OUTBOUND",
+            supplierRef: result.orderId ? String(result.orderId) : null,
+            costUsd: typeof result.costUsd === "number" ? result.costUsd : null,
+            orderItemId: item.id,
+            note: `سفارش فروشگاه: ${order.code} | کاربر: ${customerEmail || "مهمان"}`,
+            fulfilledAt: result.status === "delivered" ? new Date() : null,
+          },
+        });
+
+        // Link OrderItem to supplierOrder
+        await db.orderItem.update({
+          where: { id: item.id },
+          data: {
+            supplierOrderId: result.orderId ? `irm:${result.orderId}` : supplierOrder.id,
+          },
+        });
+
+        // 2. Record detailed log in SupplierLog
+        const logAction = result.status === "delivered"
+          ? "keys_received"
+          : result.status === "processing"
+          ? "request_processing"
+          : result.httpStatus === 402 || result.errorCode === "supplier_balance_empty"
+          ? "error_402_insufficient_balance"
+          : result.httpStatus === 409 || result.errorCode === "out_of_stock"
+          ? "error_409_out_of_stock"
+          : "request_error";
+
+        const logStatus: "INFO" | "SUCCESS" | "ERROR" = result.status === "delivered"
+          ? "SUCCESS"
+          : result.status === "processing"
+          ? "INFO"
+          : "ERROR";
+
+        await db.supplierLog.create({
+          data: {
+            supplierOrderId: supplierOrder.id,
+            action: logAction,
+            status: logStatus,
+            payload: JSON.stringify({
+              method: "POST",
+              endpoint: "/api/buyer/purchase",
+              request: result.requestPayload,
+              response: result.responsePayload,
+              durationMs: Date.now() - startTime,
+              timestamp: new Date().toISOString(),
+            }).slice(0, 4000),
+            message: result.message?.slice(0, 500),
+          },
+        });
+
+        // 3. Handle Supplier Errors (402, 409) or Success / Processing
+        if (result.httpStatus === 402 || result.errorCode === "supplier_balance_empty") {
+          // Insufficient supplier wallet balance
           await db.orderItem.update({
             where: { id: item.id },
+            data: { fulfillmentStatus: "PENDING_SUPPORT" },
+          });
+          await db.order.update({
+            where: { id: order.id },
+            data: { status: "PENDING_SUPPORT" },
+          });
+          // Log critical alert and create high priority ticket for admin
+          await db.supplierLog.create({
             data: {
-              supplierOrderId: `irm:${result.orderId}`,
-              fulfillmentStatus: result.ok ? "FULFILLED" : "PENDING_MANUAL",
+              supplierOrderId: supplierOrder.id,
+              action: "CRITICAL_SUPPLIER_BALANCE_EMPTY",
+              status: "ERROR",
+              payload: JSON.stringify({
+                alert: "CRITICAL",
+                orderCode: order.code,
+                productTitle: item.productTitle,
+                costUsd: result.costUsd,
+                message: "موجودی کیف پول دلاری در irMarket تمام شده است! سفارش متوقف شد.",
+              }),
+              message: `هشدار بحرانی: موجودی دلاری تامین‌کننده برای سفارش ${order.code} ناکافی است.`,
             },
           });
-        }
-
-        if (result.ok && result.accounts && result.accounts.length > 0) {
+          await db.ticket.create({
+            data: {
+              orderId: order.id,
+              userId: order.userId || null,
+              subject: `[بحرانی] خطای موجودی دلاری تامین‌کننده (402) در سفارش ${order.code}`,
+              body: `سفارش ${order.code} به دلیل کسری موجودی در کیف پول irMarket تامین نشد. هزینه سفارش: ${result.costUsd || "نامشخص"} دلار. لطفا بلافاصله حساب تامین‌کننده را شارژ نمایید.`,
+              status: "open",
+              priority: "urgent",
+            },
+          }).catch(() => {});
+        } else if (result.httpStatus === 409 || result.errorCode === "out_of_stock") {
+          // Supplier product out of stock
+          await db.orderItem.update({
+            where: { id: item.id },
+            data: { fulfillmentStatus: "SUPPLIER_OUT_OF_STOCK" },
+          });
+          await db.order.update({
+            where: { id: order.id },
+            data: { status: "SUPPLIER_OUT_OF_STOCK" },
+          });
+          // Log critical alert
+          await db.supplierLog.create({
+            data: {
+              supplierOrderId: supplierOrder.id,
+              action: "CRITICAL_SUPPLIER_OUT_OF_STOCK",
+              status: "ERROR",
+              payload: JSON.stringify({
+                alert: "CRITICAL",
+                orderCode: order.code,
+                productTitle: item.productTitle,
+                message: "محصول نزد تامین‌کننده irMarket ناموجود است!",
+              }),
+              message: `هشدار بحرانی: محصول ${item.productTitle} نزد تامین‌کننده ناموجود است.`,
+            },
+          });
+          await db.ticket.create({
+            data: {
+              orderId: order.id,
+              userId: order.userId || null,
+              subject: `[ناموجود] محصول ${item.productTitle} در سفارش ${order.code} ناموجود است`,
+              body: `محصول ${item.productTitle} در سفارش ${order.code} با خطای عدم موجودی انبار تامین‌کننده (409) مواجه شد.`,
+              status: "open",
+              priority: "urgent",
+            },
+          }).catch(() => {});
+        } else if (result.status === "delivered" && result.accounts && result.accounts.length > 0) {
+          // Success: seal keys and store in LicenseKey
           for (const account of result.accounts) {
             await db.licenseKey.create({
               data: {
@@ -83,10 +225,27 @@ export async function fulfillAndDeliverOrder(orderId: string): Promise<{ ok: boo
                 status: "SOLD",
                 source: "supplier_api",
                 orderItemId: item.id,
+                supplierOrderId: supplierOrder.id,
                 soldAt: new Date(),
               },
             });
           }
+          await db.orderItem.update({
+            where: { id: item.id },
+            data: { fulfillmentStatus: "FULFILLED" },
+          });
+        } else if (result.status === "processing") {
+          // Still processing at supplier: wait for webhook
+          await db.orderItem.update({
+            where: { id: item.id },
+            data: { fulfillmentStatus: "PROCESSING_BY_SUPPLIER" },
+          });
+        } else {
+          // Unknown error: mark as pending manual
+          await db.orderItem.update({
+            where: { id: item.id },
+            data: { fulfillmentStatus: "PENDING_MANUAL" },
+          });
         }
       } else {
         // Internal digital warehouse inventory

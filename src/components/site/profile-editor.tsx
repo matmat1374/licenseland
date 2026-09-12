@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -21,10 +22,11 @@ interface ProfileData {
 }
 
 export function ProfileEditor({ user }: { user: ProfileData }) {
+  const router = useRouter();
   const [saving, setSaving] = useState(false);
   const [form, setForm] = useState({
     name: user.name || "",
-    email: user.email || "",
+    email: user.email?.endsWith("@liceno.ir") ? "" : (user.email || ""),
     phone: user.phone || "",
     nationalId: user.nationalId || "",
   });
@@ -39,8 +41,12 @@ export function ProfileEditor({ user }: { user: ProfileData }) {
         body: JSON.stringify(form),
       });
       const data = await res.json();
-      if (!res.ok) toast.error(data.message || "خطا در به‌روزرسانی");
-      else toast.success(data.message || "ذخیره شد");
+      if (!res.ok) {
+        toast.error(data.message || "خطا در به‌روزرسانی");
+      } else {
+        toast.success(data.message || "پروفایل با موفقیت ذخیره شد");
+        router.refresh();
+      }
     } catch {
       toast.error("ارتباط با سرور برقرار نشد");
     } finally {
@@ -64,10 +70,16 @@ export function ProfileEditor({ user }: { user: ProfileData }) {
         <form onSubmit={save} className="space-y-4">
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-1.5">
-              <Label htmlFor="name">نام و نام خانوادگی</Label>
+              <Label htmlFor="name">نام و نام خانوادگی (اختیاری)</Label>
               <div className="relative">
                 <UserIcon className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                <Input id="name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="pr-9" />
+                <Input
+                  id="name"
+                  value={form.name}
+                  onChange={(e) => setForm({ ...form, name: e.target.value })}
+                  placeholder="مثال: علی محمدی"
+                  className="pr-9"
+                />
               </div>
             </div>
             <div className="space-y-1.5">
@@ -80,10 +92,18 @@ export function ProfileEditor({ user }: { user: ProfileData }) {
           </div>
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-1.5">
-              <Label htmlFor="email">ایمیل</Label>
+              <Label htmlFor="email">ایمیل (اختیاری)</Label>
               <div className="relative">
                 <Mail className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                <Input id="email" type="email" dir="ltr" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} className="pr-9" />
+                <Input
+                  id="email"
+                  type="email"
+                  dir="ltr"
+                  value={form.email}
+                  onChange={(e) => setForm({ ...form, email: e.target.value })}
+                  placeholder="name@example.com"
+                  className="pr-9"
+                />
               </div>
             </div>
             <div className="space-y-1.5">

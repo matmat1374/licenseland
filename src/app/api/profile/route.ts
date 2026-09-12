@@ -22,25 +22,38 @@ export async function PUT(req: NextRequest) {
 
   try {
     const body = await req.json();
-    const name = (body.name || "").trim();
-    const email = (body.email || "").toLowerCase().trim();
+    const name = (body.name || "").trim() || null;
+    let email = (body.email || "").toLowerCase().trim();
     const phoneRaw = (body.phone || "").trim();
     const nationalId = (body.nationalId || "").trim() || null;
 
-    if (!name) return NextResponse.json({ ok: false, message: "نام را وارد کنید" }, { status: 400 });
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
-      return NextResponse.json({ ok: false, message: "ایمیل معتبر نیست" }, { status: 400 });
-    if (!isPhone(phoneRaw))
+    if (phoneRaw && !isPhone(phoneRaw))
       return NextResponse.json({ ok: false, message: "شماره موبایل معتبر نیست" }, { status: 400 });
+    if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
+      return NextResponse.json({ ok: false, message: "ایمیل معتبر نیست" }, { status: 400 });
     if (nationalId && !/^\d{10}$/.test(nationalId))
       return NextResponse.json({ ok: false, message: "کد ملی باید ۱۰ رقم باشد" }, { status: 400 });
 
-    const phone = normalizePhone(phoneRaw);
+    const currentUser = await db.user.findUnique({ where: { id: session.user.id } });
+    if (!currentUser) return NextResponse.json({ ok: false, message: "کاربر یافت نشد" }, { status: 404 });
+
+    const phone = phoneRaw ? normalizePhone(phoneRaw) : currentUser.phone;
+
+    // Prisma User.email is String @unique (non-nullable). If user doesn't specify email, keep or set placeholder.
+    if (!email) {
+      email = currentUser.email?.endsWith("@liceno.ir")
+        ? currentUser.email
+        : `${phone || currentUser.phone || session.user.id}@liceno.ir`;
+    }
 
     // uniqueness checks (excluding self)
     const [byEmail, byPhone] = await Promise.all([
-      db.user.findFirst({ where: { email, NOT: { id: session.user.id } } }),
-      db.user.findFirst({ where: { phone, NOT: { id: session.user.id } } }),
+      email && !email.endsWith("@liceno.ir")
+        ? db.user.findFirst({ where: { email, NOT: { id: session.user.id } } })
+        : null,
+      phone
+        ? db.user.findFirst({ where: { phone, NOT: { id: session.user.id } } })
+        : null,
     ]);
     if (byEmail) return NextResponse.json({ ok: false, message: "این ایمیل متعلق به حساب دیگری است" }, { status: 400 });
     if (byPhone) return NextResponse.json({ ok: false, message: "این موبایل متعلق به حساب دیگری است" }, { status: 400 });

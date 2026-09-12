@@ -41,13 +41,18 @@ export function CheckoutClient({ coupon = "" }: { coupon?: string }) {
   const [prevSessionEmail, setPrevSessionEmail] = useState<string | null | undefined>(null);
 
   // Prefill from session (render-time state adjustment — lint clean, no refs)
-  const sessionEmail = session?.user?.email;
-  if (sessionEmail && sessionEmail !== prevSessionEmail) {
+  const sessionUser = session?.user as any;
+  const sessionEmail = sessionUser?.email;
+  if (sessionUser && sessionEmail !== prevSessionEmail) {
     setPrevSessionEmail(sessionEmail);
-    if (!form.email) {
-      const sessionName = session?.user?.name || "";
-      setForm((f) => ({ name: f.name || sessionName, email: sessionEmail, phone: f.phone }));
-    }
+    const sessionName = sessionUser.name || "";
+    const sessionEmailVal = sessionEmail?.endsWith("@liceno.ir") ? "" : (sessionEmail || "");
+    const sessionPhone = sessionUser.phone || "";
+    setForm((f) => ({
+      name: f.name || sessionName,
+      email: f.email || sessionEmailVal,
+      phone: f.phone || sessionPhone,
+    }));
   }
 
   // validate coupon

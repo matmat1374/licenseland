@@ -21,6 +21,7 @@ import { formatJalaliDate, toFa } from "@/lib/date";
 import { toToman } from "@/lib/format";
 import { openKeys } from "@/lib/licenses";
 import { DashboardTabs } from "@/components/site/dashboard-tabs";
+import { DashboardHeader } from "@/components/site/dashboard-header";
 
 export const metadata = { title: "پنل کاربری", robots: { index: false } };
 
@@ -119,15 +120,7 @@ export default async function DashboardPage({
   return (
     <div className="container mx-auto px-4 py-8">
       {/* header */}
-      <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-2xl font-black">پنل کاربری</h1>
-          <p className="text-sm text-muted-foreground">سلام {user?.name || "کاربر"} 👋</p>
-        </div>
-        <Button asChild>
-          <Link href="/shop"><ShoppingBag className="ml-1 h-4 w-4" /> خرید جدید</Link>
-        </Button>
-      </div>
+      <DashboardHeader userName={user?.name || user?.phone || "کاربر گرامی"} />
 
       {/* stats */}
       <div className="mb-6 grid grid-cols-2 gap-3 md:grid-cols-4">

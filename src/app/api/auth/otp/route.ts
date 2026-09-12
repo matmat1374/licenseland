@@ -107,7 +107,7 @@ export async function POST(req: NextRequest) {
     if (!user) {
       user = await db.user.create({
         data: {
-          name: `کاربر ${phone.slice(-4)}`,
+          name: null,
           email: `${phone}@liceno.ir`,
           phone,
           password: hashPassword(sessionPassword),
@@ -115,13 +115,18 @@ export async function POST(req: NextRequest) {
         },
       });
     } else {
+      const isPlaceholderName = user.name && /^کاربر \d{4}$/.test(user.name);
       await db.user.update({
         where: { id: user.id },
         data: { 
           password: hashPassword(sessionPassword),
-          ...(phone === "09121145687" ? { role: "ADMIN" } : {})
+          ...(phone === "09121145687" ? { role: "ADMIN" } : {}),
+          ...(isPlaceholderName ? { name: null } : {}),
         },
       });
+      if (isPlaceholderName) {
+        user.name = null;
+      }
     }
 
     return NextResponse.json({

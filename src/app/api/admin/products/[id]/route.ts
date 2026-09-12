@@ -83,14 +83,76 @@ export async function PUT(
       }
     }
 
+function isPlainObject(item: any): item is Record<string, any> {
+  return item !== null && typeof item === "object" && !Array.isArray(item);
+}
+
+function deepMergeSpecifications(target: any, source: any): any {
+  if (!isPlainObject(target)) {
+    return isPlainObject(source) ? { ...source } : source;
+  }
+  if (!isPlainObject(source)) {
+    return target;
+  }
+
+  const result: Record<string, any> = { ...target };
+
+  for (const key of Object.keys(source)) {
+    const sourceVal = source[key];
+    const targetVal = target[key];
+
+    if (sourceVal === undefined) {
+      continue;
+    }
+
+    if (isPlainObject(sourceVal) && isPlainObject(targetVal)) {
+      result[key] = deepMergeSpecifications(targetVal, sourceVal);
+    } else if (sourceVal !== null && sourceVal !== "") {
+      result[key] = sourceVal;
+    } else if (sourceVal === null || sourceVal === "") {
+      // Don't wipe protected/critical fields like supplier_product_id
+      const protectedKeys = [
+        "supplier_product_id",
+        "supplier_name",
+        "pricing_unit",
+        "requires_email",
+        "requires_link",
+        "requires_password",
+      ];
+      if (protectedKeys.includes(key) && targetVal !== undefined) {
+        result[key] = targetVal;
+      } else {
+        result[key] = sourceVal;
+      }
+    } else {
+      result[key] = sourceVal;
+    }
+  }
+
+  return result;
+}
+
     let nextSpecs = existing.specifications;
     if (specifications !== undefined) {
-      let old = {};
-      try { if (existing.specifications) old = JSON.parse(existing.specifications); } catch(e) {}
-      const merged = { ...old, ...(specifications || {}) };
-      for (const key in merged) {
-        if (merged[key] === null) delete merged[key];
-      }
+      let oldSpecs: Record<string, any> = {};
+      try {
+        if (existing.specifications) {
+          oldSpecs = typeof existing.specifications === "string"
+            ? JSON.parse(existing.specifications)
+            : existing.specifications;
+        }
+      } catch (e) {}
+
+      let incomingSpecs: Record<string, any> = {};
+      try {
+        if (specifications) {
+          incomingSpecs = typeof specifications === "string"
+            ? JSON.parse(specifications)
+            : specifications;
+        }
+      } catch (e) {}
+
+      const merged = deepMergeSpecifications(oldSpecs, incomingSpecs);
       nextSpecs = Object.keys(merged).length > 0 ? JSON.stringify(merged) : null;
     }
 

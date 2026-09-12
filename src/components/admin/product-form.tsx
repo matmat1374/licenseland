@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/select";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { calculateSellPrice } from "@/lib/pricing-calculator";
 
 export interface ProductFormData {
   id?: string;
@@ -41,6 +42,7 @@ export interface ProductFormData {
   torobUndercut?: string;
   torobFloor?: string;
   isPriceLocked?: boolean;
+  specifications?: Record<string, any> | string | null;
 }
 
 interface ProductFormProps {
@@ -65,6 +67,19 @@ export function ProductForm({ initial, categories, activeUsdRate, onSaved, onCan
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [slugEdited, setSlugEdited] = useState(!!initial?.slug);
+
+  const [originalSpecs] = useState<Record<string, any>>(() => {
+    if (!initial?.specifications) return {};
+    if (typeof initial.specifications === "string") {
+      try {
+        return JSON.parse(initial.specifications);
+      } catch {
+        return {};
+      }
+    }
+    return { ...initial.specifications };
+  });
+
   const [data, setData] = useState<ProductFormData>({
     id: initial?.id,
     title: initial?.title || "",
@@ -84,6 +99,12 @@ export function ProductForm({ initial, categories, activeUsdRate, onSaved, onCan
     isActive: initial?.isActive ?? true,
     costUsd: initial?.costUsd || "",
     markupPercent: initial?.markupPercent || "",
+    stock: initial?.stock ?? "",
+    torobUrl: initial?.torobUrl || "",
+    torobUndercut: initial?.torobUndercut || "",
+    torobFloor: initial?.torobFloor || "",
+    isPriceLocked: initial?.isPriceLocked ?? false,
+    specifications: initial?.specifications,
   });
 
   const [usdRate, setUsdRate] = useState<string>(String(activeUsdRate || 92000));
@@ -108,6 +129,33 @@ export function ProductForm({ initial, categories, activeUsdRate, onSaved, onCan
       .map((s) => s.trim())
       .filter(Boolean);
 
+    // Merge previous specifications with updated values to preserve all metadata (supplier_product_id, torob_url, etc.)
+    const mergedSpecifications: Record<string, any> = {
+      ...originalSpecs,
+      ...(typeof data.specifications === "object" && data.specifications !== null ? data.specifications : {}),
+    };
+
+    if (data.costUsd) {
+      mergedSpecifications.price_usd = data.costUsd;
+      mergedSpecifications.cost_usd = data.costUsd;
+    }
+    if (data.markupPercent !== undefined && data.markupPercent !== "") {
+      mergedSpecifications.markup_percent = data.markupPercent;
+      mergedSpecifications.custom_markup = data.markupPercent;
+    }
+    if (data.torobUrl !== undefined && data.torobUrl !== "") {
+      mergedSpecifications.torob_url = data.torobUrl;
+    }
+    if (data.torobUndercut !== undefined && data.torobUndercut !== "") {
+      mergedSpecifications.torob_undercut = data.torobUndercut;
+    }
+    if (data.torobFloor !== undefined && data.torobFloor !== "") {
+      mergedSpecifications.torob_floor = data.torobFloor;
+    }
+    if (data.isPriceLocked !== undefined) {
+      mergedSpecifications.is_price_locked = data.isPriceLocked;
+    }
+
     const payload: any = {
       title: data.title,
       slug: data.slug,
@@ -124,11 +172,7 @@ export function ProductForm({ initial, categories, activeUsdRate, onSaved, onCan
       featured: data.featured,
       bestseller: data.bestseller,
       isActive: data.isActive,
-      specifications: (data.costUsd || data.markupPercent) ? {
-        price_usd: data.costUsd || null,
-        cost_usd: data.costUsd || null,
-        markup_percent: data.markupPercent || null,
-      } : null
+      specifications: Object.keys(mergedSpecifications).length > 0 ? mergedSpecifications : null,
     };
 
     setLoading(true);
@@ -152,7 +196,10 @@ export function ProductForm({ initial, categories, activeUsdRate, onSaved, onCan
     }
   }
 
-  const calculatedPrice = (Number(data.costUsd) || 0) * (Number(usdRate) || 0) * (1 + (Number(data.markupPercent) || 0) / 100);
+  const numCost = Number(data.costUsd) || 0;
+  const numRate = Number(usdRate) || 0;
+  const customMarkup = data.markupPercent !== "" && data.markupPercent !== undefined ? Number(data.markupPercent) : null;
+  const { sellPriceToman: calculatedPrice, markupPercent: effectiveMarkup } = calculateSellPrice(numCost, numRate, customMarkup);
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
@@ -272,13 +319,13 @@ export function ProductForm({ initial, categories, activeUsdRate, onSaved, onCan
           {(Number(data.costUsd) > 0) && (
             <div className="bg-background border rounded p-3 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
               <div className="text-sm font-mono" dir="ltr">
-                ({data.costUsd || 0}$ × {Number(usdRate || 0).toLocaleString()} T) × {(1 + (Number(data.markupPercent) || 0) / 100).toFixed(2)} = <span className="font-bold text-primary">{Math.round(calculatedPrice).toLocaleString()} T</span>
+                ({data.costUsd || 0}$ × {Number(usdRate || 0).toLocaleString()} T) + {effectiveMarkup}% = <span className="font-bold text-primary">{calculatedPrice.toLocaleString()} T</span>
               </div>
               <Button 
                 type="button" 
                 size="sm" 
                 variant="secondary"
-                onClick={() => set("price", Math.round(calculatedPrice).toString())}
+                onClick={() => set("price", calculatedPrice.toString())}
               >
                 اعمال قیمت محاسبه‌شده در فیلد قیمت
               </Button>

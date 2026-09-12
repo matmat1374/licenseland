@@ -99,9 +99,11 @@ export function ProductManager({ mode, product, categories, activeUsdRate, child
         let torobUndercut = "";
         let torobFloor = "";
         let isPriceLocked = false;
+        let rawSpecs: Record<string, any> = {};
         try {
           if (p.specifications) {
             const spec = typeof p.specifications === 'string' ? JSON.parse(p.specifications) : p.specifications;
+            rawSpecs = spec;
             if (spec.price_usd) costUsd = spec.price_usd;
             else if (spec.cost_usd) costUsd = spec.cost_usd;
             if (spec.markup_percent) markupPercent = spec.markup_percent;
@@ -136,6 +138,7 @@ export function ProductManager({ mode, product, categories, activeUsdRate, child
           torobUndercut,
           torobFloor,
           isPriceLocked,
+          specifications: rawSpecs,
         });
       }
     } catch (e) {

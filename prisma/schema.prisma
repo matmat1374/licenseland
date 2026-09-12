@@ -109,6 +109,7 @@ model Product {
   stock           Int      @default(0)
   featured        Boolean  @default(false)
   bestseller      Boolean  @default(false)
+  sortOrder       Int      @default(0)
   isActive        Boolean  @default(true)
   // Fulfillment mode: MANUAL (from inventory or admin) | AUTO (buy from supplier API)
   fulfillmentMode String   @default("MANUAL")
@@ -270,6 +271,8 @@ model SupplierOrder {
   status          String   @default("PENDING") // PENDING | FULFILLED | FAILED | CANCELLED
   direction       String   @default("OUTBOUND") // OUTBOUND (we requested) | INBOUND (supplier pushed)
   supplierRef     String?  // supplier's reference id
+  costUsd         Float?   // cost in USD charged by supplier
+  orderItemId     String?  // link to OrderItem
   note            String?
   requestedById   String?
   createdAt       DateTime @default(now())

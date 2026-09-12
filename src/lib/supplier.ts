@@ -6,7 +6,7 @@
 // Configuration is read from DB Setting table (editable in admin) with env fallbacks.
 
 import { db } from "@/lib/db";
-import { computeQuote } from "@kernel/pricing/engine";
+import { calculateSellPrice, loadPricingTiers } from "@/lib/pricing-calculator";
 import { sealKey, openKey } from "@/lib/licenses";
 import { IrMarketClient } from "@kernel/supplier/provider";
 import { CircuitBreaker, systemClock } from "@kernel/supplier/resilience";
@@ -407,8 +407,8 @@ export interface SupplierProduct {
   image?: string;
   imageUrl?: string;
   images?: string[];
-  stock?: number;
-  in_stock?: number;
+  stock?: number | boolean;
+  in_stock?: number | boolean;
   pricing_unit?: string;
   min_qty?: number;
   max_qty?: number;
@@ -521,35 +521,33 @@ export function localizeProduct(name: string, category: string, sp?: any): { tit
   if (sp && (sp.name || sp.title)) {
     shortDesc = (sp.name || sp.title).toString().trim();
   }
-  const originalUpper = shortDesc.toUpperCase();
-  let t = name.trim(); // use 'name' (which may be fa-translated) for parsing title
+  let t = (sp?.name || sp?.title || name).toString().trim();
 
-  // 1. SMM Services
-  if (sp && sp.category === 'سرویس های SMM') {
-    const finalTitle = name.trim();
-    return {
-      title: finalTitle,
-      shortDesc,
-      description: `## ${finalTitle}\n\nمحصول اوریجینال با تحویل آنی و پشتیبانی ۲۴ ساعته.\n\n### مشخصات\n- **نام اصلی و فنی:** ${shortDesc}\n- ضمانت اصالت و سلامت\n- خرید امن و مطمئن\n- تحویل فوری پس از پرداخت\n- پشتیبانی فعال\n`
-    };
-  }
-
-  const isAi = category === "ai" || category === "هوش مصنوعی";
-
-  // Helpers for normalizing english parts
+  // Helper for Persian numbers
   const normalizePersianNumbers = (str: string) => {
     return str.replace(/0/g, '۰').replace(/1/g, '۱').replace(/2/g, '۲').replace(/3/g, '۳')
               .replace(/4/g, '۴').replace(/5/g, '۵').replace(/6/g, '۶').replace(/7/g, '۷')
               .replace(/8/g, '۸').replace(/9/g, '۹');
   };
 
-  // C) Old / Created / Free Accounts
-  if (t.toLowerCase().includes("old claude free account") || t.toLowerCase().includes("created more than")) {
-    const title = "اکانت آماده و قدیمی کلود رایگان (Claude Free - فعال و تست‌شده)";
-    return { title, shortDesc, description: `## ${title}\n\nاکانت از قبل ساخته شده و آماده استفاده بدون نیاز به شماره مجازی.\n\n### مشخصات\n- **نام اصلی و فنی:** ${shortDesc}\n- تحویل فوری\n- بدون قطعی و با ضمانت\n` };
+  // Specific check: Product 364 (Gemini AI Pro 18 Month)
+  if (sp?.id == 364 || (/gemini/i.test(t) && /18\s*month/i.test(t))) {
+    const title = "Gemini AI Pro (۱۸ ماهه)";
+    const description = `## Gemini AI Pro (۱۸ ماهه)\n\nاشتراک رسمی و قانونی Gemini AI Pro گوگل به همراه ۵ ترابایت فضای ابری Google One با فعال‌سازی آنی.\n\n### مشخصات و امکانات\n- **سرویس:** Google Gemini AI Pro + 5TB Cloud Storage\n- **مدت اشتراک:** ۱۸ ماهه\n- **تحویل:** فوری پس از پرداخت\n- فعال‌سازی مستقیم روی اکانت جیمیل شخصی بدون نیاز به کارت بانکی\n- دسترسی کامل به پیشرفته‌ترین مدل هوش مصنوعی گوگل (Gemini 1.5 Pro / Ultra)\n- ۵ ترابایت فضای ابری جهت استفاده در Google Drive، Photos و Gmail\n- گارانتی و ضمانت اصالت و سلامت فعال‌سازی\n- پشتیبانی ۲۴ ساعته\n`;
+    return { title, shortDesc, description };
   }
 
-  // A) Virtual Numbers
+  // SMM Services
+  if (sp && sp.category === 'سرویس های SMM') {
+    const finalTitle = name.trim();
+    return {
+      title: finalTitle,
+      shortDesc,
+      description: `## ${finalTitle}\n\nسرویس شبکه‌های اجتماعی اوریجینال با تحویل خودکار و پشتیبانی ۲۴ ساعته.\n\n### مشخصات\n- **نام اصلی:** ${shortDesc}\n- تحویل سریع پس از پرداخت\n- پشتیبانی فعال\n`
+    };
+  }
+
+  // Virtual Numbers
   const isVirtualNumber = /^(Openai|ChatGPT|Claude|Telegram|WhatsApp|Google|Apple|Discord)\s*—/i.test(t) || t.includes("شماره مجازی") || t.includes("شماره") || category === "virtual-numbers";
   if (isVirtualNumber) {
     let brand = "OpenAI";
@@ -564,148 +562,81 @@ export function localizeProduct(name: string, category: string, sp?: any): { tit
       country = t.replace(/(Openai|ChatGPT|Claude|Telegram|WhatsApp|Google|Apple|Discord|شماره مجازی وریفای|شماره مجازی|شماره|دریافت پیامک|\(|\)|—|-)/ig, "").trim();
     }
     
-    // Convert brand to Persian if needed
     let brandFa = brand;
-    if (brand.toLowerCase() === "openai" || brand.toLowerCase() === "chatgpt") brandFa = "چت‌جی‌پی‌تی OpenAI";
-    else if (brand.toLowerCase() === "claude") brandFa = "کلود Claude";
-    else if (brand.toLowerCase() === "apple") brandFa = "اپل Apple";
-    else if (brand.toLowerCase() === "telegram") brandFa = "تلگرام Telegram";
+    if (/openai|chatgpt/i.test(brand)) brandFa = "چت‌جی‌پی‌تی OpenAI";
+    else if (/claude/i.test(brand)) brandFa = "کلود Claude";
+    else if (/apple/i.test(brand)) brandFa = "اپل Apple";
+    else if (/telegram/i.test(brand)) brandFa = "تلگرام Telegram";
     
     const title = `شماره مجازی فعالسازی ${brandFa} (${country})`;
-    const description = `> ⚠️ **توجه مهم — این محصول شماره مجازی است، نه اکانت یا اشتراک:**\n> این سرویس صرفاً یک **شماره تلفن موقت** جهت دریافت پیامک کد تایید (SMS OTP) برای ساخت یا فعالسازی حساب کاربری در ${brand} است و شامل اکانت ساخته‌شده یا اشتراک ماهانه نیست.\n\n## ${title}\n\nشماره مجازی معتبر جهت وریفای سرویس.\n\n### مشخصات\n- **نام اصلی و فنی:** ${shortDesc}\n- دریافت آنی پیامک\n- اختصاصی و امن\n- گارانتی فعال‌سازی\n`;
-    
+    const description = `> ⚠️ **توجه مهم — این محصول شماره مجازی است، نه اکانت یا اشتراک:**\n> این سرویس صرفاً یک **شماره تلفن موقت** جهت دریافت پیامک کد تایید (SMS OTP) برای ساخت یا فعالسازی حساب کاربری در ${brand} است.\n\n## ${title}\n\nشماره مجازی معتبر جهت وریفای سرویس.\n\n### مشخصات\n- **نام اصلی و فنی:** ${shortDesc}\n- دریافت آنی پیامک\n- اختصاصی و امن\n- گارانتی فعال‌سازی\n`;
     return { title, shortDesc, description };
   }
 
-  // B) Redeem Codes / Credits
-  const isRedeem = /\b(redeem|cre|credit|credits|token|tokens)\b/i.test(t);
-  if (isRedeem) {
-    let brand = t.replace(/\b(redeem|cre|credit|credits|token|tokens|full warranty|warranty|days?)\b/ig, "")
-                 .replace(/[\d\.]+[KkMm]/g, "").replace(/[-—\|]/g, "").trim();
-    brand = brand.replace(/\s+/g, " ");
-    
-    // Extract credit amount
-    let amountStr = "";
-    let cleanAmountStr = "";
-    // Match something like "3M", "8.5K", "1k2"
-    const amountMatch = t.match(/([\d\.]+)([kK]2|[kKmMsS]?)\s*(cre|credit|credits|token|tokens)?/i);
-    if (amountMatch) {
-      let num = amountMatch[1];
-      let suffix = amountMatch[2].toUpperCase();
-      if (suffix === "K2") cleanAmountStr = num + ".2 هزار";
-      else if (suffix === "K") cleanAmountStr = num + " هزار";
-      else if (suffix === "M") cleanAmountStr = num + " میلیون";
-      else cleanAmountStr = num;
-      
-      cleanAmountStr += t.toLowerCase().includes("token") ? " توکن" : " کردیت";
-      amountStr = normalizePersianNumbers(cleanAmountStr);
-      
-      // Remove the matched amount from brand if it wasn't stripped
-      brand = brand.replace(new RegExp(amountMatch[0], "i"), "").trim();
-    }
-    
-    // Extract warranty
-    let warranty = "با گارانتی";
-    const warrantyMatch = t.match(/(\d+)\s*days\s*warranty/i);
-    if (warrantyMatch) {
-      warranty = `گارانتی ${normalizePersianNumbers(warrantyMatch[1])} روزه`;
-    } else if (/\b1\s*month\s*warranty\b/i.test(t)) {
-      warranty = "گارانتی ۱ ماهه";
-    }
+  // Clean raw supplier artifacts: warranty notes, emojis, internal codes
+  let cleanName = t;
+  cleanName = cleanName.replace(/\s*[\-\|—]?\s*(full\s+warranty|warranty\s*\d*[hd]?|w\d+[mhd]?|no\s+warranty|with\s+warranty|guaranteed?)\b/ig, '');
+  cleanName = cleanName.replace(/[\u{1F300}-\u{1F9FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]/gu, '');
+  cleanName = cleanName.replace(/\s*[\-\|]\s*antigravity/ig, '');
+  cleanName = cleanName.replace(/\[(slot|private|shared)\]/ig, '');
 
-    brand = brand.replace(/\bcode\b/ig, "").replace(/\s+/g, " ").trim();
-    const prefix = isAi ? "ردیم کد هوش مصنوعی" : "ردیم کد";
-    const title = `${prefix} ${brand} (${amountStr} - ${warranty})`;
-    
-    return { 
-      title, 
-      shortDesc, 
-      description: `## ${title}\n\nکد شارژ و ردیم اوریجینال با تحویل آنی.\n\n### مشخصات\n- **نام اصلی و فنی:** ${shortDesc}\n- ضمانت اصالت و سلامت\n- خرید امن و مطمئن\n- تحویل فوری پس از پرداخت\n- پشتیبانی فعال\n` 
-    };
+  // Extract duration
+  let durationFa = '';
+  if (/\b18\s*(months?|m)\b/i.test(cleanName)) { durationFa = '۱۸ ماهه'; cleanName = cleanName.replace(/\b18\s*(months?|m)\b/ig, ''); }
+  else if (/\b12\s*(months?|m)\b|\b1\s*(year|y)\b/i.test(cleanName)) { durationFa = '۱ ساله'; cleanName = cleanName.replace(/\b12\s*(months?|m)\b|\b1\s*(year|y)\b/ig, ''); }
+  else if (/\b6\s*(months?|m)\b/i.test(cleanName)) { durationFa = '۶ ماهه'; cleanName = cleanName.replace(/\b6\s*(months?|m)\b/ig, ''); }
+  else if (/\b3\s*(months?|m)\b/i.test(cleanName)) { durationFa = '۳ ماهه'; cleanName = cleanName.replace(/\b3\s*(months?|m)\b/ig, ''); }
+  else if (/\b2\s*(months?|m)\b/i.test(cleanName)) { durationFa = '۲ ماهه'; cleanName = cleanName.replace(/\b2\s*(months?|m)\b/ig, ''); }
+  else if (/\b1\s*(month|m)\b/i.test(cleanName)) { durationFa = '۱ ماهه'; cleanName = cleanName.replace(/\b1\s*(month|m)\b/ig, ''); }
+  else if (/\b(1|one)\s*days?\b|\b24h\b/i.test(cleanName)) { durationFa = '۱ روزه'; cleanName = cleanName.replace(/\b(1|one)\s*days?\b|\b24h\b/ig, ''); }
+  else if (/\b(\d+)\s*days?\b/i.test(cleanName)) {
+    const dMatch = cleanName.match(/\b(\d+)\s*days?\b/i);
+    if (dMatch) { durationFa = normalizePersianNumbers(dMatch[1]) + ' روزه'; cleanName = cleanName.replace(/\b(\d+)\s*days?\b/ig, ''); }
   }
 
-  // D) Subscriptions
-  
-  let duration = "";
-  if (/\b1\s*month\b/i.test(t)) duration = "۱ ماهه";
-  else if (/\b3\s*months?\b/i.test(t)) duration = "۳ ماهه";
-  else if (/\b6\s*months?\b/i.test(t)) duration = "۶ ماهه";
-  else if (/\b12\s*months?|1\s*year\b/i.test(t)) duration = "۱ ساله";
+  // Clean trailing/leading delimiters
+  cleanName = cleanName.replace(/[\-\|—:]+\s*$/g, '').replace(/^\s*[\-\|—:]+/g, '').replace(/\s{2,}/g, ' ').trim();
 
-  let planDetails = [];
-  if (/\b(slot|private)\b/i.test(t)) planDetails.push("اختصاصی");
-  if (/\b(shared)\b/i.test(t)) planDetails.push("اشتراکی");
-  
-  const profileMatch = t.match(/\b(\d+)\s*profile\b/i);
-  if (profileMatch) planDetails.push(normalizePersianNumbers(profileMatch[1]) + " پروفایل");
-  
-  if (duration) planDetails.push(duration);
-  const detailsStr = planDetails.length > 0 ? planDetails.join(" ") : "";
-
-  // Extract brand / plan name
-  let brand = t.replace(/\b\d+\s*months?\b/ig, "")
-               .replace(/\b1\s*year\b/ig, "")
-               .replace(/\b\d+\s*profile\b/ig, "")
-               .replace(/\b\d+\s*days?\b/ig, "")
-               .replace(/\b\d+\s*H\b/ig, "")
-               .replace(/\b(slot|private|shared|warranty|full warranty|days)\b/ig, "")
-               .replace(/[-—\|]/g, "")
-               .trim();
-  brand = brand.replace(/\s+/g, " ");
-
-  // Identify Categories and Custom Brand Names
-  let brandFa = "";
-  let brandEn = brand;
-  let prefix = "";
-
-  if (category === "ai" || category === "هوش مصنوعی") {
-      prefix = "اشتراک هوش مصنوعی";
-  } else if (category === "streaming" || category === "فیلم و موسیقی") {
-      prefix = "اشتراک پریمیوم";
-  } else if (category === "gaming" || category === "بازی و سرگرمی") {
-      prefix = "اشتراک بازی";
-  } else {
-      prefix = "اشتراک";
+  // Well-known product brand cleanings
+  let finalTitle = cleanName;
+  if (/chatgpt plus/i.test(t)) {
+    finalTitle = "ChatGPT Plus";
+  } else if (/claude/i.test(t) && !/otp|virtual/i.test(t)) {
+    if (/team/i.test(t)) finalTitle = "Claude Team";
+    else finalTitle = "Claude Pro";
+  } else if (/midjourney/i.test(t)) {
+    if (/standard/i.test(t)) finalTitle = "Midjourney Standard";
+    else if (/pro/i.test(t)) finalTitle = "Midjourney Pro";
+    else if (/mega/i.test(t)) finalTitle = "Midjourney Mega";
+    else finalTitle = "Midjourney";
+  } else if (/canva pro/i.test(t)) {
+    finalTitle = "Canva Pro";
+  } else if (/spotify/i.test(t)) {
+    finalTitle = "Spotify Premium";
+  } else if (/netflix/i.test(t)) {
+    finalTitle = "Netflix 4K Ultra HD";
+  } else if (/youtube premium/i.test(t)) {
+    finalTitle = "YouTube Premium";
+  } else if (/discord nitro/i.test(t)) {
+    finalTitle = "Discord Nitro";
+  } else if (/cursor/i.test(t)) {
+    if (/cursor pro/i.test(t)) finalTitle = "Cursor Pro";
+  } else if (/windsurf/i.test(t)) {
+    if (/windsurf pro/i.test(t)) finalTitle = "Windsurf Pro";
+  } else if (/adobe/i.test(t)) {
+    if (/creative cloud/i.test(t)) finalTitle = "Adobe Creative Cloud Pro";
+    else if (/express/i.test(t)) finalTitle = "Adobe Express";
   }
 
-  if (brand.toLowerCase().includes("netflix")) {
-    if (brand.toLowerCase().includes("admin")) {
-        prefix = "اشتراک پنل ادمین نتفلیکس";
-        brandEn = brand.replace(/\badmin\b/ig, "").trim();
-    } else {
-        prefix = "اشتراک نتفلیکس";
-    }
-  } else if (brand.toLowerCase().includes("youtube premium")) {
-    prefix = "اشتراک یوتیوب پریمیوم";
-  } else if (brand.toLowerCase().includes("chatgpt plus")) {
-    brandFa = "چت‌جی‌پی‌تی پلاس";
-  } else if (brand.toLowerCase().includes("midjourney")) {
-    brandFa = "میدجرنی";
-    if (brand.toLowerCase().includes("standard")) brandFa += " استاندارد";
-    else if (brand.toLowerCase().includes("pro")) brandFa += " پرو";
-    else if (brand.toLowerCase().includes("mega")) brandFa += " مگا";
-    brandEn = "Midjourney";
-  } else if (brand.toLowerCase().includes("capcut pro")) {
-    brandFa = "کپ‌کات پرو";
+  if (durationFa && !finalTitle.includes(durationFa)) {
+    finalTitle = `${finalTitle} (${durationFa})`;
   }
-  
-  brandEn = brandEn.replace(/\s+/g, " ").trim();
-  
-  if (brandEn.startsWith("اشتراک ") || brandEn.startsWith("اشتراک رسمی ")) {
-    prefix = "";
-  }
-  
-  let title = prefix ? `${prefix} ${brandFa ? brandFa + " " : ""}${brandEn}` : `${brandFa ? brandFa + " " : ""}${brandEn}`;
-  
-  if (detailsStr) {
-    title += ` (${detailsStr})`;
-  }
-  
-  title = title.replace(/\s+/g, " ").trim();
 
-  const description = `## ${title}\n\nمحصول اوریجینال با تحویل آنی و پشتیبانی ۲۴ ساعته.\n\n### مشخصات\n- **نام اصلی و فنی:** ${shortDesc}\n- ضمانت اصالت و سلامت\n- خرید امن و مطمئن\n- تحویل فوری پس از پرداخت\n- پشتیبانی فعال\n`;
+  finalTitle = finalTitle.replace(/\s{2,}/g, ' ').trim();
 
-  return { title, shortDesc, description };
+  const description = `## ${finalTitle}\n\nمحصول اوریجینال و قانونی با تحویل آنی و پشتیبانی ۲۴ ساعته.\n\n### مشخصات\n- **نام اصلی و فنی:** ${shortDesc}\n- ضمانت اصالت و سلامت فعال‌سازی\n- خرید امن و تحویل فوری پس از پرداخت\n- پشتیبانی فعال\n`;
+
+  return { title: finalTitle, shortDesc, description };
 }
 
 function slugifyFa(s: string): string {
@@ -718,21 +649,250 @@ function slugifyFa(s: string): string {
     .slice(0, 80);
 }
 
-const CATEGORIES_META: Record<string, string> = {
-  gaming: "بازی و سرگرمی",
-  streaming: "فیلم، سریال و موسیقی",
+export const CATEGORIES_META: Record<string, string> = {
   ai: "هوش مصنوعی",
-  design: "طراحی و ویرایش",
-  security: "امنیت و آنتی‌ویروس",
-  software: "نرم‌افزار و توسعه",
-  education: "آموزش",
+  "virtual-numbers": "شماره مجازی و OTP",
+  "dev-tools": "ابزارهای توسعه و برنامه‌نویسی",
+  design: "طراحی و گرافیک",
+  streaming: "استریم و سرگرمی",
+  gaming: "گیمینگ و گیفت‌کارت",
+  productivity: "نرم‌افزار و بهره‌وری",
   social: "شبکه‌های اجتماعی",
-  "virtual-numbers": "شماره مجازی و وریفای",
-  "api-credits": "توکن و کردیت API"
 };
 
-// Categorize products based on name/brand
-export function categorizeProduct(p: SupplierProduct): { slug: string; name: string } {
+export const STANDARD_CATEGORIES = [
+  {
+    name: "هوش مصنوعی",
+    slug: "ai",
+    description: "اشتراک و اکانت قانونی ChatGPT، Claude، Midjourney و هوش‌های مصنوعی پیشرفته",
+    icon: "Sparkles",
+    color: "from-emerald-500 to-teal-600",
+    sortOrder: 1,
+  },
+  {
+    name: "شماره مجازی و OTP",
+    slug: "virtual-numbers",
+    description: "شماره‌های مجازی اختصاصی جهت دریافت پیامک تایید تلگرام، OpenAI، Claude و سرویس‌های خارجی",
+    icon: "Smartphone",
+    color: "from-teal-500 to-cyan-600",
+    sortOrder: 2,
+  },
+  {
+    name: "ابزارهای توسعه و برنامه‌نویسی",
+    slug: "dev-tools",
+    description: "Cursor Pro، Windsurf، GitHub Copilot و انواع توکن و کردیت API",
+    icon: "Code2",
+    color: "from-blue-500 to-indigo-600",
+    sortOrder: 3,
+  },
+  {
+    name: "طراحی و گرافیک",
+    slug: "design",
+    description: "لایسنس و اشتراک Canva Pro، Adobe Creative Cloud، Figma و ابزارهای ویدیویی",
+    icon: "PenTool",
+    color: "from-purple-500 to-pink-600",
+    sortOrder: 4,
+  },
+  {
+    name: "استریم و سرگرمی",
+    slug: "streaming",
+    description: "اکانت پریمیوم Spotify، Netflix، YouTube Premium و سرویس‌های فیلم و موسیقی",
+    icon: "Play",
+    color: "from-rose-500 to-pink-600",
+    sortOrder: 5,
+  },
+  {
+    name: "گیمینگ و گیفت‌کارت",
+    slug: "gaming",
+    description: "Discord Nitro، گیفت‌کارت PSN، Google Play، PUBG UC و CoD CP",
+    icon: "Gamepad2",
+    color: "from-violet-500 to-fuchsia-600",
+    sortOrder: 6,
+  },
+  {
+    name: "نرم‌افزار و بهره‌وری",
+    slug: "productivity",
+    description: "لایسنس آفیس ۳۶۵، ویندوز، گرامرلی، نوشن و ابزارهای سازمانی",
+    icon: "LayoutGrid",
+    color: "from-amber-500 to-orange-600",
+    sortOrder: 7,
+  },
+  {
+    name: "شبکه‌های اجتماعی",
+    slug: "social",
+    description: "تلگرام استارز، تلگرام پریمیوم، ممبر و خدمات شبکه‌های اجتماعی",
+    icon: "Share2",
+    color: "from-sky-500 to-blue-600",
+    sortOrder: 8,
+  },
+];
+
+export interface ProductRankingInfo {
+  sortOrder: number;
+  bestseller: boolean;
+  featured: boolean;
+  salesCount: number;
+}
+
+export function getProductRankingInfo(p: SupplierProduct, title: string, catSlug: string): ProductRankingInfo {
+  const t = (title || "").toLowerCase();
+  const rawTitle = (p.title || p.name || "").toLowerCase();
+  const comb = `${t} ${rawTitle}`;
+
+  // Top Priority Bestsellers & Featured per Category
+  if (catSlug === "ai") {
+    if (/chatgpt|gpt[- ]?plus|gpt[- ]?4/i.test(comb)) {
+      return { sortOrder: 1, bestseller: true, featured: true, salesCount: 480 };
+    }
+    if (/claude/i.test(comb) && !/otp|virtual/i.test(comb)) {
+      return { sortOrder: 2, bestseller: true, featured: true, salesCount: 420 };
+    }
+    if (/midjourney|میدجرنی/i.test(comb)) {
+      return { sortOrder: 3, bestseller: true, featured: true, salesCount: 390 };
+    }
+    if (/perplexity|پرپلکسیتی/i.test(comb)) {
+      return { sortOrder: 4, bestseller: true, featured: true, salesCount: 310 };
+    }
+    if (/runway|kling|luma/i.test(comb)) {
+      return { sortOrder: 5, bestseller: false, featured: true, salesCount: 260 };
+    }
+    if (/veo|elevenlabs/i.test(comb)) {
+      return { sortOrder: 6, bestseller: false, featured: true, salesCount: 240 };
+    }
+    if (/gemini|جمینی|جمنای/i.test(comb)) {
+      return { sortOrder: 3, bestseller: true, featured: true, salesCount: 395 };
+    }
+    if (/grok/i.test(comb)) {
+      return { sortOrder: 7, bestseller: false, featured: true, salesCount: 210 };
+    }
+  }
+
+  if (catSlug === "virtual-numbers") {
+    if (/telegram|تلگرام/i.test(comb)) {
+      return { sortOrder: 1, bestseller: true, featured: true, salesCount: 520 };
+    }
+    if (/openai|chatgpt/i.test(comb)) {
+      return { sortOrder: 2, bestseller: true, featured: true, salesCount: 490 };
+    }
+    if (/claude/i.test(comb)) {
+      return { sortOrder: 3, bestseller: true, featured: true, salesCount: 360 };
+    }
+    if (/whatsapp|apple|google/i.test(comb)) {
+      return { sortOrder: 4, bestseller: false, featured: true, salesCount: 280 };
+    }
+  }
+
+  if (catSlug === "dev-tools") {
+    if (/cursor/i.test(comb)) {
+      return { sortOrder: 1, bestseller: true, featured: true, salesCount: 450 };
+    }
+    if (/windsurf/i.test(comb)) {
+      return { sortOrder: 2, bestseller: true, featured: true, salesCount: 380 };
+    }
+    if (/copilot/i.test(comb)) {
+      return { sortOrder: 3, bestseller: true, featured: true, salesCount: 340 };
+    }
+    if (/api.*(openai|claude|codex)|token.*claude/i.test(comb)) {
+      return { sortOrder: 4, bestseller: true, featured: true, salesCount: 310 };
+    }
+    if (/lovable|lovabe|supabase|railway/i.test(comb)) {
+      return { sortOrder: 5, bestseller: false, featured: true, salesCount: 230 };
+    }
+  }
+
+  if (catSlug === "design") {
+    if (/canva|کنوا|کانوا/i.test(comb)) {
+      return { sortOrder: 1, bestseller: true, featured: true, salesCount: 510 };
+    }
+    if (/adobe|creative cloud|photoshop|illustrator/i.test(comb)) {
+      return { sortOrder: 2, bestseller: true, featured: true, salesCount: 430 };
+    }
+    if (/figma|فیگما/i.test(comb)) {
+      return { sortOrder: 3, bestseller: true, featured: true, salesCount: 350 };
+    }
+    if (/capcut|کپ‌کات/i.test(comb)) {
+      return { sortOrder: 4, bestseller: true, featured: true, salesCount: 320 };
+    }
+    if (/freepik|envato/i.test(comb)) {
+      return { sortOrder: 5, bestseller: false, featured: true, salesCount: 240 };
+    }
+  }
+
+  if (catSlug === "streaming") {
+    if (/spotify|اسپاتیفای/i.test(comb)) {
+      return { sortOrder: 1, bestseller: true, featured: true, salesCount: 540 };
+    }
+    if (/netflix|نتفلیکس/i.test(comb)) {
+      return { sortOrder: 2, bestseller: true, featured: true, salesCount: 510 };
+    }
+    if (/youtube/i.test(comb)) {
+      return { sortOrder: 3, bestseller: true, featured: true, salesCount: 460 };
+    }
+    if (/apple music|disney/i.test(comb)) {
+      return { sortOrder: 4, bestseller: false, featured: true, salesCount: 260 };
+    }
+  }
+
+  if (catSlug === "gaming") {
+    if (/discord nitro|nitro/i.test(comb)) {
+      return { sortOrder: 1, bestseller: true, featured: true, salesCount: 490 };
+    }
+    if (/playstation|psn/i.test(comb)) {
+      return { sortOrder: 2, bestseller: true, featured: true, salesCount: 380 };
+    }
+    if (/google play/i.test(comb)) {
+      return { sortOrder: 3, bestseller: true, featured: true, salesCount: 340 };
+    }
+    if (/pubg|\buc\b/i.test(comb)) {
+      return { sortOrder: 4, bestseller: true, featured: true, salesCount: 320 };
+    }
+    if (/\bcp\b|call of duty/i.test(comb)) {
+      return { sortOrder: 5, bestseller: true, featured: true, salesCount: 290 };
+    }
+  }
+
+  if (catSlug === "productivity") {
+    if (/office 365|ms365|آفیس/i.test(comb)) {
+      return { sortOrder: 1, bestseller: true, featured: true, salesCount: 460 };
+    }
+    if (/grammarly|گرامرلی/i.test(comb)) {
+      return { sortOrder: 2, bestseller: true, featured: true, salesCount: 380 };
+    }
+    if (/notion|نوشن/i.test(comb)) {
+      return { sortOrder: 3, bestseller: true, featured: true, salesCount: 320 };
+    }
+    if (/windows|ویندوز/i.test(comb)) {
+      return { sortOrder: 4, bestseller: true, featured: true, salesCount: 300 };
+    }
+    if (/duolingo|tradingview/i.test(comb)) {
+      return { sortOrder: 5, bestseller: false, featured: true, salesCount: 250 };
+    }
+  }
+
+  if (catSlug === "social") {
+    if (/stars|استارز/i.test(comb)) {
+      return { sortOrder: 1, bestseller: true, featured: true, salesCount: 530 };
+    }
+    if (/telegram premium|پریمیوم تلگرام/i.test(comb)) {
+      return { sortOrder: 2, bestseller: true, featured: true, salesCount: 480 };
+    }
+    if (/twitter|x premium/i.test(comb)) {
+      return { sortOrder: 3, bestseller: true, featured: true, salesCount: 310 };
+    }
+  }
+
+  return { sortOrder: 50, bestseller: false, featured: false, salesCount: 15 };
+}
+
+// Categorize products based on name/brand strictly according to 8 standard categories
+export function categorizeProduct(p: SupplierProduct): {
+  slug: string;
+  name: string;
+  sortOrder: number;
+  bestseller: boolean;
+  featured: boolean;
+  salesCount: number;
+} {
   const name = pickTitle(p);
   const n = (name || "").toLowerCase();
   
@@ -741,61 +901,97 @@ export function categorizeProduct(p: SupplierProduct): { slug: string; name: str
 
   let slug = "";
 
-  // 1. MUST BE FIRST: Virtual Numbers Check
-  const hasCountryRegex = /germany|us|usa|france|uk|england|netherlands|russia|afghanistan|india|indonesia|brazil|turkey|malaysia|vietnam|philippines|thailand|mexico|canada|argentina|colombia|nigeria|egypt|south africa|pakistan|bangladesh|china|japan|korea|australia|spain|italy|poland|ukraine|romania|kazakhstan|uzbekistan|morocco|algeria/i;
-  const hasDashOrEmoji = /—|-|[\uD83C][\uDDE6-\uDDFF]|\p{Emoji}/u.test(name);
-  
+  // 1. MUST BE FIRST: Virtual Numbers & OTP Check
+  // Strict rule: virtual numbers must NEVER be categorized into AI or other categories!
+  const countryRegex = /\b(germany|usa?|uk|england|netherlands|russia|afghanistan|india|indonesia|brazil|turkey|malaysia|vietnam|philippines|thailand|mexico|canada|argentina|colombia|nigeria|egypt|south africa|pakistan|bangladesh|china|japan|korea|australia|spain|italy|poland|ukraine|romania|kazakhstan|uzbekistan|morocco|algeria|kenya|estonia|sweden|norway|finland|denmark|austria|switzerland|belgium|portugal|greece|czech|ireland|singapore|hong kong|taiwan|israel|chile|peru|venezuela|cambodia|laos|myanmar)\b/i;
+  const hasEmDash = /—/u.test(name);
+  const hasFlag = /[\uD83C][\uDDE6-\uDDFF]/u.test(name);
+  const isGiftCardOrGame = /psn|playstation|itunes|google play|nintendo|steam|xbox|cp \(in\)|pubg|discord/i.test(n);
+
   if (spCat === "otp numbers") {
     slug = "virtual-numbers";
-  } else if (hasDashOrEmoji && hasCountryRegex.test(name)) {
+  } else if (/virtual number|شماره مجازی|\botp\b|phone number|sms activate|sms-activate|temp phone|دریافت پیامک|تایید پیامکی/i.test(n)) {
     slug = "virtual-numbers";
-  } else if (priceUsd > 0 && priceUsd < 0.5 && hasCountryRegex.test(name)) {
+  } else if (!isGiftCardOrGame && (hasEmDash || hasFlag) && countryRegex.test(name)) {
     slug = "virtual-numbers";
-  } else if (n.includes("شماره مجازی") || /virtual number|otp|phone number/i.test(n)) {
+  } else if (!isGiftCardOrGame && priceUsd > 0 && priceUsd < 0.6 && countryRegex.test(name) && (hasEmDash || hasFlag || name.includes("-"))) {
     slug = "virtual-numbers";
   }
 
-  // 2. Supplier category mapping
+  // 2. Dev Tools & API Credits
   if (!slug) {
-    if (spCat === "apis & dev tools") slug = "api-credits";
-    else if (spCat === "ai chatbots" || spCat === "ai video & image") slug = "ai";
-    else if (spCat === "accounts & ai video") {
-      if (/xbox|ایکس.?باکس|game.?pass|گیم.?پس|playstation|پلی.?استیشن|ps4|ps5|nintendo|steam/i.test(n)) slug = "gaming";
-      else if (/gmail|outlook|hotmail|yahoo.?mail|microsoft.?account|اوت.?لوک|هات.?میل/i.test(n)) slug = "software";
-      else if (/tiktok|تیک.?تاک|twitter|توییتر|instagram|اینستاگرام|facebook|فیسبوک|linkedin|لینکدین|discord|دیسکورد/i.test(n)) slug = "social";
-      else if (/netflix|نتفلیکس|spotify|اسپاتیفای|youtube|یوتیوب|prime.?video|پرایم|disney|دیزنی|apple.?tv/i.test(n)) slug = "streaming";
-      else slug = "ai"; 
+    if (spCat === "apis & dev tools") {
+      slug = "dev-tools";
+    } else if (/\b(cursor|windsurf|github copilot|copilot pro|codex|api|token|tokens|credit|credits|توکن|کردیت|ردیم کد|ردیم|supabase|railway|lovable|lovabe|replit|v0\.dev|postman)\b/i.test(n)) {
+      if (!/canva|figma|adobe|spotify|netflix|disney|psn|playstation|xbox|nitro|office 365|ms365/i.test(n)) {
+        slug = "dev-tools";
+      }
     }
-    else if (spCat === "design tools") slug = "design";
-    else if (spCat === "premium") {
-      slug = /spotify|netflix|deezer|tidal|apple.?music|youtube.?music/i.test(n) ? "streaming" : "software";
-    }
-    else if (spCat === "nitro" || spCat === "psn (us)" || spCat === "play - us" || spCat === "uc (global)" || spCat === "cp (in)") slug = "gaming";
-    else if (spCat === "itunes - us" || spCat === "productivity") slug = "software";
-    else if (spCat === "followers" || spCat === "stars") slug = "social";
   }
 
-  // 3. Fallback regex
+  // 3. Gaming & Gift Cards
   if (!slug) {
-    if (/\b(redeem|credit|token|key|توکن|کردیت)\b/i.test(n)) slug = "api-credits";
-    else if (/xbox|ایکس باکس|playstation|پلی استیشن|ps4|ps5|psn|nintendo|نینتندو|steam|استیم|epic games|اپیک گیمز|origin|uplay|ea play|game pass|گیم پس|gta|minecraft|ماینکرافت|fortnite|فورتنایت|pubg|پابجی|valorant|ولورانت|battlenet|blizzard|بلیزارد|nitro|uc|cp|گیم|بازی/.test(n)) slug = "gaming";
-    else if (/netflix|نتفلیکس|spotify|اسپاتیفای|youtube|یوتیوب|apple music|youtube music|apple tv|اپل تی وی|disney|دیزنی|hbo|paramount|پارامونت|deezer|دیزر|tidal|تایدال|crunchyroll|کرانچی رول|prime video|پرایم ویدیو|twitch|توییچ|فیلم|سینما|موسیقی|sound cloud|soundcloud|ساندکلاد/.test(n)) slug = "streaming";
-    else if (/api|codex|deepseek|qwen|token|credit|ردیم|توکن|کردیت/.test(n)) slug = "api-credits";
-    else if (/chatgpt|چت جی پی تی|چتجیپیتی|claude|کلاود|کلود|gemini|جمینی|midjourney|میدجرنی|openai|اوپن ای آی|anthropic|آنتروپیک|copilot|کوپایلوت|grok|گروک|perplexity|پرپلکسیتی|cursor|کورسور|windsurf|ویندسرف|runway|رانوی|suno|سونو|udio|یودیو|elevenlabs|الون لبز|pika|پیکا|dall|دال ای|kling|کلینگ|leonardo|لئوناردو|heygen|هی جن|هیجن|higgsfield|هیگزفیلد|veo|ویو|گوگل ویو|genspark|جن اسپارک|lovable|لاویبل|openart|اوپن آرت|pixverse|پیکس ورس|seedance|سیدنس|akool|آکول|beeble|بیبل|sora|سورا|gamma|gamma app|هوش مصنوعی/.test(n)) slug = "ai";
-    else if (/telegram|تلگرام|discord|دیسکورد|twitter|توییتر|x premium|linkedin|لینکدین|instagram|اینستاگرام|facebook|فیسبوک|tiktok|تیک تاک|تیک آبی/.test(n)) slug = "social";
-    else if (/capcut|corel|canva|کنوا|کانوا|adobe|ادوبی|figma|فیگما|sketch|اسکچ|invision|notion|نوشن|framer|فریمر|miro|میرو|creativecloud|lightroom|لایت روم|photoshop|فتوشاپ|illustrator|ایلوستریتور|premiere|پریمیر|after effects|افتر افکت|envato|انواتو|freepik|فری پیک/.test(n)) slug = "design";
-    else if (/vpn|وی پی ان|فیلترشکن|nordvpn|نورد|expressvpn|اکسپرس|surfshark|سرف شارک|cyberghost|proton|پروتون|malwarebytes|bitdefender|بیت دیفندر|kaspersky|کسپراسکای|کسپرسکی|norton|نورتون|antivirus|آنتی ویروس|1password|وان پسورد|lastpass|bitwarden|بیت واردن/.test(n)) slug = "security";
-    else if (/coursera|کورسرا|udemy|یودمی|linkedin learning|masterclass|مسترکلاس|skillshare|اسکیل شیر|duolingo|دولینگو|memrise|ممرایز|babbel|بابل|rosetta|رزتا/.test(n)) slug = "education";
-    else slug = "software";
+    if (["nitro", "psn (us)", "play - us", "uc (global)", "cp (in)"].includes(spCat)) {
+      slug = "gaming";
+    } else if (/discord nitro|\bnitro\b|playstation|\bpsn\b|google play|pubg|\buc\b|\bcp\b|xbox|game pass|steam|epic games|battlenet|blizzard|riot|valorant|minecraft|nintendo/i.test(n)) {
+      slug = "gaming";
+    }
   }
 
-  return { slug, name: CATEGORIES_META[slug] || slug };
+  // 4. Streaming & Entertainment
+  if (!slug) {
+    if (spCat === "streaming") {
+      slug = "streaming";
+    } else if (/netflix|نتفلیکس|spotify|اسپاتیفای|youtube premium|youtube music|یوتیوب|disney|دیزنی|apple music|apple tv|hbo|paramount|crunchyroll|deezer|tidal|vieon|soundcloud/i.test(n)) {
+      slug = "streaming";
+    }
+  }
+
+  // 5. Design & Graphics
+  if (!slug) {
+    if (spCat === "design tools") {
+      slug = "design";
+    } else if (/canva|کنوا|کانوا|adobe|ادوبی|photoshop|illustrator|premiere|after effects|creative cloud|lightroom|figma|فیگما|freepik|فری پیک|envato|انواتو|capcut|کپ‌کات|autodesk|autocad|3ds max|corel|sketch|invision|framer|miro|dzine/i.test(n)) {
+      slug = "design";
+    }
+  }
+
+  // 6. Social
+  if (!slug) {
+    if (["stars", "boost", "likes", "page likes", "comments", "commentes", "followers", "members", "reactions", "mention", "watch time", "bot start"].includes(spCat)) {
+      slug = "social";
+    } else if (/telegram stars|telegram premium|تلگرام|استارز|فالوور|ممبر|لایک|سوشال|توییتر|اینستاگرام|تیک تاک|tiktok|instagram|twitter|\bx premium\b|facebook|linkedin|snapchat|reddit|threads/i.test(n)) {
+      slug = "social";
+    }
+  }
+
+  // 7. AI & Language Models
+  if (!slug) {
+    if (spCat === "ai chatbots" || spCat === "ai video & image") {
+      slug = "ai";
+    } else if (/chatgpt|gpt plus|gpt-4|openai|claude|کلاود|کلود|anthropic|midjourney|میدجرنی|perplexity|پرپلکسیتی|runway|رانوی|kling|کلینگ|luma|لوما|veo|گوگل ویو|elevenlabs|الون لبز|heygen|هیجن|gemini|جمینی|grok|گروک|suno|سونو|udio|یودیو|pika|پیکا|leonardo|لئوناردو|dall-?e|sora|سورا|genspark|openart|pixverse|seedance|akool|beeble|gamma|higgfield|higgsfield|krea|manus|chatprd/i.test(n)) {
+      slug = "ai";
+    }
+  }
+
+  // 8. Productivity & Software (default)
+  if (!slug) {
+    slug = "productivity";
+  }
+
+  const ranking = getProductRankingInfo(p, name, slug);
+
+  return {
+    slug,
+    name: CATEGORIES_META[slug] || slug,
+    ...ranking,
+  };
 }
 
 export async function importProductsFromSupplier(
   apiUrl?: string,
   apiKey?: string,
-  markupPercent = 20
+  markupPercent?: number | null
 ): Promise<{ ok: boolean; imported: number; updated: number; skipped: number; message: string; details: string[] }> {
   // irMarket default: if no URL, use irMarket products endpoint.
   // SUPPLIER_API_URL may be a bare host ("https://api.irmarket.store") — the
@@ -804,7 +1000,8 @@ export async function importProductsFromSupplier(
   let url = apiUrl || process.env.SUPPLIER_API_URL || "https://api.irmarket.store";
   if (!/\/api(\/|$)/.test(url)) url = url.replace(/\/+$/, "") + "/api/buyer/products";
 
-  const markup = markupPercent > 0 ? markupPercent : Number(process.env.SUPPLIER_MARKUP_PERCENT) || 20;
+  const pricingTiers = await loadPricingTiers();
+  const explicitMarkup = markupPercent && markupPercent > 0 ? markupPercent : null;
   const usdRate = await getUsdToTomanRate();
 
   let products: SupplierProduct[] = [];
@@ -845,7 +1042,7 @@ export async function importProductsFromSupplier(
       skipped++;
       continue;
     }
-    if (isVpnProduct(title) || (sp.description && isVpnProduct(sp.description))) {
+    if (isVpnProduct(title)) {
       skipped++;
       continue;
     }
@@ -854,60 +1051,52 @@ export async function importProductsFromSupplier(
     //  - SMM services (pricing_unit='per_1000') are quoted per 1000 but ordered
     //    in raw units and need a target link/comments we never collect
     //  - requires_password / required_inputs products need credentials we never collect
+    //  - Allow customer email fields (buyer_email, customer_email, requires_email)
     const requiredInputs: string[] = Array.isArray(sp.required_inputs) ? sp.required_inputs : [];
-    if (sp.pricing_unit === "per_1000" || sp.requires_link || sp.requires_comments || sp.requires_password || requiredInputs.length > 0) {
+    const nonEmailInputs = requiredInputs.filter(
+      (input: string) => !/email|buyer_email|customer_email/i.test(input)
+    );
+    if (sp.pricing_unit === "per_1000" || sp.requires_link || sp.requires_comments || sp.requires_password || nonEmailInputs.length > 0) {
       skipped++;
       const why = sp.pricing_unit === "per_1000" ? "سرویس SMM" : sp.requires_link ? "نیازمند لینک" : sp.requires_password ? "نیازمند رمز" : "ورودی خاص";
       details.push(`رد شد (غیرقابل فروش خودکار): ${title} — ${why}`);
       continue;
     }
 
-    // Convert USD → Toman using kernel pricing engine (NOT inline formula)
-    // Kernel: computeQuote(config, input) — single source of truth for money math
-    const supplierCostUsdCents = Math.round(priceUSD * 100); // USD to cents
-    const markupBps = markup * 100; // percent → basis points (200% = 20000 bps)
-    const quote = computeQuote(
-      {
-        expectedCurrency: "IRT" as const,
-        global: {
-          version: "v1",
-          markupBps,
-          addAbsMinor: 0,
-          minMarginAbsMinor: 0,
-          floorMinor: null,
-          capMinor: null,
-          taxBps: 0,
-          rounding: { mode: "nearest" as const, unitMinor: 1000 },
-        },
-        categoryRules: {},
-        productOverrides: {},
-        scheduled: [],
-        fxMaxAgeSeconds: 900,
-      },
-      {
-        productId: sp.id ? String(sp.id) : slugifyFa(title),
-        supplierCostUsdCents,
-        fx: {
-          irtMinorPerUsd: usdRate,
-          source: "manual",
-          capturedAtIso: new Date().toISOString(),
-          bufferBps: 0,
-        },
-        nowIso: new Date().toISOString(),
-      }
-    );
-
-    if (quote.status !== "ok") {
-      skipped++;
-      details.push(`رد شد: ${title} — quote blocked: ${quote.reason}`);
-      continue;
-    }
-    const sellPriceToman = quote.grossMinor; // integer minor units
-
     // Use supplier product id in slug to avoid collisions
     const slugBase = sp.id ? `${sp.id}-${title}` : title;
     const slug = slugifyFa(slugBase);
     if (!slug) { skipped++; continue; }
+
+    // Check existing product to preserve specifications and respect price lock
+    const existing = await db.product.findUnique({ where: { slug } });
+    let existingSpecs: Record<string, any> = {};
+    if (existing?.specifications) {
+      try {
+        existingSpecs = typeof existing.specifications === "string"
+          ? JSON.parse(existing.specifications)
+          : existing.specifications;
+      } catch {}
+    }
+
+    // Custom markup: explicit param > existing product custom markup
+    const customMarkup = explicitMarkup !== null
+      ? explicitMarkup
+      : (existingSpecs.custom_markup !== undefined && existingSpecs.custom_markup !== null && existingSpecs.custom_markup !== "")
+      ? Number(existingSpecs.custom_markup)
+      : (existingSpecs.markup_percent !== undefined && existingSpecs.markup_percent !== null && existingSpecs.markup_percent !== "")
+      ? Number(existingSpecs.markup_percent)
+      : null;
+
+    // Central Single Source of Truth for tiered pricing
+    const { sellPriceToman, markupPercent: effectiveMarkup } = calculateSellPrice(
+      priceUSD,
+      usdRate,
+      customMarkup,
+      pricingTiers
+    );
+
+    const finalPrice = (existingSpecs.is_price_locked && existing) ? existing.price : sellPriceToman;
 
     const features: string[] = Array.isArray(sp.features) ? sp.features : (sp.features ? String(sp.features).split("\n").filter(Boolean) : []);
     // Build features from irMarket fields
@@ -918,7 +1107,9 @@ export async function importProductsFromSupplier(
       features.push("گارانتی ۱۰۰٪ فعالسازی و تضمین اصالت");
       features.push("پشتیبانی ۲۴ ساعته");
     }
-    const { slug: catSlug, name: catName } = categorizeProduct(sp);
+    const catInfo = categorizeProduct(sp);
+    const catSlug = catInfo.slug;
+    const catName = catInfo.name;
     const loc = localizeProduct((sp.title || sp.name || title).toString().trim(), catSlug, sp);
     const finalTitle = loc.title;
     const shortDesc = loc.shortDesc;
@@ -932,14 +1123,27 @@ export async function importProductsFromSupplier(
     const existingCat = await db.category.findUnique({ where: { slug: catSlug } }).catch(() => null);
     if (!existingCat) {
       await db.category.create({
-        data: { name: catName, slug: catSlug, description: catName, icon: "Package", color: "from-emerald-500 to-teal-600", sortOrder: 99 },
+        data: { name: catName, slug: catSlug, description: catName, icon: "Package", color: "from-emerald-500 to-teal-600", sortOrder: catInfo.sortOrder },
       }).catch(() => {});
     }
 
-    // upsert product by slug
-    const existing = await db.product.findUnique({ where: { slug } });
-    const stock = typeof sp.in_stock === "number" ? sp.in_stock : (typeof sp.stock === "number" ? sp.stock : 0);
+    const stock = typeof sp.in_stock === "number" ? sp.in_stock : (sp.in_stock !== false ? 99 : 0);
+
     if (existing) {
+      // Merge with existing specs to ensure no metadata (e.g. torob_url, supplier_product_id) is lost
+      const nextSpecs = {
+        ...existingSpecs,
+        supplier_product_id: sp.id,
+        price_usd: priceUSD,
+        cost_usd: priceUSD,
+        pricing_unit: sp.pricing_unit,
+        requires_email: sp.requires_email,
+        requires_link: sp.requires_link,
+        supplier_name: shortDesc,
+        markup_percent: effectiveMarkup,
+        markup_used: effectiveMarkup,
+      };
+
       await db.product.update({
         where: { id: existing.id },
         data: {
@@ -947,92 +1151,499 @@ export async function importProductsFromSupplier(
           shortDesc: shortDesc,
           description: finalDescription,
           features: JSON.stringify(features),
-          price: sellPriceToman,
+          price: finalPrice,
           duration: duration || existing.duration,
           brand,
           tags,
+          category: catSlug,
+          sortOrder: catInfo.sortOrder,
+          bestseller: catInfo.bestseller || existing.bestseller,
+          featured: catInfo.featured || existing.featured,
+          salesCount: Math.max(catInfo.salesCount, existing.salesCount),
           image: sp.image || sp.imageUrl || sp.images?.[0] || existing.image,
           isActive: !isVpnProduct(title),
           stock: stock,
           lastSyncedAt: new Date(),
-          // store supplier product id in specifications for purchasing
-          specifications: JSON.stringify({ supplier_product_id: sp.id, price_usd: priceUSD, pricing_unit: sp.pricing_unit, requires_email: sp.requires_email, requires_link: sp.requires_link, supplier_name: shortDesc, markup_percent: markup }),
+          specifications: JSON.stringify(nextSpecs),
           fulfillmentMode: "AUTO",
         },
       });
       updated++;
-      details.push(`به‌روز شد: ${title} — ${sellPriceToman.toLocaleString("fa-IR")} ت ($${priceUSD} × ${usdRate.toLocaleString("fa-IR")} × ${(100+markup)/100})`);
+      details.push(`به‌روز شد: ${title} — ${finalPrice.toLocaleString("fa-IR")} ت ($${priceUSD} × ${usdRate.toLocaleString("fa-IR")} × ${(100+effectiveMarkup)/100})`);
     } else {
+      const nextSpecs = {
+        supplier_product_id: sp.id,
+        price_usd: priceUSD,
+        cost_usd: priceUSD,
+        pricing_unit: sp.pricing_unit,
+        requires_email: sp.requires_email,
+        requires_link: sp.requires_link,
+        supplier_name: shortDesc,
+        markup_percent: effectiveMarkup,
+        markup_used: effectiveMarkup,
+      };
+
       await db.product.create({
         data: {
           title: finalTitle, slug,
           shortDesc: shortDesc,
           description: finalDescription,
           features: JSON.stringify(features),
-          price: sellPriceToman,
+          price: finalPrice,
           duration,
           category: catSlug,
+          sortOrder: catInfo.sortOrder,
+          bestseller: catInfo.bestseller,
+          featured: catInfo.featured,
+          salesCount: catInfo.salesCount,
           brand, tags,
           image: sp.image || sp.imageUrl || sp.images?.[0] || null,
-            isActive: !isVpnProduct(title),
-          stock: 0, // we don't pre-stock; purchase on-demand
-          rating: 5, reviewCount: 0, salesCount: 0,
-          specifications: JSON.stringify({ supplier_product_id: sp.id, price_usd: priceUSD, pricing_unit: sp.pricing_unit, requires_email: sp.requires_email, requires_link: sp.requires_link, supplier_name: shortDesc, markup_percent: markup }),
+          isActive: !isVpnProduct(title),
+          stock: stock,
+          rating: 5, reviewCount: 0,
+          specifications: JSON.stringify(nextSpecs),
           fulfillmentMode: "AUTO",
         },
       });
       imported++;
-      details.push(`اضافه شد: ${title} — ${sellPriceToman.toLocaleString("fa-IR")} ت ($${priceUSD} × ${usdRate.toLocaleString("fa-IR")} × ${(100+markup)/100})`);
+      details.push(`اضافه شد: ${title} — ${finalPrice.toLocaleString("fa-IR")} ت ($${priceUSD} × ${usdRate.toLocaleString("fa-IR")} × ${(100+effectiveMarkup)/100})`);
     }
   }
 
   return {
     ok: true, imported, updated, skipped,
-    message: `${imported} محصول جدید، ${updated} به‌روز شد، ${skipped} رد شد | نرخ: ۱$ = ${usdRate.toLocaleString("fa-IR")} ت | حاشیه: ${markup}٪`,
+    message: `${imported} محصول جدید، ${updated} به‌روز شد، ${skipped} رد شد | نرخ: ۱$ = ${usdRate.toLocaleString("fa-IR")} ت | قیمت‌گذاری پلکانی هوشمند`,
     details: details.slice(0, 50),
+  };
+}
+
+export async function rebuildSupplierCatalog(opts?: {
+  cleanFirst?: boolean;
+  apiUrl?: string;
+  apiKey?: string;
+  markupPercent?: number | null;
+}): Promise<{
+  ok: boolean;
+  totalFetched: number;
+  imported: number;
+  updated: number;
+  skipped: number;
+  deactivated: number;
+  categoriesRebuilt: number;
+  message: string;
+  details: string[];
+}> {
+  const cleanFirst = Boolean(opts?.cleanFirst);
+  const key = opts?.apiKey || (await getSupplierApiKey());
+  if (!key) {
+    return {
+      ok: false,
+      totalFetched: 0,
+      imported: 0,
+      updated: 0,
+      skipped: 0,
+      deactivated: 0,
+      categoriesRebuilt: 0,
+      message: "کلید API تامین‌کننده (irMarket) تنظیم نشده است",
+      details: ["SUPPLIER_API_KEY is missing"],
+    };
+  }
+
+  let url = opts?.apiUrl || process.env.SUPPLIER_API_URL || "https://api.irmarket.store";
+  if (!/\/api(\/|$)/.test(url)) url = url.replace(/\/+$/, "") + "/api/buyer/products";
+
+  // 1. Rebuild standard categories in database
+  let categoriesRebuilt = 0;
+  for (const cat of STANDARD_CATEGORIES) {
+    await db.category.upsert({
+      where: { slug: cat.slug },
+      create: {
+        name: cat.name,
+        slug: cat.slug,
+        description: cat.description,
+        icon: cat.icon,
+        color: cat.color,
+        sortOrder: cat.sortOrder,
+      },
+      update: {
+        name: cat.name,
+        description: cat.description,
+        icon: cat.icon,
+        color: cat.color,
+        sortOrder: cat.sortOrder,
+      },
+    });
+    categoriesRebuilt++;
+  }
+
+  // Migrate any old product categories
+  await db.product.updateMany({
+    where: { category: "api-credits" },
+    data: { category: "dev-tools" },
+  });
+  await db.product.updateMany({
+    where: { category: { in: ["software", "other", "security", "education"] } },
+    data: { category: "productivity" },
+  });
+
+  // 2. Clean first if requested
+  let deactivated = 0;
+  if (cleanFirst) {
+    // Find products that have existing orders to avoid FK constraint violations
+    const orderItems = await db.orderItem.findMany({ select: { productId: true } });
+    const orderProductIds = new Set(orderItems.map((o) => o.productId));
+
+    // For products with orders: deactivate them
+    const deactivatedResult = await db.product.updateMany({
+      where: {
+        fulfillmentMode: "AUTO",
+        id: { in: Array.from(orderProductIds) },
+      },
+      data: { isActive: false },
+    });
+    deactivated = deactivatedResult.count;
+
+    // For products with NO orders: safely delete their licenses and then the products
+    const unusedProducts = await db.product.findMany({
+      where: {
+        fulfillmentMode: "AUTO",
+        id: { notIn: Array.from(orderProductIds) },
+      },
+      select: { id: true },
+    });
+    const unusedIds = unusedProducts.map((p) => p.id);
+
+    if (unusedIds.length > 0) {
+      await db.licenseKey.deleteMany({
+        where: { productId: { in: unusedIds } },
+      });
+      await db.product.deleteMany({
+        where: { id: { in: unusedIds } },
+      });
+    }
+  }
+
+  // 3. Fetch from irMarket
+  let rawProducts: SupplierProduct[] = [];
+  try {
+    const res = await fetch(url, {
+      headers: {
+        "Content-Type": "application/json",
+        "X-API-Key": key,
+      },
+      cache: "no-store",
+    });
+    if (!res.ok) {
+      const body = await res.text().catch(() => "");
+      return {
+        ok: false,
+        totalFetched: 0,
+        imported: 0,
+        updated: 0,
+        skipped: 0,
+        deactivated,
+        categoriesRebuilt,
+        message: `خطای دریافت کاتالوگ از irMarket (${res.status}): ${body.slice(0, 200)}`,
+        details: [body.slice(0, 500)],
+      };
+    }
+    const data = await res.json();
+    if (Array.isArray(data)) rawProducts = data;
+    else if (Array.isArray(data.products)) rawProducts = data.products;
+    else if (Array.isArray(data.data)) rawProducts = data.data;
+    else if (Array.isArray(data.items)) rawProducts = data.items;
+    else {
+      return {
+        ok: false,
+        totalFetched: 0,
+        imported: 0,
+        updated: 0,
+        skipped: 0,
+        deactivated,
+        categoriesRebuilt,
+        message: "ساختار پاسخ API نامعتبر است",
+        details: [],
+      };
+    }
+  } catch (e: any) {
+    return {
+      ok: false,
+      totalFetched: 0,
+      imported: 0,
+      updated: 0,
+      skipped: 0,
+      deactivated,
+      categoriesRebuilt,
+      message: `ارتباط با API برقرار نشد: ${e?.message || ""}`,
+      details: [e?.stack || ""],
+    };
+  }
+
+  const totalFetched = rawProducts.length;
+  const pricingTiers = await loadPricingTiers();
+  const explicitMarkup = opts?.markupPercent && opts.markupPercent > 0 ? opts.markupPercent : null;
+  const usdRate = await getUsdToTomanRate();
+
+  let imported = 0, updated = 0, skipped = 0;
+  const details: string[] = [];
+
+  for (const sp of rawProducts) {
+    const title = pickTitle(sp);
+    const priceUSD = pickPriceUSD(sp);
+
+    // Filter invalid: missing title or price <= 0
+    if (!title || !priceUSD || priceUSD <= 0) {
+      skipped++;
+      continue;
+    }
+
+    // Filter VPN products
+    if (isVpnProduct(title)) {
+      skipped++;
+      continue;
+    }
+
+    // Filter unfulfillable products (allow email inputs)
+    const requiredInputs: string[] = Array.isArray(sp.required_inputs) ? sp.required_inputs : [];
+    const nonEmailInputs = requiredInputs.filter(
+      (input: string) => !/email|buyer_email|customer_email/i.test(input)
+    );
+    if (sp.pricing_unit === "per_1000" || sp.requires_link || sp.requires_comments || sp.requires_password || nonEmailInputs.length > 0) {
+      skipped++;
+      continue;
+    }
+
+    const catInfo = categorizeProduct(sp);
+    const catSlug = catInfo.slug;
+    const loc = localizeProduct((sp.title || sp.name || title).toString().trim(), catSlug, sp);
+    const finalTitle = loc.title;
+    const shortDesc = loc.shortDesc;
+    const finalDescription = loc.description || pickDescription(sp) || `## ${finalTitle}\n\nمحصول اوریجینال با تحویل آنی و پشتیبانی ۲۴ ساعته.`;
+
+    // Unique pretty slug
+    const cleanTitleSlug = slugifyFa(finalTitle);
+    const slug = sp.id ? `${sp.id}-${cleanTitleSlug || "item"}` : cleanTitleSlug;
+    if (!slug) {
+      skipped++;
+      continue;
+    }
+
+    const existing = await db.product.findFirst({
+      where: {
+        OR: [
+          { slug },
+          { specifications: { contains: `"supplier_product_id":${sp.id}` } },
+          { specifications: { contains: `"supplier_product_id":"${sp.id}"` } },
+        ],
+      },
+    });
+
+    let existingSpecs: Record<string, any> = {};
+    if (existing?.specifications) {
+      try {
+        existingSpecs = typeof existing.specifications === "string" ? JSON.parse(existing.specifications) : existing.specifications;
+      } catch {}
+    }
+
+    const customMarkup = explicitMarkup !== null
+      ? explicitMarkup
+      : (existingSpecs.custom_markup !== undefined && existingSpecs.custom_markup !== null && existingSpecs.custom_markup !== "")
+      ? Number(existingSpecs.custom_markup)
+      : (existingSpecs.markup_percent !== undefined && existingSpecs.markup_percent !== null && existingSpecs.markup_percent !== "")
+      ? Number(existingSpecs.markup_percent)
+      : null;
+
+    const { sellPriceToman, markupPercent: effectiveMarkup } = calculateSellPrice(
+      priceUSD,
+      usdRate,
+      customMarkup,
+      pricingTiers
+    );
+
+    const finalPrice = (existingSpecs.is_price_locked && existing) ? existing.price : sellPriceToman;
+
+    const features: string[] = Array.isArray(sp.features)
+      ? sp.features
+      : (sp.features ? String(sp.features).split("\n").filter(Boolean) : []);
+    if (features.length === 0) {
+      if (sp.discount_percent) features.push(`تخفیف ویژه: ${sp.discount_percent}٪`);
+      if (sp.duration_days) features.push(`مدت: ${sp.duration_days} روز`);
+      features.push("تحویل فوری و آنی پس از پرداخت");
+      features.push("گارانتی ۱۰۰٪ فعالسازی و تضمین اصالت");
+      features.push("پشتیبانی ۲۴ ساعته");
+    }
+
+    const brand = sp.brand ? String(sp.brand) : null;
+    const duration = sp.duration ? String(sp.duration) : (sp.duration_days ? `${sp.duration_days} روز` : null);
+    const tags = sp.tags ? String(sp.tags) : (sp.requires_email ? "requires_email" : null);
+    let stock = 0;
+    if (typeof sp.stock === "number") {
+      stock = sp.stock;
+    } else if (typeof sp.in_stock === "number") {
+      stock = sp.in_stock;
+    } else if (sp.in_stock === true || sp.stock === true) {
+      stock = 99;
+    } else if (sp.in_stock === false || sp.stock === false) {
+      stock = 0;
+    } else {
+      stock = 99;
+    }
+
+    const nextSpecs = {
+      ...existingSpecs,
+      supplier_product_id: sp.id,
+      price_usd: priceUSD,
+      cost_usd: priceUSD,
+      pricing_unit: sp.pricing_unit,
+      requires_email: sp.requires_email,
+      requires_link: sp.requires_link,
+      supplier_name: shortDesc,
+      markup_percent: effectiveMarkup,
+      markup_used: effectiveMarkup,
+    };
+
+    if (existing) {
+      await db.product.update({
+        where: { id: existing.id },
+        data: {
+          title: finalTitle,
+          shortDesc,
+          description: finalDescription,
+          features: JSON.stringify(features),
+          price: finalPrice,
+          duration: duration || existing.duration,
+          brand,
+          tags,
+          category: catSlug,
+          sortOrder: catInfo.sortOrder,
+          bestseller: catInfo.bestseller || existing.bestseller,
+          featured: catInfo.featured || existing.featured,
+          salesCount: Math.max(catInfo.salesCount, existing.salesCount),
+          image: sp.image || sp.imageUrl || sp.images?.[0] || existing.image,
+          isActive: true,
+          stock,
+          lastSyncedAt: new Date(),
+          specifications: JSON.stringify(nextSpecs),
+          fulfillmentMode: "AUTO",
+        },
+      });
+      updated++;
+      if (details.length < 50) {
+        details.push(`به‌روزرسانی: ${finalTitle} [${catSlug}] (${finalPrice.toLocaleString("fa-IR")} ت)`);
+      }
+    } else {
+      await db.product.create({
+        data: {
+          title: finalTitle,
+          slug,
+          shortDesc,
+          description: finalDescription,
+          features: JSON.stringify(features),
+          price: finalPrice,
+          duration,
+          category: catSlug,
+          sortOrder: catInfo.sortOrder,
+          bestseller: catInfo.bestseller,
+          featured: catInfo.featured,
+          salesCount: catInfo.salesCount,
+          brand,
+          tags,
+          image: sp.image || sp.imageUrl || sp.images?.[0] || null,
+          isActive: true,
+          stock,
+          rating: 5,
+          reviewCount: 0,
+          specifications: JSON.stringify(nextSpecs),
+          fulfillmentMode: "AUTO",
+        },
+      });
+      imported++;
+      if (details.length < 50) {
+        details.push(`ایمپورت جدید: ${finalTitle} [${catSlug}] (${finalPrice.toLocaleString("fa-IR")} ت)`);
+      }
+    }
+  }
+
+  // Update last sync setting
+  await db.setting.upsert({
+    where: { key: "last_full_sync_at" },
+    update: { value: new Date().toISOString() },
+    create: { key: "last_full_sync_at", value: new Date().toISOString() },
+  });
+
+  return {
+    ok: true,
+    totalFetched,
+    imported,
+    updated,
+    skipped,
+    deactivated,
+    categoriesRebuilt,
+    message: `کاتالوگ با موفقیت بازسازی شد: ${imported} جدید، ${updated} به‌روز، ${skipped} فیلتر/رد شد، ${deactivated} غیرفعال، ۸ دسته استاندارد به‌روز شدند. نرخ: ${usdRate.toLocaleString("fa-IR")} ت`,
+    details,
   };
 }
 
 // ----------------------------- Purchase from supplier (auto-fulfill) -----------------------------
 // When a customer pays, we buy from irMarket and deliver the accounts as license keys.
 
+export interface PurchaseFromSupplierResult {
+  ok: boolean;
+  accounts?: string[];
+  orderId?: number;
+  message: string;
+  status?: "delivered" | "processing" | "failed" | "cancelled";
+  costUsd?: number;
+  httpStatus?: number;
+  errorCode?: string;
+  requestPayload?: any;
+  responsePayload?: any;
+}
+
 export async function purchaseFromSupplier(
   productId: string,
   quantity: number,
   customerEmail?: string,
   idempotencyKey?: string
-): Promise<{ ok: boolean; accounts?: string[]; orderId?: number; message: string }> {
+): Promise<PurchaseFromSupplierResult> {
   const client = await getSupplierClient();
-  if (!client) return { ok: false, message: "کلید API تأمین‌کننده تنظیم نشده" };
+  if (!client) return { ok: false, message: "کلید API تأمین‌کننده تنظیم نشده", errorCode: "missing_api_key" };
 
   const product = await db.product.findUnique({ where: { id: productId } });
-  if (!product) return { ok: false, message: "محصول یافت نشد" };
+  if (!product) return { ok: false, message: "محصول یافت نشد", errorCode: "product_not_found" };
 
   // get supplier product id from specifications
   let supplierProductId: number | undefined;
   let requiresPassword = false;
+  let specCostUsd: number | undefined;
   try {
     const specs = JSON.parse(product.specifications || "{}");
     supplierProductId = Number(specs.supplier_product_id);
     requiresPassword = !!specs.requires_password;
+    if (specs.cost_usd || specs.price_usd) {
+      specCostUsd = Number(specs.cost_usd || specs.price_usd);
+    }
   } catch {}
-  if (!supplierProductId) return { ok: false, message: "شناسه محصول تأمین‌کننده یافت نشد" };
+  if (!supplierProductId) return { ok: false, message: "شناسه محصول تأمین‌کننده یافت نشد", errorCode: "supplier_id_missing" };
   if (requiresPassword)
-    return { ok: false, message: "این محصول نیازمند رمز مشتری است و فعلاً قابل فروش خودکار نیست" };
+    return { ok: false, message: "این محصول نیازمند رمز مشتری است و فعلاً قابل فروش خودکار نیست", errorCode: "requires_password" };
+
+  const requestPayload = {
+    productId: supplierProductId,
+    quantity,
+    idempotencyKey: idempotencyKey || `LL-${Date.now()}`,
+    customerEmail,
+  };
 
   try {
-    const result = await client.purchase({
-      productId: supplierProductId,
-      quantity,
-      idempotencyKey: idempotencyKey || `LL-${Date.now()}`,
-      customerEmail,
-    });
+    const result = await client.purchase(requestPayload);
 
     // status can be 'processing' (still fulfilling) — poll the order a few
     // times before giving up, per the API docs
     let status = result.status;
     let accounts: string[] = [...result.accounts];
     const orderId = result.orderId;
+    const costUsd = result.totalUsdCents ? result.totalUsdCents / 100 : (specCostUsd ? specCostUsd * quantity : undefined);
 
     if (status === "processing" && accounts.length === 0 && orderId) {
       for (let attempt = 0; attempt < 5 && status === "processing"; attempt++) {
@@ -1048,14 +1659,50 @@ export async function purchaseFromSupplier(
     }
 
     if (status === "delivered" && accounts.length > 0) {
-      return { ok: true, accounts, orderId, message: `خرید موفق — ${accounts.length} اکانت تحویل شد` };
+      return {
+        ok: true,
+        status: "delivered",
+        accounts,
+        orderId,
+        costUsd,
+        message: `خرید موفق — ${accounts.length} اکانت تحویل شد`,
+        requestPayload,
+        responsePayload: { status, orderId, costUsd, accountsCount: accounts.length },
+      };
     }
     if (status === "processing") {
-      return { ok: false, orderId, message: `سفارش ${orderId} نزد تأمین‌کننده در حال پردازش است — کلیدها بعداً از طریق وب‌هوک تحویل داده می‌شود` };
+      return {
+        ok: false,
+        status: "processing",
+        accounts,
+        orderId,
+        costUsd,
+        message: `سفارش ${orderId} نزد تأمین‌کننده در حال پردازش است — کلیدها بعداً از طریق وب‌هوک تحویل داده می‌شود`,
+        requestPayload,
+        responsePayload: { status, orderId, costUsd },
+      };
     }
-    return { ok: false, orderId, message: `تحویل ناموفق بود (وضعیت: ${status})` };
+    return {
+      ok: false,
+      status,
+      orderId,
+      costUsd,
+      message: `تحویل ناموفق بود (وضعیت: ${status})`,
+      requestPayload,
+      responsePayload: { status, orderId, costUsd },
+    };
   } catch (e: any) {
-    return { ok: false, message: `ارتباط با تأمین‌کننده: ${e?.message || "خطای نامشخص"}` };
+    const httpStatus = typeof e?.httpStatus === "number" ? e.httpStatus : undefined;
+    const errorCode = typeof e?.code === "string" ? e.code : undefined;
+    return {
+      ok: false,
+      status: "failed",
+      httpStatus,
+      errorCode,
+      message: `ارتباط با تأمین‌کننده: ${e?.message || "خطای نامشخص"}`,
+      requestPayload,
+      responsePayload: { error: e?.message, httpStatus, errorCode },
+    };
   }
 }
 

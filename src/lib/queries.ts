@@ -28,6 +28,7 @@ export interface ProductListItem {
   salesCount: number;
   featured: boolean;
   bestseller: boolean;
+  sortOrder?: number;
   isActive: boolean;
   tags: string | null;
   reviews?: any[];
@@ -38,14 +39,79 @@ export interface ProductListItem {
 
 function decorate(p: any): ProductListItem {
   const eff = effectivePrice(p.price, p.discountPrice);
+  const stock = (p.fulfillmentMode === "AUTO" && p.isActive !== false)
+    ? Math.max(p.stock ?? 0, 99)
+    : (p.stock ?? 0);
+
   return {
     ...p,
     _effectivePrice: eff,
     _discountPercent: p.discountPrice
       ? Math.round(((p.price - p.discountPrice) / p.price) * 100)
       : 0,
-    _stock: p.stock ?? 0,
+    _stock: stock,
   };
+}
+
+export function buildSearchCondition(search?: string) {
+  if (!search) return null;
+  const s = search.trim();
+  if (!s) return null;
+
+  const normalized = s.replace(/ي/g, "ی").replace(/ك/g, "ک").replace(/[\u200B-\u200D\uFEFF]/g, " ");
+  const englishDigits = normalized
+    .replace(/[۰-۹]/g, (d) => String(d.charCodeAt(0) - 1776))
+    .replace(/[٠-٩]/g, (d) => String(d.charCodeAt(0) - 1632));
+  const persianDigits = englishDigits.replace(/[0-9]/g, (d) =>
+    String.fromCharCode(d.charCodeAt(0) + 1728)
+  );
+  const terms = new Set<string>([s, normalized, englishDigits, persianDigits]);
+  const lower = normalized.toLowerCase();
+  const lowerEn = englishDigits.toLowerCase();
+
+  // Keyword synonym dictionary (bidirectional)
+  const synonymGroups = [
+    ["gemini", "جمینی", "جمنای"],
+    ["chatgpt", "gpt", "چت جی پی تی", "چت‌جی‌پی‌تی", "openai"],
+    ["claude", "کلود", "کلاود", "anthropic"],
+    ["midjourney", "میدجرنی", "میدجورنی"],
+    ["spotify", "اسپاتیفای"],
+    ["netflix", "نتفلیکس"],
+    ["youtube", "یوتیوب"],
+    ["canva", "کنوا", "کانوا"],
+    ["telegram", "تلگرام"],
+    ["cursor", "کورسور"],
+    ["windsurf", "ویندسرف"],
+    ["adobe", "ادوبی"],
+    ["discord", "دیسکورد"],
+    ["copilot", "کوپایلت", "کوپایلوت"],
+    ["perplexity", "پرپلکسیتی"],
+  ];
+
+  for (const group of synonymGroups) {
+    if (group.some((term) => {
+      const tl = term.toLowerCase();
+      return lower.includes(tl) || tl.includes(lower) || lowerEn.includes(tl) || tl.includes(lowerEn);
+    })) {
+      for (const term of group) {
+        terms.add(term);
+      }
+    }
+  }
+
+  const orList: any[] = [];
+  for (const term of terms) {
+    orList.push(
+      { title: { contains: term } },
+      { slug: { contains: term } },
+      { shortDesc: { contains: term } },
+      { brand: { contains: term } },
+      { tags: { contains: term } },
+      { specifications: { contains: term } }
+    );
+  }
+
+  return orList.length > 0 ? { OR: orList } : null;
 }
 
 export async function getProducts(opts?: {
@@ -69,32 +135,49 @@ export async function getProducts(opts?: {
 
   const where: any = {};
   if (activeOnly) where.isActive = true;
-  if (category && category !== "all") where.category = category;
+
+  // Resolve category aliases (e.g. api-credits -> dev-tools, software -> productivity)
+  let catSlug = category;
+  if (catSlug === "api-credits") catSlug = "dev-tools";
+  if (catSlug === "software") catSlug = "productivity";
+  if (catSlug && catSlug !== "all") where.category = catSlug;
+
   if (featured) where.featured = true;
   if (bestseller) where.bestseller = true;
-  if (search) {
-    const s = search.trim();
-    const normalized = s.replace(/ي/g, "ی").replace(/ك/g, "ک");
-    
-    where.OR = [
-      { title: { contains: s } },
-      { title: { contains: normalized } },
-      { slug: { contains: s } },
-      { slug: { contains: normalized } },
-      { shortDesc: { contains: s } },
-      { shortDesc: { contains: normalized } },
-      { tags: { contains: s } },
-      { brand: { contains: s } },
-    ];
+  const searchCondition = buildSearchCondition(search);
+
+  const baseConditions: any[] = [];
+  if (searchCondition) baseConditions.push(searchCondition);
+
+  if (!where.category) {
+    // Hide virtual numbers in general catalog to keep catalog clean like irmarket unless explicitly searched
+    const isSearchingVirtualNumbers = search && /شماره|مجازی|otp|virtual/i.test(search);
+    if (!isSearchingVirtualNumbers) {
+      baseConditions.push({ category: { not: "virtual-numbers" } });
+    }
   }
 
-  let orderBy: any = { createdAt: "desc" };
-  if (sort === "price-asc") orderBy = { price: "asc" };
-  else if (sort === "price-desc") orderBy = { price: "desc" };
-  else if (sort === "popular") orderBy = { salesCount: "desc" };
+  delete where.OR;
+
+  let orderBy: any = [{ sortOrder: "asc" }, { bestseller: "desc" }, { salesCount: "desc" }, { createdAt: "desc" }];
+  if (sort === "price-asc") orderBy = [{ price: "asc" }, { sortOrder: "asc" }];
+  else if (sort === "price-desc") orderBy = [{ price: "desc" }, { sortOrder: "asc" }];
+  else if (sort === "popular") orderBy = [{ sortOrder: "asc" }, { salesCount: "desc" }, { bestseller: "desc" }];
+  else if (sort === "newest") orderBy = [{ sortOrder: "asc" }, { createdAt: "desc" }];
 
   const inStockProducts = await db.product.findMany({
-    where: { ...where, stock: { gt: 0 } },
+    where: {
+      ...where,
+      AND: [
+        ...baseConditions,
+        {
+          OR: [
+            { stock: { gt: 0 } },
+            { fulfillmentMode: "AUTO" },
+          ],
+        },
+      ],
+    },
     orderBy,
     take: limit,
   });
@@ -102,7 +185,16 @@ export async function getProducts(opts?: {
   const remainingLimit = limit ? limit - inStockProducts.length : undefined;
 
   const outOfStockProducts = (remainingLimit === undefined || remainingLimit > 0) ? await db.product.findMany({
-    where: { ...where, stock: { lte: 0 } },
+    where: {
+      ...where,
+      AND: [
+        ...baseConditions,
+        {
+          stock: { lte: 0 },
+          fulfillmentMode: { not: "AUTO" },
+        },
+      ],
+    },
     orderBy,
     take: remainingLimit,
   }) : [];
@@ -144,21 +236,28 @@ export async function getProductBySlug(slug: string) {
     const raw = (slug || "").trim();
     const decoded = decodeURIComponent(raw).trim();
     const normalized = decoded.replace(/ي/g, "ی").replace(/ك/g, "ک");
+    const englishDigits = normalized
+      .replace(/[۰-۹]/g, (d) => String("۰۱۲۳۴۵۶۷۸۹".indexOf(d)))
+      .replace(/[٠-٩]/g, (d) => String("٠١٢٣٤٥٦٧٨٩".indexOf(d)));
 
     const orConditions: any[] = [
       { slug: decoded },
       { slug: raw },
       { slug: normalized },
       { id: decoded },
+      { slug: englishDigits },
+      { id: englishDigits },
     ];
 
-    const match = normalized.match(/^(\d+)/);
+    const match = englishDigits.match(/^(\d+)/);
     if (match) {
       const prefix = match[1];
       orConditions.push(
         { slug: { startsWith: `${prefix}-` } },
         { slug: { startsWith: prefix } },
-        { id: prefix }
+        { id: prefix },
+        { specifications: { contains: `"supplier_product_id":${prefix}` } },
+        { specifications: { contains: `"supplier_product_id": ${prefix}` } }
       );
     }
 
@@ -198,16 +297,25 @@ export async function getBannerProducts(identifiers: string[], fallbackCategory?
   if (idsOrSlugs.length > 0) {
     const fetched = await db.product.findMany({
       where: {
-        OR: [
-          { id: { in: idsOrSlugs } },
-          { slug: { in: idsOrSlugs } }
-        ],
         isActive: true,
-        stock: { gt: 0 }
+        AND: [
+          {
+            OR: [
+              { id: { in: idsOrSlugs } },
+              { slug: { in: idsOrSlugs } },
+            ],
+          },
+          {
+            OR: [
+              { stock: { gt: 0 } },
+              { fulfillmentMode: "AUTO" },
+            ],
+          },
+        ],
       },
       orderBy: [
+        { sortOrder: "asc" },
         { salesCount: "desc" },
-        { stock: "desc" }
       ]
     });
     products = fetched.map(decorate);
@@ -219,16 +327,21 @@ export async function getBannerProducts(identifiers: string[], fallbackCategory?
       ? fallbackCategory 
       : (fallbackCategory && fallbackCategory !== 'all' ? [fallbackCategory] : []);
 
-    // Expand category aliases (e.g. developer -> software, design)
+    // Expand category aliases (e.g. developer -> dev-tools, design, ai)
     const expandedCats: string[] = [];
     for (const c of cats) {
-      if (c === "developer") expandedCats.push("software", "design", "ai");
+      if (c === "developer") expandedCats.push("dev-tools", "design", "ai");
+      else if (c === "software") expandedCats.push("productivity");
+      else if (c === "api-credits") expandedCats.push("dev-tools");
       else expandedCats.push(c);
     }
     
     const fallbackWhere: any = { 
       isActive: true,
-      stock: { gt: 0 },
+      OR: [
+        { stock: { gt: 0 } },
+        { fulfillmentMode: "AUTO" },
+      ],
       ...(existingIds.length > 0 ? { id: { notIn: existingIds } } : {}),
       ...(expandedCats.length > 0 ? { category: { in: expandedCats } } : {})
     };
@@ -236,8 +349,8 @@ export async function getBannerProducts(identifiers: string[], fallbackCategory?
     let fallbackProducts = await db.product.findMany({
       where: fallbackWhere,
       orderBy: [
+        { sortOrder: "asc" },
         { salesCount: "desc" },
-        { stock: "desc" }
       ],
       take: limit - products.length,
     });

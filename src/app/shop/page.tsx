@@ -21,7 +21,7 @@ export default async function ShopPage({
   const sp = await searchParams;
   const cat = sp.cat || "all";
   const search = sp.search || "";
-  const sort = (sp.sort as any) || "newest";
+  const sort = (sp.sort as any) || "popular";
 
   const [products, categories, heroSlides] = await Promise.all([
     getProducts({ category: cat, search, sort, limit: 100 }),

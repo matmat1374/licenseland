@@ -70,6 +70,7 @@ export const authOptions: NextAuthOptions = {
           id: user.id,
           email: user.email,
           name: user.name || undefined,
+          phone: user.phone || undefined,
           role: user.role,
         } as any;
       },
@@ -80,6 +81,7 @@ export const authOptions: NextAuthOptions = {
       if (user) {
         token.role = (user as any).role || "USER";
         token.id = (user as any).id;
+        token.phone = (user as any).phone;
       }
       return token;
     },
@@ -87,6 +89,7 @@ export const authOptions: NextAuthOptions = {
       if (session.user) {
         (session.user as any).id = token.id;
         (session.user as any).role = token.role;
+        (session.user as any).phone = token.phone;
       }
       return session;
     },
@@ -101,6 +104,7 @@ declare module "next-auth" {
       id?: string;
       name?: string | null;
       email?: string | null;
+      phone?: string | null;
       role?: string;
     };
   }
@@ -110,5 +114,6 @@ declare module "next-auth/jwt" {
   interface JWT {
     role?: string;
     id?: string;
+    phone?: string | null;
   }
 }

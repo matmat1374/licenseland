@@ -14,7 +14,7 @@ export async function POST(req: NextRequest) {
   const body = await req.json().catch(() => ({}));
   const apiUrl = body.apiUrl;
   const apiKey = body.apiKey;
-  const markup = Number(body.markupPercent) || 200;
+  const markup = body.markupPercent != null && body.markupPercent !== "" ? Number(body.markupPercent) : null;
 
   const result = await importProductsFromSupplier(apiUrl, apiKey, markup);
   return NextResponse.json(result, { status: result.ok ? 200 : 400 });

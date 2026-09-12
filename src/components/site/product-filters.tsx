@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
-import { useCallback } from "react";
+import { useCallback, useState, useEffect } from "react";
 import { SlidersHorizontal, Search, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -26,13 +26,20 @@ export function ProductFilters({
   const params = useSearchParams();
 
   const cat = params.get("cat") || "all";
-  const sort = params.get("sort") || "newest";
-  const search = params.get("search") || "";
+  const sort = params.get("sort") || "popular";
+  const searchParam = params.get("search") || "";
+
+  const [searchTerm, setSearchTerm] = useState(searchParam);
+
+  // Sync internal state when URL parameter changes (e.g. navigation / clear)
+  useEffect(() => {
+    setSearchTerm(searchParam);
+  }, [searchParam]);
 
   const update = useCallback(
     (key: string, value: string) => {
       const next = new URLSearchParams(params.toString());
-      if (!value || value === "all" || (key === "sort" && value === "newest")) {
+      if (!value || value === "all" || (key === "sort" && value === "popular")) {
         next.delete(key);
       } else {
         next.set(key, value);
@@ -43,6 +50,15 @@ export function ProductFilters({
     [params, pathname, router]
   );
 
+  // 300ms debounce effect for typing in search
+  useEffect(() => {
+    if (searchTerm === searchParam) return;
+    const timer = setTimeout(() => {
+      update("search", searchTerm);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [searchTerm, searchParam, update]);
+
   return (
     <div className="flex flex-col gap-3">
       {/* search */}
@@ -50,13 +66,16 @@ export function ProductFilters({
         <Search className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
         <Input
           placeholder="جستجوی محصول..."
-          defaultValue={search}
-          onChange={(e) => update("search", e.target.value)}
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
           className="pr-9"
         />
-        {search && (
+        {searchTerm && (
           <button
-            onClick={() => update("search", "")}
+            onClick={() => {
+              setSearchTerm("");
+              update("search", "");
+            }}
             className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
           >
             <X className="h-4 w-4" />

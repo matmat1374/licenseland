@@ -9,7 +9,12 @@ async function requireAdmin() {
   return session;
 }
 
-const SENSITIVE_KEYS = ["supplier_api_key", "supplier_telegram_bot_token", "supplier_webhook_secret"];
+const SENSITIVE_KEYS = [
+  "supplier_api_key",
+  "supplier_telegram_bot_token",
+  "supplier_webhook_secret",
+  "melipayamak_api_key",
+];
 
 // GET — return all settings as a key/value map
 export async function GET() {

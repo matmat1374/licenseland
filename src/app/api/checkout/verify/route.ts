@@ -87,7 +87,7 @@ export async function GET(req: NextRequest) {
   }
 
   // Check admin manual approval policy
-  const requireApproval = await shouldRequireAdminApproval();
+  const requireApproval = await shouldRequireAdminApproval(order.id);
   if (requireApproval) {
     // Hold fulfillment: keep keys safely RESERVED, mark items as WAITING_APPROVAL
     await db.orderItem.updateMany({

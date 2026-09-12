@@ -3,7 +3,7 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { SettingsForm } from "@/components/admin/settings-form";
-import { Info, CreditCard, Send, ShieldCheck } from "lucide-react";
+import { Info, CreditCard, Send, ShieldCheck, MessageSquare } from "lucide-react";
 
 export const metadata = { title: "تنظیمات سایت" };
 export const dynamic = "force-dynamic";
@@ -21,6 +21,10 @@ const SETTING_KEYS = [
   "telegram_bot_token",
   "telegram_supplier_chat_id",
   "require_admin_order_approval",
+  "melipayamak_username",
+  "melipayamak_api_key",
+  "melipayamak_from",
+  "melipayamak_pattern_id",
 ] as const;
 
 const SETTING_LABELS: Record<string, { label: string; placeholder: string; type?: "text" | "password" | "boolean"; help?: string }> = {
@@ -62,6 +66,27 @@ const SETTING_LABELS: Record<string, { label: string; placeholder: string; type?
     label: "چت آیدی تأمین‌کننده تلگرام",
     placeholder: "123456789",
     help: "آیدی عددی چت تأمین‌کننده برای دریافت نوتیفیکیشن‌های موجودی کم.",
+  },
+  melipayamak_username: {
+    label: "نام کاربری ملیپیامک",
+    placeholder: "19121145687",
+    help: "نام کاربری ورود به پنل در melipayamak.com",
+  },
+  melipayamak_api_key: {
+    label: "کلید وبسرویس ملیپیامک (API Key)",
+    placeholder: "d07e983e-4f11-43e1-b0a7-ee367824c2f0",
+    type: "password",
+    help: "کلید وبسرویس ایجاد شده در پنل ملیپیامک",
+  },
+  melipayamak_from: {
+    label: "شماره خط اختصاصی ملیپیامک",
+    placeholder: "50004001145687",
+    help: "شماره خط فرستنده شما در ملیپیامک",
+  },
+  melipayamak_pattern_id: {
+    label: "کد الگوی خدماتی ملیپیامک (Pattern bodyId)",
+    placeholder: "اختیاری - مثلاً 123456",
+    help: "برای عبور از بلکلیست مخابرات؛ در صورت ثبت متن الگو در پنل ملیپیامک، کد الگو را اینجا وارد کنید.",
   },
 };
 
@@ -110,6 +135,32 @@ export default async function AdminSettingsPage() {
             </ol>
             <Badge variant="outline" className="mt-3 bg-amber-500/10 text-amber-600 dark:text-amber-400">
               حالت فعلی: دمو
+            </Badge>
+          </Card>
+
+          <Card className="p-5">
+            <div className="mb-3 flex items-center gap-2">
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-500/10 text-blue-600 dark:text-blue-400">
+                <MessageSquare className="h-5 w-5" />
+              </div>
+              <h3 className="font-bold">تنظیمات پیامک ملیپیامک</h3>
+            </div>
+            <p className="text-sm leading-relaxed text-muted-foreground">
+              برای ارسال خودکار کد تأیید ورود (OTP) از طریق سامانه ملیپیامک:
+            </p>
+            <ul className="mt-2 list-disc space-y-1.5 pr-5 text-sm text-muted-foreground">
+              <li>
+                نام کاربری و کلید وب‌سرویس (API Key) را از پنل کاربری ملی‌پیامک وارد کنید.
+              </li>
+              <li>
+                <strong>کد الگو (Pattern bodyId):</strong> برای عبور از بلک‌لیست مخابرات و ارسال زیر ۵ ثانیه، یک الگو در پنل تعریف کرده و کد آن را وارد کنید.
+              </li>
+              <li>
+                در صورت خالی بودن کد الگو، پیامک‌ها از خط اختصاصی با متد عمومی ارسال می‌شوند.
+              </li>
+            </ul>
+            <Badge variant="outline" className="mt-3 bg-blue-500/10 text-blue-600 dark:text-blue-400">
+              ارسال پیامک OTP
             </Badge>
           </Card>
 
