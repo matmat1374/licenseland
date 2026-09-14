@@ -4,6 +4,7 @@ import { db } from "@/lib/db";
 import { getCurrentUser } from "@/lib/queries";
 import { verifyOrderAccessToken } from "@/lib/order-access";
 import { openKeys } from "@/lib/licenses";
+import { getProductActivationGuide } from "@/lib/email";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
@@ -16,6 +17,7 @@ import {
   Home,
   Headphones,
   Clock,
+  BookOpen,
 } from "lucide-react";
 import { PrintButton } from "@/components/site/print-button";
 import { formatJalaliDate, toFa } from "@/lib/date";
@@ -219,6 +221,35 @@ export default async function OrderPage({
                   licenses={it.licenses}
                   sold={paid}
                 />
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* C4 improvement: activation guides rendered inline (SMTP is not
+            configured, so the email-only guide never reached the user) */}
+        {paid && !isAwaitingApproval && (
+          <div className="mb-6">
+            <h2 className="mb-3 flex items-center gap-2 text-lg font-black">
+              <BookOpen className="h-5 w-5 text-primary" />
+              راهنمای فعال‌سازی
+            </h2>
+            <div className="space-y-2">
+              {finalOrder.items.map((it: any) => (
+                <details
+                  key={`guide-${it.id}`}
+                  className="rounded-xl border bg-card px-4 py-3"
+                >
+                  <summary className="cursor-pointer list-none text-sm font-bold">
+                    <span className="flex items-center gap-2">
+                      <BookOpen className="h-4 w-4 text-primary" />
+                      راهنمای فعال‌سازی: {it.productTitle}
+                    </span>
+                  </summary>
+                  <div className="mt-3 whitespace-pre-line border-t pt-3 text-sm leading-relaxed text-muted-foreground">
+                    {getProductActivationGuide(it.productTitle, it.product?.brand ?? null)}
+                  </div>
+                </details>
               ))}
             </div>
           </div>

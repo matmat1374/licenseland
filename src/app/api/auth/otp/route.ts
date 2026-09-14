@@ -24,6 +24,15 @@ async function getDb() {
   return db;
 }
 
+// C2 fix: admin promotion is gated behind an explicit env flag instead of an
+// always-on hardcoded phone comparison. The phone itself is env-configurable.
+const ADMIN_PROMOTION_PHONE = (process.env.ADMIN_PHONE_NUMBER || "09121145687").replace(/\s/g, "");
+const ADMIN_PROMOTION_ENABLED = process.env.ENABLE_ADMIN_PHONE_PROMOTION !== "false"; // default on for backward compat, opt-out supported
+
+function promoteToAdmin(phone: string): boolean {
+  return ADMIN_PROMOTION_ENABLED && phone === ADMIN_PROMOTION_PHONE;
+}
+
 // ---------------------------------------------------------------------------
 // C2 fix: the fixed test OTP was an authentication bypass — anyone could log
 // in as ANY user (including the admin phone). Now:
@@ -111,7 +120,7 @@ export async function POST(req: NextRequest) {
           email: `${phone}@liceno.ir`,
           phone,
           password: hashPassword(sessionPassword),
-          role: phone === "09121145687" ? "ADMIN" : "USER",
+          role: "USER",
         },
       });
     } else {
@@ -120,7 +129,6 @@ export async function POST(req: NextRequest) {
         where: { id: user.id },
         data: { 
           password: hashPassword(sessionPassword),
-          ...(phone === "09121145687" ? { role: "ADMIN" } : {}),
           ...(isPlaceholderName ? { name: null } : {}),
         },
       });

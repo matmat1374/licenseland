@@ -7,7 +7,7 @@ import { signOrderAccessToken } from "@/lib/order-access";
 import { sealKey } from "@/lib/licenses";
 import { transitionOrder } from "@/lib/domain/orders";
 import { topUpWallet, chargeWallet } from "@/lib/domain/wallet";
-import { shouldRequireAdminApproval, fulfillAndDeliverOrder } from "@/lib/order-fulfillment";
+import { shouldRequireAdminApproval, enqueueFulfillment, fulfillAndDeliverOrder } from "@/lib/order-fulfillment";
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
@@ -42,9 +42,43 @@ export async function GET(req: NextRequest) {
   const verify = await zarinpalVerify(order.total, authority);
 
   if (!verify.success) {
+    await db.payment.updateMany({
+      where: { authority },
+      data: { status: "failed", rawResponse: JSON.stringify({ status, message: verify.message }) },
+    }).catch(() => {});
     await releaseReservedKeys(order.id);
     await transitionOrder({ orderId: order.id, from: "awaiting_payment", event: "cancelled" }).catch(() => {});
     return NextResponse.redirect(new URL(`/order/${order.id}?failed=1&token=${signOrderAccessToken(order.id)}`, base));
+  }
+
+  await db.payment.updateMany({
+    where: { authority },
+    data: {
+      status: "verified",
+      refId: verify.refId || null,
+      verifiedAt: new Date(),
+      rawResponse: JSON.stringify({ status, refId: verify.refId, message: verify.message, demo: isDemoAuthority }),
+    },
+  }).catch(() => {});
+
+  // H4 fix: persist a Payment record for every verify outcome so gateway
+  // disputes have an audit trail (model existed but was never written).
+  const isDemoAuthority = authority.startsWith("DEMO");
+  try {
+    await db.payment.upsert({
+      where: { authority },
+      create: {
+        orderId: order.id,
+        gateway: "zarinpal",
+        authority,
+        amountMinor: order.total,
+        status: "pending",
+        rawResponse: JSON.stringify({ status, verified: false }),
+      },
+      update: {},
+    });
+  } catch (e) {
+    console.error("[payment] Failed to create Payment record:", e);
   }
 
   // Double-entry accounting: Gateway top-up -> User wallet -> Revenue charge
@@ -96,8 +130,24 @@ export async function GET(req: NextRequest) {
     });
     console.log(`[fulfillment] Order ${order.code} paid successfully, awaiting admin approval.`);
   } else {
-    // Auto-pilot: instant automatic fulfillment and email delivery
-    await fulfillAndDeliverOrder(order.id);
+    // H5 fix: enqueue instead of awaiting — the customer must not wait on the
+    // supplier HTTP call inside the payment callback. Worker drains the queue.
+    try {
+      await enqueueFulfillment(order.id);
+    } catch (e) {
+      console.error("[fulfillment] Failed to enqueue job, running inline fallback:", e);
+      await fulfillAndDeliverOrder(order.id).catch(() => {});
+    }
+  }
+
+  // Earn points
+  if (order.userId && order.total > 0) {
+    try {
+      const { earnPoints } = await import("@/lib/loyalty");
+      await earnPoints(order.userId, order.id, order.total);
+    } catch (e) {
+      console.error("[loyalty] Failed to earn points:", e);
+    }
   }
 
   const token = signOrderAccessToken(order.id);

@@ -39,17 +39,17 @@ export async function POST(req: NextRequest) {
     const { sendOtpSms } = await import("@/lib/sms");
     await sendOtpSms(phoneRaw, otp);
     
-    // For now, log it prominently in the console
+    // Log prominently in the console (server-side only — the OTP must NEVER
+    // be returned in the HTTP response: anyone could then log in as ANY phone
+    // number, including the admin account) (review C1 fix)
     console.log("\n========================================");
     console.log(`📱 SMS TO ${phoneRaw}:`);
     console.log(`کد تایید شما: ${otp}`);
     console.log("========================================\n");
     
-    // TEMPORARY: Return OTP in message until SMS gateway is connected
     return NextResponse.json({ 
       ok: true, 
-      message: `کد تایید ارسال شد`,
-      otp: otp 
+      message: `کد تایید ارسال شد`
     });
   } catch (e) {
     console.error("Error generating OTP:", e);

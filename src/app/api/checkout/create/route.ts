@@ -55,6 +55,11 @@ async function expireStaleReservations() {
 }
 
 export async function POST(req: NextRequest) {
+  // H1 fix: track what was persisted so the outer catch can roll back
+  // reservations/redeemed points if anything after the transaction fails.
+  let createdOrderId: string | null = null;
+  let redeemedPointsForOrder = 0;
+  let authUserId: string | null = null;
   try {
     const ip =
       req.headers.get("cf-connecting-ip") ||
@@ -72,6 +77,7 @@ export async function POST(req: NextRequest) {
     const items: CreateItem[] = body.items || [];
     const customer = body.customer || {};
     const couponCode = body.coupon as string | undefined;
+    const pointsToRedeem = (body.redeemPoints !== undefined ? Number(body.redeemPoints) : body.pointsToRedeem !== undefined ? Number(body.pointsToRedeem) : undefined);
 
     if (!Array.isArray(items) || items.length === 0)
       return NextResponse.json({ ok: false, message: "سبد خرید خالی است" }, { status: 400 });
@@ -85,6 +91,7 @@ export async function POST(req: NextRequest) {
 
     // auth
     const session = await getServerSession(authOptions);
+    authUserId = session?.user?.id || null;
 
     await expireStaleReservations();
 
@@ -103,17 +110,24 @@ export async function POST(req: NextRequest) {
       }
       // check if product is from supplier (auto-fulfill) — these don't need pre-stocked keys
       let isSupplierProduct = false;
-      try {
-        const specs = JSON.parse(p.specifications || "{}");
-        isSupplierProduct = !!specs.supplier_product_id;
-      } catch {}
-      // check stock only for non-supplier products
-      if (!isSupplierProduct) {
-        const available = await db.licenseKey.count({ where: { productId: p.id, status: "AVAILABLE" } });
-        if (available < it.quantity) {
-          return NextResponse.json({ ok: false, message: `موجودی «${p.title}» کافی نیست (${available} عدد باقی مانده)` }, { status: 400 });
+        try {
+          const specs = JSON.parse(p.specifications || "{}");
+          isSupplierProduct = !!specs.supplier_product_id;
+        } catch {}
+        // check stock only for non-supplier products
+        if (!isSupplierProduct) {
+          const available = await db.licenseKey.count({ where: { productId: p.id, status: "AVAILABLE" } });
+          if (available < it.quantity) {
+            return NextResponse.json({ ok: false, message: `موجودی «${p.title}» کافی نیست (${available} عدد باقی مانده)` }, { status: 400 });
+          }
+        } else {
+          if (!p.isActive || (p.stock ?? 0) <= 0) {
+            return NextResponse.json(
+              { ok: false, message: `محصول «${p.title}» در حال حاضر ناموجود است.` },
+              { status: 400 }
+            );
+          }
         }
-      }
       subtotal += expected * it.quantity;
     }
 
@@ -133,7 +147,23 @@ export async function POST(req: NextRequest) {
       const r = applyDiscount(subtotal, { type: discountCodeRec.type as any, value: discountCodeRec.value });
       discount = r.discount;
     }
-    const total = Math.max(0, subtotal - discount);
+
+    let pointsDiscount = 0;
+    if (pointsToRedeem && session?.user?.id) {
+      const maxAllowed = Math.floor(subtotal * 0.3);
+      pointsDiscount = pointsToRedeem * 1000;
+      if (pointsDiscount > maxAllowed) {
+        return NextResponse.json({ ok: false, message: "حداکثر مجاز استفاده از امتیاز ۳۰٪ مبلغ سفارش است" }, { status: 400 });
+      }
+      // just verify they have enough
+      const { getLoyalty } = await import("@/lib/loyalty");
+      const loy = await getLoyalty(session.user.id);
+      if (loy.totalPoints < pointsToRedeem) {
+        return NextResponse.json({ ok: false, message: "امتیاز شما کافی نیست" }, { status: 400 });
+      }
+    }
+
+    const total = Math.max(0, subtotal - discount - pointsDiscount);
 
     if (total <= 0) {
       return NextResponse.json({ ok: false, message: "مبلغ سفارش نامعتبر است" }, { status: 400 });
@@ -230,6 +260,13 @@ export async function POST(req: NextRequest) {
 
       return order;
     });
+    createdOrderId = order.id;
+
+    if (pointsToRedeem && session?.user?.id) {
+      const { redeemPoints } = await import("@/lib/loyalty");
+      redeemedPointsForOrder = pointsToRedeem;
+      await redeemPoints(session.user.id, order.id, subtotal, pointsToRedeem);
+    }
 
     // zarinpal request (network call — kept OUTSIDE the transaction)
     const callbackUrl = `${getBaseUrl(req)}/api/checkout/verify`;
@@ -240,6 +277,10 @@ export async function POST(req: NextRequest) {
       // release reserved keys
       await db.licenseKey.updateMany({ where: { orderItem: { orderId: order.id } }, data: { status: "AVAILABLE", orderItemId: null } });
       await db.order.update({ where: { id: order.id }, data: { status: "FAILED" } });
+      if (pointsToRedeem && session?.user?.id) {
+        const { addBonusPoints } = await import("@/lib/loyalty");
+        await addBonusPoints(session.user.id, pointsToRedeem, "Refund for failed gateway init");
+      }
       return NextResponse.json({ ok: false, message: zres.error || "خطا در درگاه پرداخت" }, { status: 500 });
     }
 
@@ -253,6 +294,24 @@ export async function POST(req: NextRequest) {
       demo: isDemo,
     });
   } catch (e: any) {
+    // H1 fix: if the order transaction committed but a later step threw
+    // (points redemption, gateway authority update, ...), release the reserved
+    // keys and mark the order FAILED — otherwise inventory stays locked for 30 min.
+    if (createdOrderId) {
+      try {
+        await db.licenseKey.updateMany({
+          where: { orderItem: { orderId: createdOrderId }, status: "RESERVED" },
+          data: { status: "AVAILABLE", orderItemId: null },
+        });
+        await db.order.update({ where: { id: createdOrderId }, data: { status: "FAILED" } });
+        if (redeemedPointsForOrder > 0 && authUserId) {
+          const { addBonusPoints } = await import("@/lib/loyalty");
+          await addBonusPoints(authUserId, redeemedPointsForOrder, "Refund for failed checkout init");
+        }
+      } catch (cleanupErr) {
+        console.error("checkout create cleanup error", cleanupErr);
+      }
+    }
     // reservation races surface as user-friendly messages, not 500s
     if (e?.message?.includes("موجودی")) {
       return NextResponse.json({ ok: false, message: e.message }, { status: 409 });

@@ -3,6 +3,106 @@ import { purchaseFromSupplier } from "./supplier";
 import { sealKey } from "./licenses";
 import { sendOrderFulfillmentEmail } from "./email";
 
+/**
+ * H5 fix: enqueue fulfillment as a Job instead of awaiting it inside the
+ * payment-verify request. A worker (started from instrumentation.ts) drains
+ * the queue; the customer gets redirected immediately.
+ */
+export async function enqueueFulfillment(orderId: string): Promise<void> {
+  await db.job.create({
+    data: {
+      type: "fulfill_order",
+      payload: JSON.stringify({ orderId }),
+      status: "pending",
+      availableAt: new Date(),
+    },
+  });
+}
+
+/** Claim and process due jobs. Returns the number of jobs processed. */
+export async function processFulfillmentJobs(limit = 5): Promise<number> {
+  let processed = 0;
+  for (let i = 0; i < limit; i++) {
+    // Atomically claim one due job by flipping pending -> processing
+    const claimed = await db.job.updateMany({
+      where: {
+        type: "fulfill_order",
+        status: "pending",
+        availableAt: { lte: new Date() },
+      },
+      data: { status: "processing", attempts: { increment: 1 }, updatedAt: new Date() },
+    });
+    if (claimed.count === 0) break;
+
+    // fetch the oldest claimed-but-unassigned job (single worker per process;
+    // concurrent workers would each handle a different job thanks to the
+    // conditional claim, we just need any claimed row)
+    const job = await db.job.findFirst({
+      where: { type: "fulfill_order", status: "processing" },
+      orderBy: { updatedAt: "asc" },
+    });
+    if (!job) break;
+
+    let orderId: string | undefined;
+    try {
+      const payload = JSON.parse(job.payload || "{}");
+      orderId = payload.orderId;
+    } catch {}
+
+    if (!orderId) {
+      await db.job.update({
+        where: { id: job.id },
+        data: { status: "dead_letter", lastError: "invalid payload" },
+      });
+      continue;
+    }
+
+    try {
+      const result = await fulfillAndDeliverOrder(orderId);
+      if (result.ok) {
+        await db.job.update({ where: { id: job.id }, data: { status: "completed" } });
+      } else {
+        await retryOrFail(job.id, orderId, result.message);
+      }
+    } catch (e: any) {
+      await retryOrFail(job.id, orderId, e?.message || "unknown error");
+    }
+    processed++;
+  }
+  return processed;
+}
+
+async function retryOrFail(jobId: string, orderId: string, message: string) {
+  const job = await db.job.findUnique({ where: { id: jobId } });
+  if (!job) return;
+  if (job.attempts >= job.maxAttempts) {
+    await db.job.update({
+      where: { id: jobId },
+      data: { status: "dead_letter", lastError: message.slice(0, 500) },
+    });
+    await db.ticket.create({
+      data: {
+        orderId,
+        subject: `[بحرانی] صدور لایسنس سفارش پس از ۳ تلاش ناموفق ماند`,
+        body: `Job ${jobId} برای سفارش ${orderId} به dead_letter رفت. آخرین خطا: ${message}`,
+        status: "open",
+        priority: "urgent",
+      },
+    }).catch(() => {});
+  } else {
+    // exponential backoff: 1min, 2min, 4min
+    const backoffMs = Math.min(60_000 * Math.pow(2, job.attempts - 1), 240_000);
+    await db.job.update({
+      where: { id: jobId },
+      data: {
+        status: "pending",
+        lastError: message.slice(0, 500),
+        availableAt: new Date(Date.now() + backoffMs),
+      },
+    });
+  }
+}
+
 /** Check whether orders require manual admin approval before dispatching licenses. */
 export async function shouldRequireAdminApproval(orderId?: string): Promise<boolean> {
   try {
@@ -261,22 +361,32 @@ export async function fulfillAndDeliverOrder(orderId: string): Promise<{ ok: boo
               data: { status: "SOLD", soldAt: new Date() },
             });
           } else {
-            // Otherwise claim fresh AVAILABLE keys
+            // H2 fix: claim fresh AVAILABLE keys with a conditional atomic
+            // update (same pattern as checkout reservation) — the old
+            // unconditional update by id let two concurrent fulfillments sell
+            // the same key twice.
             const candidates = await tx.licenseKey.findMany({
               where: { productId: item.productId, status: "AVAILABLE" },
               take: item.quantity,
               select: { id: true },
             });
 
+            if (candidates.length < item.quantity) {
+              throw new Error("کسری موجودی برای محصول " + item.productTitle);
+            }
+
             for (const c of candidates) {
-              await tx.licenseKey.update({
-                where: { id: c.id },
+              const claim = await tx.licenseKey.updateMany({
+                where: { id: c.id, status: "AVAILABLE" },
                 data: {
                   status: "SOLD",
                   orderItemId: item.id,
                   soldAt: new Date(),
                 },
               });
+              if (claim.count !== 1) {
+                throw new Error("تداخل در تخصیص کلید لایسنس برای " + item.productTitle);
+              }
             }
           }
 
@@ -305,7 +415,7 @@ export async function fulfillAndDeliverOrder(orderId: string): Promise<{ ok: boo
       console.error("[email] Error sending fulfillment email:", err);
     });
 
-    return { ok: true, message: "لایسنس‌ها با موفقیت صادر و به ایمیل کاربر ارسال شدند." };
+    return { ok: true, message: "لایسنسها با موفقیت صادر شدند. اطلاعات در داشبورد کاربر قابل مشاهده است." };
   } catch (error: any) {
     console.error("[fulfillment] Error fulfilling order:", error);
     return { ok: false, message: error?.message || "خطا در فرآیند صدور لایسنس" };

@@ -1,6 +1,23 @@
 export function register() {
   if (process.env.NEXT_RUNTIME === 'nodejs' && !process.env.NEXT_PHASE?.includes('build')) {
     console.log('Starting background cron for sync-products every 15 minutes');
+
+    // H5 fix: fulfillment job worker — drains the Job queue every 30s.
+    // Self-scheduling to avoid overlapping runs when a batch takes long.
+    let fulfillmentWorkerRunning = false;
+    setInterval(async () => {
+      if (fulfillmentWorkerRunning) return;
+      fulfillmentWorkerRunning = true;
+      try {
+        const { processFulfillmentJobs } = await import('@/lib/order-fulfillment');
+        const processed = await processFulfillmentJobs(5);
+        if (processed > 0) console.log(`[job-worker] processed ${processed} fulfillment job(s)`);
+      } catch (err) {
+        console.error('[job-worker] fulfillment worker failed (non-fatal):', err);
+      } finally {
+        fulfillmentWorkerRunning = false;
+      }
+    }, 30 * 1000);
     setInterval(async () => {
       console.log('Running scheduled background sync-products...');
       
