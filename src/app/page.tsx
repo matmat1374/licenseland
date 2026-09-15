@@ -12,6 +12,10 @@ import { BestsellersSlider } from "@/components/site/bestsellers-slider";
 import { TabbedProductCatalog } from "@/components/site/tabbed-product-catalog";
 import { UnifiedTrustSection } from "@/components/site/unified-trust-section";
 
+// Storefront content (featured products, prices, banners) must not be cached for a
+// year at the CDN — revalidate every 5 minutes instead.
+export const revalidate = 300;
+
 export default async function HomePage() {
   const [bestsellers, articles, content] = await Promise.all([
     getProducts({ bestseller: true, limit: 10, sort: "popular" }),
