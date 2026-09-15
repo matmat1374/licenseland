@@ -23,7 +23,7 @@
 | محور | فیلد | مقادیر |
 |---|---|---|
 | پرداخت | `Order.status` | PENDING (ثبت‌شده) · PAID (پرداخت‌شده) · FAILED · CANCELLED · PENDING_SUPPORT |
-| تحویل | `Order.fulfillmentStage` | NONE · PURCHASING · PURCHASED · READY_TO_SHIP · SHIPPED · DELIVERED · RETURNED |
+| تحویل | `Order.fulfillmentStage` | NONE · PURCHASING · PURCHASED · READY_TO_DELIVER · DELIVERED · RETURNED |
 
 این دو **مستقل**اند: سفارش می‌تواند پرداخت‌شده ولی هنوز خریداری‌نشده باشد.
 
@@ -45,7 +45,7 @@
         │      │
         │      └─ خطا؟ → RETRY ×۳ → تیکت فوری + PENDING_SUPPORT (استثنا A)
         │
-        ├─ آماده ارسال (READY_TO_SHIP)
+        ├─ آماده تحویل (READY_TO_DELIVER)
         │
         ├─ ثبت ارسال + مرجع لایسنس (SHIPPED) ──ایمیل ۴: مرجع لایسنس──▶ مشتری
         │
