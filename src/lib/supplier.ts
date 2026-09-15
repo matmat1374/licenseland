@@ -1,4 +1,4 @@
-// Supplier integration core
+﻿// Supplier integration core
 // Supports two modes:
 // 1) OUTBOUND: we call the supplier's API/Telegram bot to request license keys
 // 2) INBOUND: the supplier pushes license keys to our webhook (/api/supplier/webhook)
@@ -10,6 +10,7 @@ import { calculateSellPrice, loadPricingTiers } from "@/lib/pricing-calculator";
 import { sealKey, openKey } from "@/lib/licenses";
 import { IrMarketClient } from "@kernel/supplier/provider";
 import { CircuitBreaker, systemClock } from "@kernel/supplier/resilience";
+import { parseAttributes, detectBrand, buildProductTitle, buildDedupKey } from "@/lib/product-naming";
 
 // irMarket API base URL — configurable via env for testing/alternative endpoints.
 // Declared at top so it's available to all functions below.
@@ -663,6 +664,16 @@ export function localizeProduct(name: string, category: string, sp?: any): { tit
     else if (/express/i.test(t)) finalTitle = "Adobe Express";
   }
 
+  // Audit fix (M1): keep the distinguishing attributes in the title. Before this,
+  // every variant of a brand collapsed to one label ("Claude Pro") and only the
+  // duration survived — so an API credit, a shared seat and a trial account all
+  // looked identical to the buyer. See docs/catalog-audit/NAMING_SKU_STANDARD.md.
+  const namingAttrs = parseAttributes(t);
+  const brandInfo = detectBrand(t);
+  const titleIsVirtual = /شماره مجازی/i.test(finalTitle) || namingAttrs.accessType === "virtual";
+  if (brandInfo && !titleIsVirtual && namingAttrs.accessType !== "unknown") {
+    finalTitle = buildProductTitle(finalTitle, namingAttrs);
+  }
   if (durationFa && !finalTitle.includes(durationFa)) {
     finalTitle = `${finalTitle} (${durationFa})`;
   }

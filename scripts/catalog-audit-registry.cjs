@@ -8,7 +8,7 @@
 const fs = require("fs");
 const path = require("path");
 
-const SRC = "audit-all-products.json";
+const SRC = "docs/catalog-audit/data/audit-all-products.json";
 const OUT_DIR = "docs/catalog-audit";
 const rows = JSON.parse(fs.readFileSync(SRC, "utf8"));
 fs.mkdirSync(OUT_DIR, { recursive: true });
@@ -34,7 +34,7 @@ function parseAttrs(r) {
   // quota
   const mT = s.match(/(\d+)\s*M\s*(credit|token)/i) || s.match(/(\d+)\s*(million)?\s*tokens?/i);
   if (mT) out.quota = mT[1] + "M توکن";
-  if (!out.quota) { const mD = s.match(/\$\s*(\d+)/i) || s.match(/(\d+)\s*usd/i); if (mD) out.quota = (mD[1] || mD[2]) + "$"; }
+  if (!out.quota) { const mD = s.match(/\$\s*(\d+)/i) || s.match(/(\d+)\s*\$/) || s.match(/(\d+)\s*usd/i); if (mD) out.quota = (mD[1] || mD[2] || mD[3]) + "$"; }
   if (!out.quota) { const mC = s.match(/(\d+)\s*(k)?\s*credits?/i); if (mC) out.quota = mC[1] + (mC[2] ? "K" : "") + " کردیت"; }
 
   // duration
@@ -78,6 +78,25 @@ function brandOf(r) {
 
 const BRAND_SKU = [[/claude/i,"CLAUDE"],[/chatgpt/i,"CHATGPT"],[/openai/i,"OPENAI"],[/gemini/i,"GEMINI"],[/capcut/i,"CAPCUT"],[/genspark/i,"GENSPARK"],[/magica/i,"MAGICA"],[/codex/i,"CODEX"],[/canva/i,"CANVA"],[/spotify/i,"SPOTIFY"],[/netflix/i,"NETFLIX"],[/youtube/i,"YOUTUBE"],[/midjourney/i,"MIDJOURNEY"],[/adobe/i,"ADOBE"],[/telegram/i,"TELEGRAM"],[/whatsapp/i,"WHATSAPP"],[/gmail/i,"GMAIL"],[/itunes/i,"ITUNES"],[/amazon/i,"AMAZON"],[/google play/i,"GPLAY"],[/playstation|psn/i,"PSN"],[/razer/i,"RAZER"],[/mobile legends/i,"MLBB"],[/free fire/i,"FF"],[/cursor/i,"CURSOR"],[/windsurf/i,"WINDSURF"]];
 
+// Display label used in titles. Latin brand names are kept because buyers search
+// for them ("Claude Pro", "Cursor Pro") — same convention as the code fix in
+// src/lib/product-naming.ts.
+const BRAND_LABEL = {
+  CLAUDE: "Claude Pro", CHATGPT: "ChatGPT", OPENAI: "ChatGPT", GEMINI: "Gemini AI Pro",
+  CAPCUT: "CapCut Pro", GENSPARK: "Genspark", MAGICA: "Magica", CODEX: "Codex",
+  CANVA: "Canva Pro", SPOTIFY: "Spotify Premium", NETFLIX: "Netflix 4K Ultra HD",
+  YOUTUBE: "YouTube Premium", MIDJOURNEY: "Midjourney", ADOBE: "Adobe Creative Cloud Pro",
+  TELEGRAM: "Telegram", WHATSAPP: "WhatsApp", GMAIL: "Gmail", ITUNES: "iTunes Gift Card",
+  AMAZON: "Amazon Gift Card", GPLAY: "Google Play", PSN: "PlayStation Network",
+  RAZER: "Razer Gold", MLBB: "Mobile Legends", FF: "Garena Free Fire",
+  CURSOR: "Cursor Pro", WINDSURF: "Windsurf Pro",
+};
+
+function brandLabel(r) {
+  const code = brandSku(r);
+  return BRAND_LABEL[code] || brandOf(r);
+}
+
 function skuPart(x) {
   return (x || "").replace(/[^A-Za-z0-9]/g, "").toUpperCase();
 }
@@ -106,7 +125,7 @@ function makeSku(r, a) {
 }
 
 function makeTitle(r, a) {
-  const brand = brandOf(r);
+  const brand = brandLabel(r);
   const parts = [brand];
   if (a.access === "گیفتکارت") parts.push("گیفتکارت" + (a.quota ? ` ${toFaDigits(a.quota)}` : ""));
   else if (a.access === "API/توکن") parts.push("API" + (a.quota ? ` — ${toFaDigits(a.quota)}` : ""));

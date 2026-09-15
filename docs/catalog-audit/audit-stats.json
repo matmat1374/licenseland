@@ -4,17 +4,17 @@
   "trueDupProducts": 341,
   "misleadingGroups": 7,
   "misleadingProducts": 44,
-  "flaggedProducts": 537,
-  "registryRows": 537,
+  "flaggedProducts": 539,
+  "registryRows": 539,
   "decisions": {
     "keepBase": 128,
     "merge": 213,
-    "rename": 65,
+    "rename": 67,
     "keepUnchanged": 82,
     "manualReview": 49
   },
   "claudeProducts": 36,
-  "similarTitleFamilyGroups": 21,
-  "similarTitleFamilyProducts": 327,
+  "similarTitleFamilyGroups": 22,
+  "similarTitleFamilyProducts": 329,
   "redirectsPlanned": 187
 }

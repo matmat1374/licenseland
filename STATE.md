@@ -2,11 +2,14 @@
 
 ## 2026-09-15 — Catalog definition audit (docs/catalog-audit/)
 Full-catalog audit (1049 products) at owner request (5 sample Claude Pro links + /shop?search=claude).
-Findings: 537 products (51%) affected — 138 true-duplicate groups (341 products), 7 misleading-title groups (44), 21 similar-title families (327).
+Findings: 539 products (51%) affected — 138 true-duplicate groups (341 products), 7 misleading-title groups (44), 22 similar-title families (329).
 Root causes — OUR side: (M1) `localizeProduct()` in src/lib/supplier.ts collapses every Claude variant to "Claude Pro" and appends only duration, dropping quota/tier/access-type; (M2) sync matches only by `supplier_product_id`, so a re-listed supplier ID creates a brand-new product; (M3) exact-string matching misses brand aliases ("Openai" vs "ChatGPT"); (M4) shortDesc is raw English supplier text; (M5) no pre-publish QA gate; (M6) fake stock=99.
 Root causes — SUPPLIER side: (S1) re-listing under new IDs (2814→3265→3328); (S2) terse English names, no structured fields; (S3) one name ("Claude Pro") for API credit, Premium seat and trial account; (S4) silent price changes; (S5) ambiguous warranty wording.
 Delivered (DRAFT — no live data changed): docs/catalog-audit/{CATALOG_AUDIT_REPORT.html, product-registry.csv (537 rows), ROOT_CAUSE.md, NAMING_SKU_STANDARD.md, MERGE_PLAN.md, SUPPLIER_INFO_REQUEST_TEMPLATE.md, SOP_QA_CHECKLIST.md, slug-redirects.proposed.json (+187)}; scripts/catalog-audit-registry.cjs; scripts/catalog-dedup-apply.mjs.
 Verified on a DB COPY (`audit-test.db`, produced by `--db ... --apply`): 0 active true-dup groups remain, 1 edge case left for manual review (Genspark Plus), 86 archived, 75 renamed, redirects 777→964, ZERO rows deleted, order/license rows untouched.
+CODE FIX (draft, tested, NOT deployed): new `src/lib/product-naming.ts` (parseAttributes/buildProductTitle/buildSku/buildDedupKey) + `kernel/test/productNaming.test.ts` (10 tests; suite now 116/116 green, typecheck clean). `localizeProduct()` in src/lib/supplier.ts now keeps access-type + quota in the title (only 29 of 1049 names change; unknown access type and virtual numbers are left untouched).
+SIDE BUG FOUND & FIXED: part of src/lib/supplier.ts was stored as Windows-1252 mojibake ("Ø´Ù…Ø§Ø±Ù‡" instead of "شماره مجازی"), so Persian regexes there never matched and every string it produced was written to the catalogue corrupted. Repaired 853 strings with scripts/fix-mojibake.mjs; 0 mojibake chars left, ASCII-only diff proves no code line changed.
+Remaining to finish the wiring: add dedup_key to nextSpecs at the 3 product-create sites + extend the existing-product lookup + one-time backfill (see docs/catalog-audit/CODE_FIX.md §7).
 NOT applied to production — needs explicit owner approval per the brief's out-of-scope list.
 
 ## 2026-09-15 â€” UX/CX audit + P0/P1 fixes (see docs/UX_AUDIT_2026-09-15.md)
