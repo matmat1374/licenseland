@@ -1,6 +1,7 @@
 import { MetadataRoute } from "next";
 import { db } from "@/lib/db";
 import { SITE } from "@/lib/constants";
+import slugRedirects from "@/data/slug-redirects.json";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // توجه: آدرس‌های /shop?cat=… عمداً در سایت‌مپ نیستند.
@@ -28,7 +29,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${SITE.url}/privacy`, lastModified: now, priority: 0.3, changeFrequency: "yearly" },
   ];
 
-  const productPages: MetadataRoute.Sitemap = products.map((p) => ({
+  // Sitemap hygiene: a product whose slug is a key in src/data/slug-redirects.json
+  // is 301-redirected by src/middleware.ts, so advertising it here points crawlers
+  // at a redirect instead of a 200. Keep only the slugs that actually resolve.
+  const redirectSources = new Set(Object.keys(slugRedirects as Record<string, string>));
+  const canonicalProducts = products.filter((p) => !redirectSources.has(p.slug));
+
+  const productPages: MetadataRoute.Sitemap = canonicalProducts.map((p) => ({
     url: `${SITE.url}/product/${p.slug}`,
     lastModified: p.updatedAt,
     priority: 0.75,
