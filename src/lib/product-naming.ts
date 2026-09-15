@@ -239,19 +239,17 @@ export function normalizeSupplierName(input: string): string {
  * equality is the conservative, verifiable signal — a first attempt at an
  * attribute-based key silently collapsed all Telegram Stars denominations.
  *
- * Virtual numbers are keyed by country — their real distinguisher.
+ * Virtual numbers are NOT special-cased. An earlier version keyed them as
+ * `brand|VNO|country`, which collapsed a Google verification number, a ChatGPT
+ * number and an Instagram number for the same country into one product. The
+ * normalised name already carries both the service and the country
+ * ("google canada" vs "chatgpt canada"), so the generic path is both simpler
+ * and safer.
  */
-export function buildDedupKey(input: string, opts?: { category?: string }): string {
+export function buildDedupKey(input: string, _opts?: { category?: string }): string {
   const s = String(input || "");
   const brand = detectBrand(s);
-  const a = parseAttributes(s);
   const brandKey = brand ? brand.code : "ITEM";
-
-  const isVirtual = a.accessType === "virtual" || /virtual|otp|شماره\s*مجازی/i.test(opts?.category || "");
-  if (isVirtual) {
-    return [brandKey, "VNO", extractCountry(s) || "UNK"].join("|");
-  }
-
   const normalized = normalizeSupplierName(s);
   if (!normalized) return [brandKey, "EMPTY"].join("|");
   return [brandKey, normalized].join("|");

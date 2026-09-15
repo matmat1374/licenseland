@@ -99,17 +99,18 @@ test("buildDedupKey keeps genuinely different products apart", () => {
   assert.equal(keys.size, 4);
 });
 
-test("virtual numbers are keyed by country, never collapsed", () => {
-  const af = buildDedupKey("Claude — Afghanistan 🇦🇫 ⭐", { category: "virtual-numbers" });
-  const de = buildDedupKey("Claude — Germany 🇩🇪 ⭐", { category: "virtual-numbers" });
-  assert.equal(af, "CLAUDE|VNO|AFGHANISTAN");
-  assert.equal(de, "CLAUDE|VNO|GERMANY");
-  assert.notEqual(af, de);
-  // the same country listed twice without the star is the same product
-  assert.equal(
-    buildDedupKey("Claude — Afghanistan 🇦🇫", { category: "virtual-numbers" }),
-    af,
-  );
+test("virtual numbers stay distinct per service AND per country", () => {
+  // The key must never merge two different services for the same country.
+  const googleCa = buildDedupKey("Google — Canada 🇨🇦 ⭐", { category: "virtual-numbers" });
+  const chatgptCa = buildDedupKey("ChatGPT — Canada 🇨🇦 ⭐", { category: "virtual-numbers" });
+  const claudeAf = buildDedupKey("Claude — Afghanistan 🇦🇫 ⭐", { category: "virtual-numbers" });
+  const claudeDe = buildDedupKey("Claude — Germany 🇩🇪 ⭐", { category: "virtual-numbers" });
+  assert.notEqual(googleCa, chatgptCa, "different services for one country must not merge");
+  assert.notEqual(claudeAf, claudeDe);
+  assert.equal(googleCa, "ITEM|google canada");
+  assert.equal(claudeAf, "CLAUDE|claude afghanistan");
+  // the same offering listed with/without the star marker is one product
+  assert.equal(buildDedupKey("Claude — Afghanistan 🇦🇫", { category: "virtual-numbers" }), claudeAf);
   assert.equal(extractCountry("Claude — Afghanistan 🇦🇫 ⭐"), "AFGHANISTAN");
 });
 

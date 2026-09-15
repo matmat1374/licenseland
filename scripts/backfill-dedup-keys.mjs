@@ -23,6 +23,7 @@ const { PrismaClient } = require("@prisma/client");
 
 const args = process.argv.slice(2);
 const APPLY = args.includes("--apply");
+const FORCE = args.includes("--force"); // overwrite keys already present (used to correct an earlier bad key)
 const dbIdx = args.indexOf("--db");
 if (dbIdx !== -1) process.env.DATABASE_URL = args[dbIdx + 1];
 const mapIdx = args.indexOf("--map");
@@ -43,9 +44,10 @@ let already = 0, filled = 0, missingKey = 0, changes = 0;
 
 for (const p of products) {
   const specs = specsOf(p.specifications);
-  if (specs.dedup_key) { already++; continue; }
   const key = keyBySlug[p.slug];
   if (!key) { missingKey++; continue; }
+  if (specs.dedup_key === key) { already++; continue; }
+  if (specs.dedup_key && !FORCE) { already++; continue; }
   filled++;
   if (APPLY) {
     specs.dedup_key = key;
