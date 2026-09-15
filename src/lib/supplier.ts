@@ -1529,7 +1529,7 @@ export async function rebuildSupplierCatalog(opts?: {
       },
       orderBy: { createdAt: 'asc' },
     });
-    const existing = candidateRows.find((c) => {
+    let existing = candidateRows.find((c) => {
       if (c.supplierId != null && Number(c.supplierId) === Number(sp.id)) return true;
       try {
         const s = typeof c.specifications === "string" ? JSON.parse(c.specifications || "{}") : (c.specifications || {});
@@ -1538,6 +1538,19 @@ export async function rebuildSupplierCatalog(opts?: {
         return false;
       }
     });
+
+      // Audit fix (M2): the supplier may have re-listed the same offering under a new
+      // id, in which case nothing matched above. Match by identity key so we UPDATE
+      // the existing row instead of creating a duplicate product.
+      if (!existing) {
+        const identityKey = buildDedupKey(String(sp.title || sp.name || ""));
+        existing = candidateRows.find((c) => {
+          try {
+            const cs = typeof c.specifications === "string" ? JSON.parse(c.specifications || "{}") : (c.specifications || {});
+            return cs.dedup_key === identityKey;
+          } catch { return false; }
+        });
+      }
 
     let existingSpecs: Record<string, any> = {};
     if (existing?.specifications) {
