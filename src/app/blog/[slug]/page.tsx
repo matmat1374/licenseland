@@ -49,6 +49,9 @@ export default async function ArticlePage({
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "Article",
+    image: [`${SITE.url}/og-default.png`],
+    mainEntityOfPage: { "@type": "WebPage", "@id": `${SITE.url}/blog/${article.slug}` },
+    dateModified: (article.updatedAt ?? article.createdAt).toISOString(),
     headline: article.title,
     description: article.excerpt,
     datePublished: article.createdAt.toISOString(),

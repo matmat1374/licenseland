@@ -1,0 +1,26 @@
+{
+  "name": "لایسنسو | خرید لایسنس و اشتراک اورجینال",
+  "short_name": "Liceno",
+  "description": "خرید آنی لایسنس و اشتراک اورجینال ChatGPT، Claude، Midjourney، CapCut و Adobe با گارانتی و تحویل فوری.",
+  "lang": "fa-IR",
+  "dir": "rtl",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#0a0f0d",
+  "theme_color": "#0a0f0d",
+  "icons": [
+    {
+      "src": "/brand/liceno-icon-avatar-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/brand/liceno-icon-avatar-1024.png",
+      "sizes": "1024x1024",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}

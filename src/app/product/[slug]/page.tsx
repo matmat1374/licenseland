@@ -139,6 +139,7 @@ export default async function ProductPage({
   const productLd: Record<string, unknown> = {
     "@context": "https://schema.org",
     "@type": "Product",
+    image: [resolveTorobImage(product, SITE.url)],
     name: product.title,
     description: product.shortDesc,
     sku: `LL-${product.slug.slice(0, 8).toUpperCase()}`,
@@ -147,8 +148,8 @@ export default async function ProductPage({
     url: canonical,
     offers: {
       "@type": "Offer",
-      price: finalPrice || 0,
-      priceCurrency: "IRT",
+      price: (finalPrice || 0) * 10,
+      priceCurrency: "IRR",
       priceValidUntil: new Date(
         Date.now() + 30 * 24 * 60 * 60 * 1000
       ).toISOString(),
