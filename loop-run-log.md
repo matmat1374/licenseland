@@ -20,3 +20,4 @@ Append one entry per run. Prune entries older than 30 days.
 ## Recent Runs
 
 <!-- Loop appends below this line -->
+{ "run_id":"2026-09-15T16:39:14.623Z", "iteration":1, "axes":["۱-۲۰"], "items_found":7, "fixes":0, "verifier":"pending", "evidence":["docs/loop/backlog-1.json","https://liceno.ir/"], "tokens_estimate":0, "outcome":"discovery-complete" }

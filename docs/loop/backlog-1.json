@@ -1,0 +1,36 @@
+{
+  "axes": {
+    "۷ سئو": {
+      "home_title": "لایسنو | مرجع خرید لایسنس و اشتراک‌های قانونی دیجیتال",
+      "canonical": true,
+      "jsonld": 4,
+      "product_meta": 4
+    },
+    "۸ سرعت": {
+      "home_html_kb": 325,
+      "scripts": 33,
+      "css_links": 2,
+      "preloads": 8
+    },
+    "۱۱ دسترس‌پذیری": {
+      "lang": true,
+      "dir": true,
+      "h1": 1,
+      "imgs_no_alt": 0
+    },
+    "۱۳ امنیت": {
+      "strict-transport-security": "max-age=15552000; includeSubDomains",
+      "x-frame-options": "DENY",
+      "x-content-type-options": "nosniff",
+      "content-security-policy": "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self'; frame-ancestors 'none'; object-src 'none'; base-uri 'self'; form-action 'self'",
+      "referrer-policy": "strict-origin-when-cross-origin"
+    },
+    "۷ سئو.robots": {
+      "sitemap": true
+    },
+    "۱۹ کاتالوگ": {
+      "sitemap_urls": 715,
+      "feed_items": 656
+    }
+  }
+}
