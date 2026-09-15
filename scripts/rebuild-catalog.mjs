@@ -584,10 +584,13 @@ async function main() {
       where: {
         OR: [
           { slug },
+          { slug: { startsWith: `${sp.id}-` } },
           { specifications: { contains: `"supplier_product_id":${sp.id}` } },
+          { specifications: { contains: `"supplier_product_id": ${sp.id}` } },
           { specifications: { contains: `"supplier_product_id":"${sp.id}"` } },
         ],
       },
+      orderBy: { createdAt: 'asc' },
     });
     if (existing) {
       await db.product.update({
@@ -595,6 +598,7 @@ async function main() {
         data: {
           title: finalTitle,
           shortDesc,
+          supplierId: sp.id ? Number(sp.id) : null,
           description: finalDescription,
           features: JSON.stringify(features),
           price: sellPriceToman,
@@ -621,6 +625,7 @@ async function main() {
           title: finalTitle,
           slug,
           shortDesc,
+          supplierId: sp.id ? Number(sp.id) : null,
           description: finalDescription,
           features: JSON.stringify(features),
           price: sellPriceToman,

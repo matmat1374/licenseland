@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Search, ShoppingCart, User, ShieldCheck, Menu, Folder } from "lucide-react";
+import { Home, ShoppingBag, ShoppingCart, User, ShieldCheck, Menu, Folder } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useCart } from "@/store/cart";
 import { useSession } from "next-auth/react";
@@ -10,6 +10,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/co
 import { CATEGORIES } from "@/lib/constants";
 import * as Icons from "lucide-react";
 import { useState } from "react";
+import { ThemeToggle } from "./theme-toggle";
 
 export function MobileMenu() {
   const pathname = usePathname();
@@ -21,7 +22,7 @@ export function MobileMenu() {
 
   const links = [
     { href: "/", label: "خانه", icon: Home },
-    { href: "/shop", label: "فروشگاه", icon: Search },
+    { href: "/shop", label: "فروشگاه", icon: ShoppingBag },
     { action: "menu", label: "دسته‌ها", icon: Menu },
     { href: "/cart", label: "سبد خرید", icon: ShoppingCart, badge: cartCount },
     { 
@@ -31,11 +32,13 @@ export function MobileMenu() {
     },
   ];
 
+  if (pathname?.startsWith("/admin")) return null;
+
   return (
     <>
       <div className="fixed bottom-0 left-0 right-0 z-50 md:hidden pb-safe">
         {/* Glassmorphism background */}
-        <div className="absolute inset-0 bg-background/90 backdrop-blur-xl border-t border-white/5 shadow-[0_-4px_20px_rgba(0,0,0,0.4)]"></div>
+        <div className="absolute inset-0 border-t border-border/80 bg-background/95 backdrop-blur-xl shadow-lg"></div>
         
         <nav className="relative flex items-center justify-around px-2 py-3">
           {links.map((link, idx) => {
@@ -45,7 +48,7 @@ export function MobileMenu() {
                   key={idx}
                   onClick={() => setIsOpen(true)}
                   className={cn(
-                    "relative flex flex-col items-center justify-center gap-1 w-14 h-12 transition-all duration-300 text-muted-foreground hover:text-foreground outline-none"
+                    "relative flex flex-col items-center justify-center gap-1 w-14 h-12 transition-all duration-300 text-foreground/70 hover:text-foreground outline-none"
                   )}
                 >
                   <link.icon className="h-5 w-5" strokeWidth={2} />
@@ -61,7 +64,7 @@ export function MobileMenu() {
                 href={link.href!}
                 className={cn(
                   "relative flex flex-col items-center justify-center gap-1 w-14 h-12 transition-all duration-300",
-                  isActive ? "text-primary" : "text-muted-foreground hover:text-foreground"
+                  isActive ? "text-primary" : "text-foreground/70 hover:text-foreground"
                 )}
               >
                 <div className="relative">
@@ -84,9 +87,13 @@ export function MobileMenu() {
       </div>
 
       <Sheet open={isOpen} onOpenChange={setIsOpen}>
-        <SheetContent side="right" className="w-[300px] p-0 border-white/10 glass bg-background/95 backdrop-blur-xl">
-          <SheetHeader className="p-6 text-right border-b border-white/5">
-            <SheetTitle className="text-xl font-black text-right">دسته‌بندی‌ها</SheetTitle>
+        <SheetContent side="right" className="w-[300px] p-0 border-border/80 bg-background/98 backdrop-blur-xl">
+          <SheetHeader className="p-4 px-6 flex flex-row items-center justify-between border-b border-border/40">
+            <SheetTitle className="text-lg font-black text-right">دسته‌بندی‌ها</SheetTitle>
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-muted-foreground">حالت شب/روز:</span>
+              <ThemeToggle />
+            </div>
           </SheetHeader>
           <div className="p-4 grid gap-2">
             {CATEGORIES.map((cat) => {

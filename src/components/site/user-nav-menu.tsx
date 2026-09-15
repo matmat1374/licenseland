@@ -131,25 +131,25 @@ export function UserNavMenu({ user, inAdmin = false }: UserNavMenuProps) {
           {/* Navigation Links */}
           <div className="space-y-0.5 text-xs sm:text-sm">
             {isAdmin && !inAdmin && (
-              <Link
+              <a
                 href="/admin"
                 onClick={() => setIsOpen(false)}
                 className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-primary font-bold hover:bg-primary/10 transition-colors"
               >
                 <ShieldCheck className="h-4 w-4 shrink-0 text-primary" />
                 <span>پنل مدیریت</span>
-              </Link>
+              </a>
             )}
 
             {inAdmin && (
-              <Link
+              <a
                 href="/"
                 onClick={() => setIsOpen(false)}
                 className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-foreground font-medium hover:bg-muted transition-colors"
               >
                 <Home className="h-4 w-4 shrink-0 text-muted-foreground" />
                 <span>مشاهده سایت</span>
-              </Link>
+              </a>
             )}
 
             <Link

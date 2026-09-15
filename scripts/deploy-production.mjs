@@ -3,7 +3,7 @@ import path from "path";
 import fs from "fs";
 
 const require = createRequire(import.meta.url);
-const { Client } = require("C:/Users/matin/.gemini/antigravity/brain/38ee4971-2ffe-435c-bfc1-7bad148df9e3/scratch/node_modules/ssh2");
+const { Client } = require("ssh2");
 
 const SERVER = {
   host: "109.122.254.151",
@@ -16,7 +16,7 @@ const localArchive = path.resolve("deploy_bundle.tar.gz");
 const remoteArchive = "/tmp/deploy_bundle.tar.gz";
 
 console.log("==================================================");
-console.log("  فاز ۵: استقرار پروژه و همگام‌سازی روی سرور لایو");
+console.log("  استقرار سیستم Gamification و CRM روی سرور لایو");
 console.log("==================================================");
 console.log(`Local archive: ${localArchive} (${(fs.statSync(localArchive).size / 1024).toFixed(1)} KB)`);
 
@@ -72,7 +72,11 @@ conn.on("ready", async () => {
       try {
         // Step 1: Extract bundle
         console.log("\n--- ۱. اکسترکت فایل‌های بروزرسانی شده ---");
-        await executeCommand(conn, `tar -xzf ${remoteArchive} -C /var/www/licenseland && ls -l /var/www/licenseland/scripts/rebuild-catalog.mjs`);
+        await executeCommand(conn, `tar -xzf ${remoteArchive} -C /var/www/licenseland`);
+
+        // Custom DB update
+        console.log("\n--- 1.5 اجرای آپدیت دیتابیس ---");
+        await executeCommand(conn, `cd /var/www/licenseland && node scripts/custom-update-db.mjs`);
 
         // Step 2: Prisma db push
         console.log("\n--- ۲. اجرای Prisma db push ---");
@@ -80,20 +84,20 @@ conn.on("ready", async () => {
 
         // Step 3: Next.js Build
         console.log("\n--- ۳. بیلد پروداکشن Next.js ---");
-        await executeCommand(conn, `cd /var/www/licenseland && NODE_OPTIONS="--max-old-space-size=1536" npm run build`);
+        await executeCommand(conn, `pkill -f "next build" || true`);
+        await executeCommand(conn, `cd /var/www/licenseland && rm -rf .next && NODE_OPTIONS="--max-old-space-size=1536" npm run build`);
 
         // Step 4: PM2 Reload
         console.log("\n--- ۴. بارگذاری مجدد سرویس در PM2 ---");
         await executeCommand(conn, `pm2 reload licenseland && sleep 3 && pm2 status licenseland`);
 
-        // Step 5: Clean Catalog Rebuild
-        console.log("\n--- ۵. اجرای بازسازی تمیز کاتالوگ در دیتابیس لایو ---");
-        await executeCommand(conn, `cd /var/www/licenseland && node scripts/rebuild-catalog.mjs`);
-
-        // Step 6: Verification
-        console.log("\n--- ۶. اعتبارسنجی سلامت صفحات وب‌سایت ---");
+        // Step 5: Verification
+        console.log("\n--- ۵. اعتبارسنجی سلامت صفحات وب‌سایت ---");
         await executeCommand(conn, `curl -s -I http://127.0.0.1:3000/`);
-        await executeCommand(conn, `curl -s -I https://liceno.ir/ && curl -s -I https://liceno.ir/shop`);
+        await executeCommand(conn, `curl -s -I http://127.0.0.1:3000/dashboard`);
+        await executeCommand(conn, `curl -s -I http://127.0.0.1:3000/checkout`);
+        await executeCommand(conn, `curl -s -I http://127.0.0.1:3000/admin/users`);
+        await executeCommand(conn, `curl -s -I https://liceno.ir/`);
 
         console.log("\n==================================================");
         console.log("  ✓ تمام مراحل با موفقیت به پایان رسید!");

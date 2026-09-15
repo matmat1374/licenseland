@@ -24,6 +24,7 @@ import {
   FolderTree,
   Activity,
   Bug,
+  Instagram,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -45,6 +46,7 @@ const NAV = [
   { href: "/admin/content", label: "مدیریت محتوا", icon: FileEdit },
   { href: "/admin/articles", label: "مقالات وبلاگ", icon: FileText },
   { href: "/admin/discounts", label: "کدهای تخفیف", icon: BadgePercent },
+  { href: "/admin/instagram", label: "اینستاگرام", icon: Instagram },
   { href: "/admin/logs", label: "لاگ‌ها و مانیتورینگ", icon: Activity },
   { href: "/admin/debug", label: "خطایابی و وضعیت", icon: Bug },
   { href: "/admin/setup", label: "راه‌اندازی اولیه", icon: Rocket },
@@ -119,9 +121,9 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
             variant="ghost"
             className="w-full justify-start gap-2 text-muted-foreground"
           >
-            <Link href="/">
+            <a href="/">
               <Home className="h-4 w-4" /> بازگشت به سایت
-            </Link>
+            </a>
           </Button>
         </div>
       </aside>
@@ -150,9 +152,9 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
                     variant="ghost"
                     className="w-full justify-start gap-2 text-muted-foreground"
                   >
-                    <Link href="/" onClick={() => setOpen(false)}>
+                    <a href="/" onClick={() => setOpen(false)}>
                       <Home className="h-4 w-4" /> بازگشت به سایت
-                    </Link>
+                    </a>
                   </Button>
                 </div>
               </div>
@@ -175,9 +177,9 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
 
           <div className="mr-auto flex items-center gap-1 lg:mr-0">
             <Button asChild variant="ghost" size="icon" aria-label="بازگشت به سایت">
-              <Link href="/">
+              <a href="/">
                 <Home className="h-5 w-5" />
-              </Link>
+              </a>
             </Button>
             <ThemeToggle />
             <UserMenu />

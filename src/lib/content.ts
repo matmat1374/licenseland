@@ -27,97 +27,29 @@ export interface HeroSlideItem {
 
 export const DEFAULT_HERO_SLIDES: HeroSlideItem[] = [
   {
-    id: "slide-claude-pro",
+    id: "slide-gemini-18m",
     active: true,
-    badge: "🔥 پرچمدار هوش مصنوعی ۲۰۲۵",
-    badgeColor: "purple",
-    titleLine1: "اشتراک اختصاصی Claude Pro",
-    titleLine2: "دسترسی نامحدود به Claude 3.7 Sonnet",
-    description: "قدرتمندترین مدل استدلال و کدنویسی جهان با پنجره کانتکست ۲۰۰K توکن، سرعت بی‌نظیر و فعال‌سازی روی ایمیل شخصی شما.",
-    originalPrice: 1650000,
-    salePrice: 1190000,
-    discountPercent: 28,
-    features: [
-      "تحویل فوری زیر ۳ دقیقه",
-      "فعال‌سازی ۱۰۰٪ قانونی روی اکانت شخصی",
-      "ضمانت کامل کارکرد تا روز آخر اشتراک",
-    ],
-    urgencyText: "تنها ۴ اکانت با تخفیف این دوره باقی‌مانده است",
-    ctaText: "خرید اشتراک Claude Pro",
-    ctaLink: "/product/claude-pro-1-month",
-    secondaryCtaText: "بررسی مشخصات",
-    secondaryCtaLink: "/product/claude-pro-1-month",
-    productSlug: "claude-pro-1-month",
-  },
-  {
-    id: "slide-chatgpt-plus",
-    active: true,
-    badge: "⚡ پیشنهاد شگفت‌انگیز و پرفروش",
-    badgeColor: "emerald",
-    titleLine1: "اکانت رسمی ChatGPT Plus",
-    titleLine2: "مجهز به آخرین موتورهای GPT-4o و o3-mini",
-    description: "تولید نامحدود عکس DALL-E 3، کد پایتون پیشرفته، جستجوی زنده وب، تحلیل فایل‌های سنگین و بدون قطعی در اوج مصرف.",
-    originalPrice: 1580000,
-    salePrice: 1150000,
-    discountPercent: 27,
-    features: [
-      "تحویل آنی و خودکار بلافاصله پس از پرداخت",
-      "پایداری ۱۰۰٪ بدون خطر بن شدن اکانت",
-      "پشتیبانی فنی و سریع ۲۴/۷ لایسنو",
-    ],
-    urgencyText: "تخفیف ویژه جشنواره — انقضا تا ۲۴ ساعت آینده",
-    ctaText: "دریافت ChatGPT Plus",
-    ctaLink: "/product/chatgpt-plus-1-month",
-    secondaryCtaText: "مشاهده پلن‌ها",
-    secondaryCtaLink: "/product/chatgpt-plus-1-month",
-    productSlug: "chatgpt-plus-1-month",
-  },
-  {
-    id: "slide-cursor-pro",
-    active: true,
-    badge: "💻 دستیار شماره ۱ برنامه‌نویسان",
-    badgeColor: "cyan",
-    titleLine1: "اشتراک حرفه‌ای Cursor AI Pro",
-    titleLine2: "کدنویسی ۱۰ برابر سریع‌تر با ادیتور هوشمند",
-    description: "ادیتور انقلابی بر پایه VS Code با ۵۰۰ درخواست فست ماهانه Claude 3.7 و GPT-4o برای تسلط کامل روی کل پروژه و ریپازیتوری شما.",
-    originalPrice: 1450000,
-    salePrice: 980000,
-    discountPercent: 32,
-    features: [
-      "۵۰۰ درخواست Fast و نامحدود استاندارد",
-      "تحلیل جامع ساختار پروژه و Codebase",
-      "گارانتی تعویض و بازگشت وجه کامل",
-    ],
-    urgencyText: "ظرفیت محدود — تنها ۳ لایسنس با این قیمت",
-    ctaText: "ارتقا به Cursor Pro",
-    ctaLink: "/shop?cat=ai",
-    secondaryCtaText: "کاتالوگ هوش مصنوعی",
-    secondaryCtaLink: "/shop?cat=ai",
-    productSlug: "cursor-ai-pro",
-  },
-  {
-    id: "slide-midjourney-standard",
-    active: true,
-    badge: "🎨 برترین ابزار خلق تصاویر واقع‌گرایانه",
+    badge: "پیشنهاد ویژه / اکانت هوش مصنوعی / رسمی و قانونی",
     badgeColor: "amber",
-    titleLine1: "اکانت اوریجینال Midjourney",
-    titleLine2: "تولید تصویر نامحدود با موتور v6.1",
-    description: "بهترین موتور هوش مصنوعی فوتورئالیستی دنیا برای طراحان و هنرمندان دیجیتال؛ با ۱۵ ساعت رندر پرسرعت ماهانه و لایسنس تجاری کامل.",
-    originalPrice: 1850000,
-    salePrice: 1350000,
-    discountPercent: 27,
+    titleLine1: "اشتراک ۱۸ ماهه Google One و Gemini Advanced (1.5 Pro)",
+    titleLine2: "",
+    description: "",
+    originalPrice: 1750000,
+    salePrice: 892000,
+    discountPercent: 49,
     features: [
-      "حالت محرمانه Stealth Mode بدون نمایش عمومی",
-      "دسترسی سریع به سرورهای Fast Hours",
-      "پشتیبانی فنی و آموزش اختصاصی لایسنو",
+      "۵ ترابایت حافظه ابری Drive و Google Photos",
+      "فعال‌سازی روی ایمیل شخصی کاربر بدون نیاز به رمز عبور",
+      "دسترسی به برترین مدل‌های Gemini",
+      "گارانتی تعویض ۱۸ ماهه کامل، تحویل آنی"
     ],
-    urgencyText: "پیشنهاد اختصاصی کاربران جدید — زمان محدود",
-    ctaText: "خرید اکانت Midjourney",
-    ctaLink: "/product/midjourney-monthly",
-    secondaryCtaText: "مشاهده جزئیات",
-    secondaryCtaLink: "/product/midjourney-monthly",
-    productSlug: "midjourney-monthly",
-  },
+    urgencyText: "تخفیف ویژه جشنواره — تحویل آنی خودکار زیر ۵ دقیقه",
+    ctaText: "خرید اشتراک ۱۸ ماهه",
+    ctaLink: "/product/364-gemini-ai-pro-۱۸-ماهه",
+    secondaryCtaText: "بررسی مشخصات و خرید",
+    secondaryCtaLink: "/product/364-gemini-ai-pro-۱۸-ماهه",
+    productSlug: "364-gemini-ai-pro-۱۸-ماهه",
+  }
 ];
 
 // Default content (used on first run, before admin edits anything)
@@ -154,22 +86,22 @@ export const DEFAULT_CONTENT: Record<string, string> = {
   banner1_badge: "⚡ دسترسی سریع و قانونی",
   banner1_title_line1: "مجموعه برگزیده",
   banner1_title_line2: "هوش مصنوعی",
-  banner1_discount: "پیشنهاد ویژه",
-  banner1_description: "اشتراک قانونی برترین هوش‌های مصنوعی جهان (ChatGPT، Claude، Cursor) با فعالسازی آنی.",
-  banner1_features: "Claude 3.7 Sonnet & Opus, ChatGPT Plus (GPT-4o), Midjourney Pro",
+  banner1_discount: "🔥 پرطرفدار",
+  banner1_description: "اشتراک قانونی برترین هوش‌های مصنوعی جهان (Gemini، Claude، Cursor) با فعالسازی آنی و گارانتی.",
+  banner1_features: "Google Gemini Advanced, Claude 3.7 Sonnet, Cursor AI Pro",
   banner1_button_text: "مشاهده همه سرویس‌های هوش مصنوعی",
   banner1_link: "/shop?cat=ai",
-  banner1_product_ids: "",
+  banner1_product_ids: "364-gemini-ai-pro-۱۸-ماهه,2992-claude-pro-۱-ماهه,3062-cursor-pro-۱-ماهه",
 
-  banner2_badge: "💎 ابزارهای حرفه‌ای",
-  banner2_title_line1: "استودیو تخصصی",
-  banner2_title_line2: "طراحی و کدنویسی",
-  banner2_discount: "ویژه خلاقان",
-  banner2_description: "سرویس‌های اوریجینال برای گرافیست‌ها و برنامه‌نویسان با لایسنس رسمی و پشتیبانی مداوم.",
-  banner2_features: "Cursor AI Pro, GitHub Copilot, Canva Pro / Adobe CC",
-  banner2_button_text: "مشاهده همه ابزارهای طراحی و توسعه",
-  banner2_link: "/shop?cat=design",
-  banner2_product_ids: "",
+  banner2_badge: "💎 اقتصادی و کاربردی",
+  banner2_title_line1: "اشتراک‌های محبوب",
+  banner2_title_line2: "زیر ۵۰۰ هزار تومان",
+  banner2_discount: "ارزش خرید بالا",
+  banner2_description: "سرویس‌های اوریجینال اسپاتیفای، تلگرام استارز و کپکات با قیمت به‌صرفه و تحویل آنی.",
+  banner2_features: "Spotify Premium, Telegram Stars, CapCut Pro VIP",
+  banner2_button_text: "مشاهده همه محصولات اقتصادی",
+  banner2_link: "/shop",
+  banner2_product_ids: "3117-spotify-premium-۳-ماهه,708-50-telegram-stars,1548-capcut-pro-7-d-comes-with",
 };
 
 // Returns a map of all content keys from DB merged with defaults.
@@ -199,20 +131,36 @@ export async function getContentValue(key: string): Promise<string> {
   return DEFAULT_CONTENT[key] || "";
 }
 
-// Get Hero Campaign Slides parsed from DB or return defaults
 export async function getHeroSlides(): Promise<HeroSlideItem[]> {
+  const slides = [...DEFAULT_HERO_SLIDES];
+  
   try {
-    const row = await db.siteContent.findUnique({ where: { key: "hero_campaign_slides" } });
-    if (row?.value) {
-      const parsed = JSON.parse(row.value);
-      if (Array.isArray(parsed) && parsed.length > 0) {
-        return parsed;
-      }
+    const gemini = await db.product.findFirst({
+      where: {
+        OR: [
+          { specifications: { contains: '"supplier_product_id":364' } },
+          { specifications: { contains: '"supplier_product_id": 364' } },
+          { slug: { startsWith: "364-" } },
+        ],
+      },
+    });
+
+    if (gemini && gemini.price > 0) {
+      const originalPrice = Math.ceil((gemini.price * 1.5) / 10000) * 10000;
+      const discountPercent = Math.round(((originalPrice - gemini.price) / originalPrice) * 100);
+
+      slides[0].salePrice = gemini.price;
+      slides[0].originalPrice = originalPrice;
+      slides[0].discountPercent = discountPercent;
+      slides[0].ctaLink = `/product/${gemini.slug}`;
+      slides[0].secondaryCtaLink = `/product/${gemini.slug}`;
+      slides[0].productSlug = gemini.slug;
     }
   } catch (err) {
-    console.error("Failed to parse hero_campaign_slides from DB:", err);
+    console.error("Failed to fetch gemini product for hero slide:", err);
   }
-  return DEFAULT_HERO_SLIDES;
+
+  return slides;
 }
 
 // Define which keys are supported and their labels/descriptions for the admin UI
@@ -259,23 +207,23 @@ export const CONTENT_FIELDS: {
   },
 
   // Promo Banners
-  { key: "banner1_badge", label: "بج بنر ۱", group: "بنرهای تبلیغاتی بنتو (Promo Banners)", placeholder: "⚡ تحویل زیر ۵ دقیقه" },
-  { key: "banner1_title_line1", label: "عنوان خط ۱ بنر ۱", group: "بنرهای تبلیغاتی بنتو (Promo Banners)", placeholder: "پکیج سلطنتی" },
+  { key: "banner1_badge", label: "بج بنر ۱", group: "بنرهای تبلیغاتی بنتو (Promo Banners)", placeholder: "⚡ دسترسی سریع و قانونی" },
+  { key: "banner1_title_line1", label: "عنوان خط ۱ بنر ۱", group: "بنرهای تبلیغاتی بنتو (Promo Banners)", placeholder: "مجموعه برگزیده" },
   { key: "banner1_title_line2", label: "عنوان خط ۲ بنر ۱", group: "بنرهای تبلیغاتی بنتو (Promo Banners)", placeholder: "هوش مصنوعی" },
-  { key: "banner1_discount", label: "تخفیف بنر ۱", group: "بنرهای تبلیغاتی بنتو (Promo Banners)", placeholder: "-۴۰٪" },
-  { key: "banner1_description", label: "توضیحات بنر ۱", type: "textarea", group: "بنرهای تبلیغاتی بنتو (Promo Banners)", placeholder: "قدرتمندترین مدلهای زبانی جهان..." },
-  { key: "banner1_features", label: "ویژگی‌های بنر ۱ (با کاما جدا کنید)", type: "textarea", group: "بنرهای تبلیغاتی بنتو (Promo Banners)", placeholder: "Claude 3.7 Sonnet & Opus, ChatGPT Plus (GPT-4o), Midjourney Pro" },
-  { key: "banner1_button_text", label: "متن دکمه بنر ۱", group: "بنرهای تبلیغاتی بنتو (Promo Banners)", placeholder: "خرید سریع پکیج" },
+  { key: "banner1_discount", label: "تخفیف بنر ۱", group: "بنرهای تبلیغاتی بنتو (Promo Banners)", placeholder: "🔥 پرطرفدار" },
+  { key: "banner1_description", label: "توضیحات بنر ۱", type: "textarea", group: "بنرهای تبلیغاتی بنتو (Promo Banners)", placeholder: "اشتراک قانونی برترین هوش‌های مصنوعی جهان..." },
+  { key: "banner1_features", label: "ویژگی‌های بنر ۱ (با کاما جدا کنید)", type: "textarea", group: "بنرهای تبلیغاتی بنتو (Promo Banners)", placeholder: "Google Gemini, Claude Pro, Cursor Pro" },
+  { key: "banner1_button_text", label: "متن دکمه بنر ۱", group: "بنرهای تبلیغاتی بنتو (Promo Banners)", placeholder: "مشاهده همه سرویس‌های هوش مصنوعی" },
   { key: "banner1_link", label: "لینک دکمه بنر ۱", group: "بنرهای تبلیغاتی بنتو (Promo Banners)", placeholder: "/shop?cat=ai" },
-  { key: "banner1_product_ids", label: "محصولات بنر ۱ (شناسه یا اسلاگ، با کاما جدا شود)", group: "بنرهای تبلیغاتی بنتو (Promo Banners)", placeholder: "chatgpt-plus,midjourney-pro" },
+  { key: "banner1_product_ids", label: "محصولات بنر ۱ (شناسه یا اسلاگ، با کاما جدا شود)", group: "بنرهای تبلیغاتی بنتو (Promo Banners)", placeholder: "364-gemini-ai-pro-۱۸-ماهه,2992-claude-pro-۱-ماهه,3062-cursor-pro-۱-ماهه" },
 
-  { key: "banner2_badge", label: "بج بنر ۲", group: "بنرهای تبلیغاتی بنتو (Promo Banners)", placeholder: "💎 لایسنس ۱۰۰٪ قانونی" },
-  { key: "banner2_title_line1", label: "عنوان خط ۱ بنر ۲", group: "بنرهای تبلیغاتی بنتو (Promo Banners)", placeholder: "کیت تخصصی" },
-  { key: "banner2_title_line2", label: "عنوان خط ۲ بنر ۲", group: "بنرهای تبلیغاتی بنتو (Promo Banners)", placeholder: "دولوپر و طراح" },
-  { key: "banner2_discount", label: "تخفیف بنر ۲", group: "بنرهای تبلیغاتی بنتو (Promo Banners)", placeholder: "ویژه" },
-  { key: "banner2_description", label: "توضیحات بنر ۲", type: "textarea", group: "بنرهای تبلیغاتی بنتو (Promo Banners)", placeholder: "ابزارهای حرفه‌ای برای کدنویسی..." },
-  { key: "banner2_features", label: "ویژگی‌های بنر ۲ (با کاما جدا کنید)", type: "textarea", group: "بنرهای تبلیغاتی بنتو (Promo Banners)", placeholder: "Cursor AI Pro, GitHub Copilot, Canva Pro / Adobe CC" },
-  { key: "banner2_button_text", label: "متن دکمه بنر ۲", group: "بنرهای تبلیغاتی بنتو (Promo Banners)", placeholder: "ورود به بخش برنامه‌نویسی" },
-  { key: "banner2_link", label: "لینک دکمه بنر ۲", group: "بنرهای تبلیغاتی بنتو (Promo Banners)", placeholder: "/shop?cat=developer" },
-  { key: "banner2_product_ids", label: "محصولات بنر ۲ (شناسه یا اسلاگ، با کاما جدا شود)", group: "بنرهای تبلیغاتی بنتو (Promo Banners)", placeholder: "github-copilot,cursor-ai" },
+  { key: "banner2_badge", label: "بج بنر ۲", group: "بنرهای تبلیغاتی بنتو (Promo Banners)", placeholder: "💎 اقتصادی و کاربردی" },
+  { key: "banner2_title_line1", label: "عنوان خط ۱ بنر ۲", group: "بنرهای تبلیغاتی بنتو (Promo Banners)", placeholder: "اشتراک‌های محبوب" },
+  { key: "banner2_title_line2", label: "عنوان خط ۲ بنر ۲", group: "بنرهای تبلیغاتی بنتو (Promo Banners)", placeholder: "زیر ۵۰۰ هزار تومان" },
+  { key: "banner2_discount", label: "تخفیف بنر ۲", group: "بنرهای تبلیغاتی بنتو (Promo Banners)", placeholder: "ارزش خرید بالا" },
+  { key: "banner2_description", label: "توضیحات بنر ۲", type: "textarea", group: "بنرهای تبلیغاتی بنتو (Promo Banners)", placeholder: "سرویس‌های اوریجینال اسپاتیفای، تلگرام استارز و کپکات..." },
+  { key: "banner2_features", label: "ویژگی‌های بنر ۲ (با کاما جدا کنید)", type: "textarea", group: "بنرهای تبلیغاتی بنتو (Promo Banners)", placeholder: "Spotify, Telegram Stars, CapCut Pro" },
+  { key: "banner2_button_text", label: "متن دکمه بنر ۲", group: "بنرهای تبلیغاتی بنتو (Promo Banners)", placeholder: "مشاهده همه محصولات اقتصادی" },
+  { key: "banner2_link", label: "لینک دکمه بنر ۲", group: "بنرهای تبلیغاتی بنتو (Promo Banners)", placeholder: "/shop" },
+  { key: "banner2_product_ids", label: "محصولات بنر ۲ (شناسه یا اسلاگ، با کاما جدا شود)", group: "بنرهای تبلیغاتی بنتو (Promo Banners)", placeholder: "3117-spotify-premium-۳-ماهه,708-50-telegram-stars,1548-capcut-pro-7-d-comes-with" },
 ];

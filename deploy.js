@@ -1,35 +1,56 @@
-﻿const { Client } = require('ssh2');
-const conn = new Client();
-const config = { host: '109.122.254.151', port: 22, username: 'root', password: 'Licenseland@2026!', keepaliveInterval: 10000 };
+const { Client } = require('ssh2');
+const fs = require('fs');
 
-const commands = [
-  "cd /var/www/licenseland && git pull origin main",
-  "cd /var/www/licenseland && node setup-admin.js",
-  "cd /var/www/licenseland && node remove-vpn.js",
-  "cd /var/www/licenseland && if grep -q '^MELIPAYAMAK_API_KEY=' .env; then sed -i 's|^MELIPAYAMAK_API_KEY=.*|MELIPAYAMAK_API_KEY=38229d9d-6c72-40c6-8d87-2e95dc39cdf1|' .env; else echo 'MELIPAYAMAK_API_KEY=38229d9d-6c72-40c6-8d87-2e95dc39cdf1' >> .env; fi",
-  "cd /var/www/licenseland && npm run build",
-  "cd /var/www/licenseland && pm2 reload licenseland || pm2 restart all"
+const conn = new Client();
+const config = {
+  host: '109.122.254.151',
+  port: 22,
+  username: 'root',
+  password: 'Licenseland@2026!'
+};
+
+const files = [
+  'src/lib/constants.ts',
+  'src/components/site/unified-trust-section.tsx',
+  'src/app/contact/page.tsx'
 ];
 
 conn.on('ready', () => {
-  console.log('SSH Client :: ready');
-  let currentCmd = 0;
-  function runNext() {
-    if (currentCmd >= commands.length) {
-      console.log('All commands executed successfully.');
-      conn.end();
-      return;
+  console.log('Client :: ready');
+  conn.sftp((err, sftp) => {
+    if (err) throw err;
+    let index = 0;
+    
+    function uploadNext() {
+      if (index >= files.length) {
+        console.log('All files uploaded. Running build command...');
+        conn.exec('cd /var/www/licenseland && NODE_OPTIONS=--max-old-space-size=1536 npm run build && pm2 reload licenseland', (err, stream) => {
+          if (err) throw err;
+          stream.on('close', (code, signal) => {
+            console.log('Stream :: close :: code: ' + code + ', signal: ' + signal);
+            conn.end();
+          }).on('data', (data) => {
+            console.log('STDOUT: ' + data);
+          }).stderr.on('data', (data) => {
+            console.error('STDERR: ' + data);
+          });
+        });
+        return;
+      }
+      
+      const file = files[index];
+      console.log('Uploading: ' + file);
+      const localFile = __dirname + '/' + file;
+      const remoteFile = '/var/www/licenseland/' + file;
+      
+      sftp.fastPut(localFile, remoteFile, (err) => {
+        if (err) throw err;
+        console.log('Uploaded: ' + file);
+        index++;
+        uploadNext();
+      });
     }
-    const cmd = commands[currentCmd];
-    console.log('Executing:', cmd);
-    conn.exec(cmd, { pty: true }, (err, stream) => {
-      if (err) throw err;
-      stream.on('close', (code, signal) => {
-        console.log('Completed with code ' + code);
-        currentCmd++;
-        runNext();
-      }).on('data', (data) => process.stdout.write(data)).stderr.on('data', (data) => process.stderr.write(data));
-    });
-  }
-  runNext();
+    
+    uploadNext();
+  });
 }).connect(config);

@@ -86,7 +86,7 @@ export async function repriceAllProductsWithLiveRate() {
       ? Number(specs.custom_markup)
       : (specs.markup_percent !== undefined && specs.markup_percent !== null && specs.markup_percent !== "")
       ? Number(specs.markup_percent)
-      : (globalMarkup !== null && !isNaN(globalMarkup) && globalMarkup > 0 ? globalMarkup : null);
+      : null;
 
     const { sellPriceToman: finalPrice } = calculateSellPrice(
       priceUsd,

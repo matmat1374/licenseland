@@ -6,6 +6,7 @@ import { SiteHeader } from "@/components/site/header";
 import { SiteFooter } from "@/components/site/footer";
 import { CartDrawer } from "@/components/site/cart-drawer";
 import { AiAdvisor } from "@/components/site/ai-advisor";
+import { MobileMenu } from "@/components/site/mobile-menu";
 import { SITE } from "@/lib/constants";
 import { Toaster } from "sonner";
 
@@ -107,6 +108,24 @@ export default function RootLayout({
   return (
     <html lang="fa" dir="rtl" suppressHydrationWarning>
       <head>
+        {/* Google Analytics (gtag.js) */}
+        <script
+          async
+          src="https://www.googletagmanager.com/gtag/js?id=G-2N32NMVZV5"
+        />
+        <script
+          id="google-analytics"
+          dangerouslySetInnerHTML={{
+            __html: `
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              gtag('js', new Date());
+              gtag('config', 'G-2N32NMVZV5', {
+                page_path: window.location.pathname,
+              });
+            `,
+          }}
+        />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(orgSchema) }}
@@ -123,6 +142,7 @@ export default function RootLayout({
           <SiteHeader />
           <main className="flex-1 flex flex-col pb-24 md:pb-0">{children}</main>
           <SiteFooter />
+          <MobileMenu />
           <AiAdvisor />
           <CartDrawer />
           <SocialProofToast />

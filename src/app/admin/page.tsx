@@ -20,6 +20,8 @@ import { toFa, formatJalaliDate } from "@/lib/date";
 import { RevenueChart } from "@/components/admin/revenue-chart";
 
 export const metadata = { title: "داشبورد مدیریت" };
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 const STATUS_MAP: Record<
   string,
@@ -150,32 +152,43 @@ async function computeKpis() {
 async function getLast7Days(): Promise<DayPoint[]> {
   const now = new Date();
   const weekdayNames = [
-    "یکشنبه",
-    "دوشنبه",
-    "سه‌شنبه",
-    "چهارشنبه",
-    "پنجشنبه",
-    "جمعه",
-    "شنبه",
+    "یکشنبه", "دوشنبه", "سه‌شنبه", "چهارشنبه", "پنجشنبه", "جمعه", "شنبه",
   ];
   const days: DayPoint[] = [];
+  const startTimes: number[] = [];
+
+  const startOfToday = new Date(now);
+  startOfToday.setHours(0, 0, 0, 0);
+
   for (let i = 6; i >= 0; i--) {
     const d = new Date(now);
     d.setHours(0, 0, 0, 0);
     d.setDate(d.getDate() - i);
-    const next = new Date(d);
-    next.setDate(next.getDate() + 1);
-    const dayOrders = await db.order.findMany({
-      where: { status: "PAID", paidAt: { gte: d, lt: next } },
-      select: { total: true },
-    });
-    const dayRevenue = dayOrders.reduce((s, o) => s + o.total, 0);
-    days.push({
-      label: weekdayNames[d.getDay()],
-      revenue: dayRevenue,
-      count: dayOrders.length,
-    });
+    startTimes.push(d.getTime());
+    days.push({ label: weekdayNames[d.getDay()], revenue: 0, count: 0 });
   }
+
+  const sevenDaysAgo = new Date(startTimes[0]);
+
+  const orders = await db.order.findMany({
+    where: { status: "PAID", paidAt: { gte: sevenDaysAgo } },
+    select: { total: true, paidAt: true },
+  });
+
+  for (const o of orders) {
+    if (!o.paidAt) continue;
+    const paidTime = o.paidAt.getTime();
+    for (let i = 0; i < startTimes.length; i++) {
+      const dayStart = startTimes[i];
+      const nextDayStart = i < startTimes.length - 1 ? startTimes[i + 1] : startOfToday.getTime() + 86400000;
+      if (paidTime >= dayStart && paidTime < nextDayStart) {
+        days[i].revenue += o.total;
+        days[i].count += 1;
+        break;
+      }
+    }
+  }
+
   return days;
 }
 

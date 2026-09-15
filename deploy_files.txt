@@ -44,3 +44,14 @@ src/lib/pricing-calculator.ts
 public/enamad.png
 public/enamad.svg
 public/images/enamad.png
+src/lib/loyalty.ts
+src/components/site/loyalty-card.tsx
+src/components/site/badge-grid.tsx
+src/components/site/point-history.tsx
+src/app/api/profile/loyalty/route.ts
+src/app/api/checkout/create/route.ts
+src/app/api/admin/users/route.ts
+src/app/api/admin/users/[id]/points/route.ts
+src/app/admin/users/page.tsx
+src/app/admin/products/page.tsx
+src/app/api/cron/sync-products/route.ts

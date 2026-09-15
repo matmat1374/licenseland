@@ -7,10 +7,10 @@ ssh.connect({
   password: 'Licenseland@2026!'
 }).then(() => {
   console.log('Connected to server!');
-  return ssh.execCommand('git pull origin main && export NODE_OPTIONS=--max-old-space-size=1536 && npm run build && pm2 reload licenseland', { cwd: '/var/www/licenseland' });
+  return ssh.execCommand('git fetch origin && git clean -fd && git reset --hard origin/main && export NODE_OPTIONS=--max-old-space-size=1536 && npm run build && pm2 reload licenseland && node scripts/check-364.js && node scripts/verify-all-links.mjs', { cwd: '/var/www/licenseland' });
 }).then((result) => {
-  console.log('STDOUT: ' + result.stdout);
-  console.log('STDERR: ' + result.stderr);
+  console.log('STDOUT:\n' + result.stdout);
+  if (result.stderr) console.log('STDERR:\n' + result.stderr);
   ssh.dispose();
 }).catch((err) => {
   console.error('Error:', err);

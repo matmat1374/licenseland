@@ -9,12 +9,13 @@ import { ProductManager } from "@/components/admin/product-manager";
 import { AdminProductsTable } from "@/components/admin/admin-products-table";
 import { SupplierSyncCard } from "@/components/admin/supplier-sync-card";
 import { getUsdToTomanRate } from "@/lib/supplier";
+import { calculateSellPrice, loadPricingTiers } from "@/lib/pricing-calculator";
 
 export const metadata = { title: "مدیریت محصولات" };
 export const dynamic = "force-dynamic";
 
 export default async function AdminProductsPage() {
-  const [products, categories, activeUsdRate, lastSyncSetting, syncIntervalSetting, globalMarkupSetting] = await Promise.all([
+  const [products, categories, activeUsdRate, lastSyncSetting, syncIntervalSetting, globalMarkupSetting, pricingTiers] = await Promise.all([
     db.product.findMany({
       orderBy: { createdAt: "desc" },
       select: {
@@ -40,6 +41,7 @@ export default async function AdminProductsPage() {
     db.setting.findUnique({ where: { key: "last_full_sync_at" } }),
     db.setting.findUnique({ where: { key: "supplier_sync_interval" } }),
     db.setting.findUnique({ where: { key: "supplier_markup_percent" } }),
+    loadPricingTiers(),
   ]);
 
   const catMap = new Map(categories.map((c) => [c.slug, c.name]));
@@ -49,7 +51,7 @@ export default async function AdminProductsPage() {
 
   const serializable = products.map((p) => {
     let costUsd: number | null = null;
-    let markupPercent = 20;
+    let customMarkup: number | null = null;
     let torobUrl: string | null = null;
     if (p.specifications) {
       try {
@@ -58,27 +60,21 @@ export default async function AdminProductsPage() {
         else if (spec.cost_usd) costUsd = parseFloat(spec.cost_usd);
         
         if (spec.custom_markup !== undefined && spec.custom_markup !== null && spec.custom_markup !== "") {
-          markupPercent = parseFloat(spec.custom_markup);
-        } else if (globalMarkup !== null && !isNaN(globalMarkup)) {
-          markupPercent = globalMarkup;
-        } else if (costUsd) {
-          if (costUsd < 10) markupPercent = 50;
-          else if (costUsd <= 20) markupPercent = 30;
-          else markupPercent = 20;
+          customMarkup = parseFloat(spec.custom_markup);
         }
 
         if (spec.torob_url) torobUrl = spec.torob_url;
       } catch (e) {}
     }
+
     if (!costUsd || isNaN(costUsd)) {
       const rate = activeUsdRate > 1000 ? activeUsdRate : 220000;
-      const marginMultiplier = 1 + (markupPercent / 100);
-      costUsd = parseFloat(((p.price / rate) / marginMultiplier).toFixed(2));
-      if (costUsd <= 0) costUsd = parseFloat((p.price / rate).toFixed(2));
+      costUsd = parseFloat((p.price / rate).toFixed(2));
     }
 
-    const rawCost = Math.round(costUsd * activeUsdRate);
-    const profitAmount = Math.ceil((rawCost * (markupPercent / 100)) / 1000) * 1000;
+    const { markupPercent: tierMarkup, costToman: rawCost } = calculateSellPrice(costUsd, activeUsdRate, customMarkup, pricingTiers);
+    const profitAmount = Math.max(0, p.price - rawCost);
+    const actualMarkupPercent = rawCost > 0 ? Math.round(((p.price - rawCost) / rawCost) * 100) : tierMarkup;
 
     return {
       id: p.id,
@@ -97,7 +93,7 @@ export default async function AdminProductsPage() {
       createdAt: p.createdAt.toISOString(),
       lastSyncedAt: p.lastSyncedAt?.toISOString() ?? null,
       costUsd,
-      markupPercent,
+      markupPercent: actualMarkupPercent,
       rawCost,
       profitAmount,
       torobUrl,

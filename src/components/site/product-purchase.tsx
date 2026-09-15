@@ -19,7 +19,7 @@ export function ProductPurchase({ product }: { product: ProductListItem }) {
 
   const discount = calcDiscountPercent(product.price, product.discountPrice);
   const price = product.discountPrice ?? product.price;
-  const inStock = product._stock > 0;
+  const inStock = Boolean(product.isActive) && (product.stock ?? 0) > 0 && (product._stock ?? 0) > 0;
 
   function handleAdd() {
     if (!inStock) return toast.error("این محصول فعلاً ناموجود است");

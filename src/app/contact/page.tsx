@@ -41,7 +41,7 @@ export default function ContactPage() {
               { icon: Phone, label: "موبایل و واتساپ", value: SITE.mobile, href: `tel:${SITE.mobile}`, ltr: true },
               { icon: Mail, label: "ایمیل پشتیبانی", value: SITE.email, href: `mailto:${SITE.email}`, ltr: true },
               { icon: MapPin, label: "دفتر مرکزی", value: SITE.address },
-              { icon: MessageCircle, label: "تلگرام پشتیبانی", value: (SITE as any).telegramHandle || "@matinmazi", href: SITE.telegram, ltr: true },
+              { icon: MessageCircle, label: "تلگرام پشتیبانی", value: (SITE as any).telegramHandle || "@mattiin", href: SITE.telegram, ltr: true },
             ].map((c) => (
               <Card key={c.label} className="p-4">
                 <div className="flex items-center gap-3">

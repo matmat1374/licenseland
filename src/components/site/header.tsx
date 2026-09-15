@@ -26,7 +26,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useEffect, useState } from "react";
 import { ThemeToggle } from "./theme-toggle";
 import { SearchDialog } from "./search-dialog";
-import { MobileMenu } from "./mobile-menu";
+
 import { useCart } from "@/store/cart";
 import { NAV_LINKS, SITE, CATEGORIES } from "@/lib/constants";
 import { usePathname, useRouter } from "next/navigation";
@@ -47,7 +47,7 @@ export function SiteHeader() {
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 8);
-    window.addEventListener("scroll", onScroll);
+    window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
@@ -61,8 +61,8 @@ export function SiteHeader() {
   return (
     <header
       className={cn(
-        "relative md:sticky md:top-0 z-50 w-full border-b transition-all duration-300",
-        scrolled ? "glass border-border shadow-sm" : "border-transparent bg-background"
+        "sticky top-0 z-40 w-full border-b transition-all duration-200",
+        scrolled ? "bg-background/95 backdrop-blur-md border-border shadow-xs" : "border-border/60 bg-background/90 backdrop-blur-md shadow-2xs"
       )}
     >
       {/* top promo banner */}
@@ -79,7 +79,6 @@ export function SiteHeader() {
 
       {/* main header */}
       <div className="container mx-auto flex h-16 items-center gap-3 px-4">
-        <MobileMenu />
 
         {/* logo */}
         <Link href="/" className="group flex shrink-0 items-center gap-3">
@@ -94,7 +93,7 @@ export function SiteHeader() {
             <div className="text-xl font-black tracking-tight text-foreground whitespace-nowrap">
               لایسـنـو
             </div>
-            <div className="text-[10px] font-bold tracking-widest text-muted-foreground whitespace-nowrap">
+            <div className="text-[10px] text-foreground/70 dark:text-muted-foreground font-semibold tracking-widest whitespace-nowrap">
               LICENO <span className="text-emerald-500">•</span> LEGAL STORE
             </div>
           </div>
@@ -109,8 +108,10 @@ export function SiteHeader() {
                 key={link.href}
                 href={link.href}
                 className={cn(
-                  "rounded-lg px-2.5 py-1.5 text-sm font-medium transition-colors hover:bg-accent hover:text-primary whitespace-nowrap shrink-0 select-none",
-                  active && "bg-accent text-primary font-bold"
+                  "rounded-xl px-3 py-1.5 text-sm font-medium transition-colors whitespace-nowrap shrink-0 select-none",
+                  active
+                    ? "bg-primary/10 text-primary font-bold shadow-2xs dark:bg-primary/20"
+                    : "text-foreground/80 hover:text-foreground hover:bg-accent/80"
                 )}
               >
                 {link.label}
@@ -120,12 +121,12 @@ export function SiteHeader() {
           
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <button className="flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-sm font-medium transition-colors hover:bg-accent hover:text-primary outline-none whitespace-nowrap shrink-0 select-none">
+              <button className="flex items-center gap-1 rounded-xl px-3 py-1.5 text-sm font-medium text-foreground/80 hover:text-foreground hover:bg-accent/80 transition-colors outline-none whitespace-nowrap shrink-0 select-none cursor-pointer">
                 دسته‌بندی‌ها
                 <ChevronDown className="h-3 w-3 opacity-50" />
               </button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="center" className="w-[560px] p-3 grid grid-cols-2 gap-2 rounded-xl shadow-xl border-white/10 bg-background/95 backdrop-blur-xl">
+            <DropdownMenuContent align="center" className="w-[560px] p-3 grid grid-cols-2 gap-2 rounded-2xl shadow-xl border border-border/80 bg-popover/98 backdrop-blur-xl">
               {CATEGORIES.map((cat) => {
                 const Icon = (LucideIcons as any)[cat.icon || "Folder"] || LucideIcons.Folder;
                 return (
@@ -135,7 +136,7 @@ export function SiteHeader() {
                         <Icon className="h-5 w-5" />
                       </div>
                       <div className="flex flex-col flex-1 min-w-0">
-                        <span className="text-sm font-bold truncate">{cat.name}</span>
+                        <span className="text-sm font-bold text-foreground truncate">{cat.name}</span>
                         <span className="text-[10px] text-muted-foreground truncate">{cat.description}</span>
                       </div>
                     </Link>
@@ -159,7 +160,7 @@ export function SiteHeader() {
           <button
             onClick={openCart}
             aria-label="سبد خرید"
-            className="relative flex h-10 items-center justify-center gap-1.5 rounded-xl border border-border/70 bg-muted/40 hover:bg-muted px-2.5 sm:px-3 text-foreground transition-all shadow-sm group"
+            className="relative flex h-10 items-center justify-center gap-1.5 rounded-xl border border-border/80 bg-muted/40 hover:bg-muted/80 px-2.5 sm:px-3 text-foreground transition-all shadow-2xs group cursor-pointer"
           >
             <ShoppingCart className="h-4 w-4 text-primary transition-transform group-hover:scale-110 shrink-0" />
             <span className="hidden xl:inline text-xs font-bold whitespace-nowrap">سبد خرید</span>
@@ -173,27 +174,29 @@ export function SiteHeader() {
           {/* user */}
           {session?.user ? (
             <div className="flex items-center gap-1.5 shrink-0">
-              <Link
-                href={isAdmin ? "/admin" : "/dashboard"}
-                className={cn(
-                  "hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-all shadow-sm",
-                  isAdmin 
-                    ? "bg-primary/15 text-primary border border-primary/30 hover:bg-primary/25"
-                    : "bg-muted text-foreground border border-border hover:bg-accent"
-                )}
-              >
-                {isAdmin ? (
-                  <>
-                    <ShieldCheck className="h-3.5 w-3.5 text-primary" />
-                    <span>پنل مدیریت</span>
-                  </>
-                ) : (
-                  <>
-                    <LayoutDashboard className="h-3.5 w-3.5 text-primary" />
-                    <span>پنل کاربری</span>
-                  </>
-                )}
-              </Link>
+              {isAdmin ? (
+                <a
+                  href="/admin"
+                  className={cn(
+                    "hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-all shadow-sm",
+                    "bg-primary/15 text-primary border border-primary/30 hover:bg-primary/25"
+                  )}
+                >
+                  <ShieldCheck className="h-3.5 w-3.5 text-primary" />
+                  <span>پنل مدیریت</span>
+                </a>
+              ) : (
+                <Link
+                  href="/dashboard"
+                  className={cn(
+                    "hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-all shadow-sm",
+                    "bg-muted text-foreground border border-border hover:bg-accent"
+                  )}
+                >
+                  <LayoutDashboard className="h-3.5 w-3.5 text-primary" />
+                  <span>پنل کاربری</span>
+                </Link>
+              )}
 
               <UserNavMenu user={session.user} />
             </div>

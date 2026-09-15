@@ -24,7 +24,7 @@ export async function GET() {
 
       return {
         title: p.title,
-        page_url: SITE.url + "/product/" + p.slug,
+        page_url: SITE.url + "/product/" + p.slug + "?utm_source=Torob&utm_medium=PPC",
         price: price,
         old_price: oldPrice,
         availability: isAvailable ? "instock" : "outofstock",

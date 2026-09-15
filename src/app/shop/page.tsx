@@ -23,6 +23,9 @@ export default async function ShopPage({
   const search = sp.search || "";
   const sort = (sp.sort as any) || "popular";
 
+  // Only show hero campaign slider on base shop page (no search query, all categories)
+  const isDefaultShop = !search.trim() && (!cat || cat === "all");
+
   const [products, categories, heroSlides] = await Promise.all([
     getProducts({ category: cat, search, sort, limit: 100 }),
     getCategories(),
@@ -67,15 +70,15 @@ export default async function ShopPage({
 
   return (
     <>
-      {campaignSchema && (
+      {isDefaultShop && campaignSchema && (
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(campaignSchema) }}
         />
       )}
 
-      {/* ============ HERO CAMPAIGN SLIDER ============ */}
-      <HeroCampaignSlider slides={heroSlides} className="pb-4 md:pb-6" />
+      {/* ============ HERO CAMPAIGN SLIDER (Only on default /shop) ============ */}
+      {isDefaultShop && <HeroCampaignSlider slides={heroSlides} className="pb-4 md:pb-6" />}
 
       <div className="container mx-auto px-4 pb-8 pt-2">
         {/* header */}

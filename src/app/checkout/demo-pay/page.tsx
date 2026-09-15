@@ -1,12 +1,16 @@
 "use client";
 
 import { Suspense, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { notFound, useSearchParams } from "next/navigation";
 import { ShieldCheck, Loader2, CheckCircle2, CreditCard } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 
 function DemoPayContent() {
+  if (process.env.NODE_ENV === "production") {
+    notFound();
+  }
+
   const params = useSearchParams();
   const authority = params.get("Authority") || "";
   const [status, setStatus] = useState<"idle" | "paying" | "done">("idle");
@@ -100,6 +104,10 @@ function DemoPayContent() {
 }
 
 export default function DemoPayPage() {
+  if (process.env.NODE_ENV === "production") {
+    notFound();
+  }
+
   return (
     <div className="flex min-h-[80vh] items-center justify-center px-4 py-12">
       <Suspense fallback={

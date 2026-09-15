@@ -309,7 +309,7 @@ export function AdminProductsTable({ products, categories, activeUsdRate, lastFu
                         </div>
                         <div className="flex justify-between items-center text-emerald-600 font-medium">
                           <span>حاشیه سود:</span>
-                          <span>+{toFa(p.markupPercent || 20)}٪ <span className="text-[10px] text-muted-foreground">({toFa(toToman(p.profitAmount || 0))} ت)</span></span>
+                          <span>+{toFa(p.markupPercent ?? 0)}٪ <span className="text-[10px] text-muted-foreground">({toFa(toToman(p.profitAmount || 0))} تومان)</span></span>
                         </div>
                         <div className="flex justify-between items-center pt-1 border-t border-border/60 font-black text-primary">
                           <span>فروش نهایی:</span>

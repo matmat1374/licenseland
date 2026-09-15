@@ -505,86 +505,88 @@ export function HeroCampaignSlider({
           </AnimatePresence>
 
           {/* ================= BOTTOM NAVIGATION & PROGRESS BAR ================= */}
-          <div className="relative border-t border-white/10 bg-card/40 backdrop-blur-xl px-4 sm:px-8 py-3.5 flex flex-wrap items-center justify-between gap-4">
-            {/* Slide Index & Pause Indicator */}
-            <div className="flex items-center gap-3">
-              <span className="text-xs font-mono font-bold text-foreground">
-                <span className="text-primary font-black text-sm">
-                  {toFa(currentIndex + 1).padStart(2, "۰")}
+          {count > 1 && (
+            <div className="relative border-t border-white/10 bg-card/40 backdrop-blur-xl px-4 sm:px-8 py-3.5 flex flex-wrap items-center justify-between gap-4">
+              {/* Slide Index & Pause Indicator */}
+              <div className="flex items-center gap-3">
+                <span className="text-xs font-mono font-bold text-foreground">
+                  <span className="text-primary font-black text-sm">
+                    {toFa(currentIndex + 1).padStart(2, "۰")}
+                  </span>
+                  <span className="text-muted-foreground/60 mx-1">/</span>
+                  <span className="text-muted-foreground">
+                    {toFa(count).padStart(2, "۰")}
+                  </span>
                 </span>
-                <span className="text-muted-foreground/60 mx-1">/</span>
-                <span className="text-muted-foreground">
-                  {toFa(count).padStart(2, "۰")}
-                </span>
-              </span>
 
-              {isPaused ? (
-                <span className="inline-flex items-center gap-1 text-[11px] text-amber-400 font-medium bg-amber-500/10 px-2 py-0.5 rounded-full border border-amber-500/20">
-                  <Pause className="h-2.5 w-2.5" />
-                  <span>متوقف شده</span>
-                </span>
-              ) : (
-                <span className="inline-flex items-center gap-1 text-[11px] text-muted-foreground font-medium">
-                  <Play className="h-2.5 w-2.5 text-primary" />
-                  <span className="hidden sm:inline">چرخش خودکار</span>
-                </span>
-              )}
+                {isPaused ? (
+                  <span className="inline-flex items-center gap-1 text-[11px] text-amber-400 font-medium bg-amber-500/10 px-2 py-0.5 rounded-full border border-amber-500/20">
+                    <Pause className="h-2.5 w-2.5" />
+                    <span>متوقف شده</span>
+                  </span>
+                ) : (
+                  <span className="inline-flex items-center gap-1 text-[11px] text-muted-foreground font-medium">
+                    <Play className="h-2.5 w-2.5 text-primary" />
+                    <span className="hidden sm:inline">چرخش خودکار</span>
+                  </span>
+                )}
+              </div>
+
+              {/* Segmented Interactive Progress Bars */}
+              <div className="flex items-center gap-2 flex-1 max-w-md mx-2">
+                {effectiveSlides.map((slide, idx) => {
+                  const isActive = idx === currentIndex;
+                  const isPassed = idx < currentIndex;
+
+                  return (
+                    <button
+                      key={slide.id || idx}
+                      type="button"
+                      onClick={() => goToSlide(idx)}
+                      className="relative flex-1 h-2 rounded-full overflow-hidden bg-white/10 transition-all hover:h-2.5 group cursor-pointer"
+                      title={slide.titleLine1}
+                      aria-label={`اسلاید شماره ${toFa(idx + 1)}`}
+                    >
+                      <div
+                        className={`h-full rounded-full transition-all ${
+                          isActive
+                            ? theme.progressActive
+                            : isPassed
+                            ? "bg-white/40"
+                            : "bg-transparent"
+                        }`}
+                        style={{
+                          width: isActive ? `${progress}%` : isPassed ? "100%" : "0%",
+                          transition: isActive ? "width 50ms linear" : "width 300ms ease",
+                        }}
+                      />
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Prev / Next Arrows */}
+              <div className="flex items-center gap-1.5">
+                <button
+                  type="button"
+                  onClick={() => paginate(-1)}
+                  className="h-8 w-8 rounded-xl flex items-center justify-center bg-white/5 hover:bg-white/15 border border-white/10 text-foreground transition-all duration-200 active:scale-90 cursor-pointer"
+                  aria-label="اسلاید قبلی"
+                >
+                  <ChevronRight className="h-4 w-4" />
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => paginate(1)}
+                  className="h-8 w-8 rounded-xl flex items-center justify-center bg-white/5 hover:bg-white/15 border border-white/10 text-foreground transition-all duration-200 active:scale-90 cursor-pointer"
+                  aria-label="اسلاید بعدی"
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                </button>
+              </div>
             </div>
-
-            {/* Segmented Interactive Progress Bars */}
-            <div className="flex items-center gap-2 flex-1 max-w-md mx-2">
-              {effectiveSlides.map((slide, idx) => {
-                const isActive = idx === currentIndex;
-                const isPassed = idx < currentIndex;
-
-                return (
-                  <button
-                    key={slide.id || idx}
-                    type="button"
-                    onClick={() => goToSlide(idx)}
-                    className="relative flex-1 h-2 rounded-full overflow-hidden bg-white/10 transition-all hover:h-2.5 group cursor-pointer"
-                    title={slide.titleLine1}
-                    aria-label={`اسلاید شماره ${toFa(idx + 1)}`}
-                  >
-                    <div
-                      className={`h-full rounded-full transition-all ${
-                        isActive
-                          ? theme.progressActive
-                          : isPassed
-                          ? "bg-white/40"
-                          : "bg-transparent"
-                      }`}
-                      style={{
-                        width: isActive ? `${progress}%` : isPassed ? "100%" : "0%",
-                        transition: isActive ? "width 50ms linear" : "width 300ms ease",
-                      }}
-                    />
-                  </button>
-                );
-              })}
-            </div>
-
-            {/* Prev / Next Arrows */}
-            <div className="flex items-center gap-1.5">
-              <button
-                type="button"
-                onClick={() => paginate(-1)}
-                className="h-8 w-8 rounded-xl flex items-center justify-center bg-white/5 hover:bg-white/15 border border-white/10 text-foreground transition-all duration-200 active:scale-90 cursor-pointer"
-                aria-label="اسلاید قبلی"
-              >
-                <ChevronRight className="h-4 w-4" />
-              </button>
-
-              <button
-                type="button"
-                onClick={() => paginate(1)}
-                className="h-8 w-8 rounded-xl flex items-center justify-center bg-white/5 hover:bg-white/15 border border-white/10 text-foreground transition-all duration-200 active:scale-90 cursor-pointer"
-                aria-label="اسلاید بعدی"
-              >
-                <ChevronLeft className="h-4 w-4" />
-              </button>
-            </div>
-          </div>
+          )}
         </div>
       </div>
     </section>

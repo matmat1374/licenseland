@@ -65,6 +65,20 @@ services:
     networks:
       - licenseland
 
+  instagram-bot:
+    build:
+      context: ./mini-services/instagram-bot
+    restart: unless-stopped
+    ports:
+      - "8001:8001"
+    environment:
+      - INSTAGRAM_USERNAME=${INSTAGRAM_USERNAME:-}
+      - INSTAGRAM_PASSWORD=${INSTAGRAM_PASSWORD:-}
+      - INSTAGRAM_MOCK_MODE=${INSTAGRAM_MOCK_MODE:-true}
+      - DEEPSEEK_API_KEY=${DEEPSEEK_API_KEY:-}
+    networks:
+      - licenseland
+
 volumes:
   postgres_data:
   caddy_data:

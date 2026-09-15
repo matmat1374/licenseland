@@ -65,10 +65,10 @@ export function SearchDialog({ children }: { children?: React.ReactNode }) {
         {children || (
           <button
             aria-label="جستجو"
-            className="flex h-10 w-full items-center gap-2 rounded-xl border border-border/70 bg-muted/30 px-3.5 text-sm text-muted-foreground transition-all hover:border-primary/50 hover:bg-muted/60 hover:text-foreground"
+            className="flex h-10 w-full items-center gap-2 rounded-xl border border-border/80 bg-muted/50 hover:bg-muted/80 px-3.5 text-sm text-foreground/75 hover:text-foreground transition-all hover:border-primary/50 shadow-2xs dark:bg-muted/30 cursor-pointer"
           >
-            <Search className="h-4 w-4 shrink-0 text-muted-foreground" />
-            <span className="truncate text-xs sm:text-sm">جستجوی محصول، برند یا دسته...</span>
+            <Search className="h-4 w-4 shrink-0 text-foreground/60 dark:text-muted-foreground" />
+            <span className="truncate text-xs sm:text-sm font-medium">جستجوی محصول، برند یا دسته...</span>
           </button>
         )}
       </DialogTrigger>

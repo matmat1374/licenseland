@@ -32,11 +32,11 @@ export function SocialProofToast() {
   const [isVisible, setIsVisible] = useState(false);
   const [dismissed, setDismissed] = useState(false);
 
-  if (pathname?.startsWith("/admin")) {
-    return null;
-  }
-
   useEffect(() => {
+    if (pathname?.startsWith("/admin")) {
+      return;
+    }
+
     // Check if already shown in this session
     const alreadyShown = sessionStorage.getItem("liceno_social_proof_shown");
     if (alreadyShown) {
@@ -58,9 +58,9 @@ export function SocialProofToast() {
     }, 6000);
 
     return () => clearTimeout(timer);
-  }, []);
+  }, [pathname]);
 
-  if (dismissed || !currentSale) return null;
+  if (pathname?.startsWith("/admin") || dismissed || !currentSale) return null;
 
   return (
     <div className="fixed bottom-20 md:bottom-6 right-4 z-40 max-w-[340px] pointer-events-none">
