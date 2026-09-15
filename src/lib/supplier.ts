@@ -505,10 +505,45 @@ function pickPriceUSD(p: SupplierProduct): number | null {
 }
 
 function pickTitle(p: SupplierProduct): string {
-  let title = (p.title || p.name || "").toString().trim();
+  let rawTitle = (p.title || p.name || "").toString().trim();
+  let title = rawTitle;
+  const supplierName = (p.supplier_name || "").toString().trim();
+  
+  const hasGiftCard = /gift card/i.test(rawTitle) || /gift card/i.test(supplierName) || /گیفت کارت/i.test(rawTitle) || /گیفت کارت/i.test(supplierName);
+  
+  if (hasGiftCard) {
+    const combined = `${rawTitle} ${supplierName}`;
+    const amountMatch = combined.match(/\$(\d+)/);
+    const amount = amountMatch ? amountMatch[1] : "";
+    
+    // Attempt to extract brand
+    let brand = "";
+    if (/spotify/i.test(combined)) brand = "اسپاتیفای آمریکا";
+    else if (/netflix/i.test(combined)) brand = "نتفلیکس";
+    else if (/apple|itunes/i.test(combined)) brand = "اپل";
+    else if (/google play/i.test(combined)) brand = "گوگل پلی";
+    else if (/playstation|psn/i.test(combined)) brand = "پلی‌استیشن";
+    else if (/xbox/i.test(combined)) brand = "ایکس‌باکس";
+    else if (/steam/i.test(combined)) brand = "استیم";
+    
+    if (amount && brand) {
+      return `گیفت کارت ${amount} دلاری ${brand} (${supplierName || rawTitle})`;
+    } else if (amount) {
+      return `گیفت کارت ${amount} دلاری (${supplierName || rawTitle})`;
+    }
+  }
+
   if (/^(Openai|ChatGPT|Claude|Telegram|WhatsApp|Google|Apple|Discord)\s*—/i.test(title) && !title.includes("شماره مجازی")) {
     title = `شماره مجازی وریفای ${title} (دریافت پیامک)`;
   }
+
+  // Preserve warranty info if present
+  if (/no warranty/i.test(rawTitle) || /بدون گارانتی/i.test(supplierName)) {
+    title = `${title} (بدون گارانتی)`;
+  } else if (/full warranty|with warranty/i.test(rawTitle) || /با گارانتی/i.test(supplierName)) {
+    title = `${title} (با گارانتی)`;
+  }
+
   return title;
 }
 
@@ -820,7 +855,8 @@ export function getProductRankingInfo(p: SupplierProduct, title: string, catSlug
 
   if (catSlug === "streaming") {
     if (/spotify|اسپاتیفای/i.test(comb)) {
-      return { sortOrder: 1, bestseller: true, featured: true, salesCount: 540 };
+      const isBestseller = /1 month|3 months?|۱ ماهه|۳ ماهه/i.test(comb) && !/gift card|گیفت کارت/i.test(comb);
+      return { sortOrder: 1, bestseller: isBestseller, featured: true, salesCount: isBestseller ? 540 : 150 };
     }
     if (/netflix|نتفلیکس/i.test(comb)) {
       return { sortOrder: 2, bestseller: true, featured: true, salesCount: 510 };
@@ -1069,7 +1105,24 @@ export async function importProductsFromSupplier(
     if (!slug) { skipped++; continue; }
 
     // Check existing product to preserve specifications and respect price lock
-    const existing = await db.product.findUnique({ where: { slug } });
+    let existing = null;
+    if (sp.id) {
+      existing = await db.product.findFirst({
+        where: {
+          OR: [
+            { slug: { startsWith: `${sp.id}-` } },
+            { specifications: { contains: `"supplier_product_id":${sp.id}` } },
+            { specifications: { contains: `"supplier_product_id": ${sp.id}` } },
+            { specifications: { contains: `"supplier_product_id":"${sp.id}"` } },
+            { slug }
+          ]
+        },
+        orderBy: { createdAt: 'asc' }
+      });
+    } else {
+      existing = await db.product.findUnique({ where: { slug } });
+    }
+
     let existingSpecs: Record<string, any> = {};
     if (existing?.specifications) {
       try {
@@ -1136,6 +1189,7 @@ export async function importProductsFromSupplier(
         supplier_product_id: sp.id,
         price_usd: priceUSD,
         cost_usd: priceUSD,
+        usd_rate: usdRate,
         pricing_unit: sp.pricing_unit,
         requires_email: sp.requires_email,
         requires_link: sp.requires_link,
@@ -1144,32 +1198,20 @@ export async function importProductsFromSupplier(
         markup_used: effectiveMarkup,
       };
 
+      const isAvailable = stock > 0 && !isVpnProduct(title);
       await db.product.update({
         where: { id: existing.id },
         data: {
-          title: finalTitle,
-          shortDesc: shortDesc,
-          description: finalDescription,
-          features: JSON.stringify(features),
           price: finalPrice,
-          duration: duration || existing.duration,
-          brand,
-          tags,
-          category: catSlug,
-          sortOrder: catInfo.sortOrder,
-          bestseller: catInfo.bestseller || existing.bestseller,
-          featured: catInfo.featured || existing.featured,
-          salesCount: Math.max(catInfo.salesCount, existing.salesCount),
-          image: sp.image || sp.imageUrl || sp.images?.[0] || existing.image,
-          isActive: !isVpnProduct(title),
           stock: stock,
+          isActive: isAvailable,
           lastSyncedAt: new Date(),
           specifications: JSON.stringify(nextSpecs),
           fulfillmentMode: "AUTO",
         },
       });
       updated++;
-      details.push(`به‌روز شد: ${title} — ${finalPrice.toLocaleString("fa-IR")} ت ($${priceUSD} × ${usdRate.toLocaleString("fa-IR")} × ${(100+effectiveMarkup)/100})`);
+      details.push(`به‌روز شد: ${existing.title} — ${finalPrice.toLocaleString("fa-IR")} ت ($${priceUSD} × ${usdRate.toLocaleString("fa-IR")} × ${(100+effectiveMarkup)/100})`);
     } else {
       const nextSpecs = {
         supplier_product_id: sp.id,
@@ -1210,9 +1252,34 @@ export async function importProductsFromSupplier(
     }
   }
 
+  // Detect and deactivate missing supplier products
+  const supplierIds = new Set(products.map(p => Number(p.id)).filter(Boolean));
+  const ourSupplierProducts = await db.product.findMany({
+    where: { fulfillmentMode: "AUTO" },
+    select: { id: true, specifications: true, supplierId: true }
+  });
+
+  let deactivatedMissing = 0;
+  for (const p of ourSupplierProducts) {
+    let sid = p.supplierId;
+    if (!sid) {
+      try {
+        const specs = JSON.parse(p.specifications || "{}");
+        sid = Number(specs.supplier_product_id);
+      } catch {}
+    }
+    if (sid && !supplierIds.has(sid)) {
+      await db.product.update({
+        where: { id: p.id },
+        data: { stock: 0, isActive: false }
+      });
+      deactivatedMissing++;
+    }
+  }
+
   return {
     ok: true, imported, updated, skipped,
-    message: `${imported} محصول جدید، ${updated} به‌روز شد، ${skipped} رد شد | نرخ: ۱$ = ${usdRate.toLocaleString("fa-IR")} ت | قیمت‌گذاری پلکانی هوشمند`,
+    message: `${imported} محصول جدید، ${updated} به‌روز شد، ${skipped} رد شد، ${deactivatedMissing} ناموجود شد | نرخ: ۱$ = ${usdRate.toLocaleString("fa-IR")} ت | قیمت‌گذاری پلکانی هوشمند`,
     details: details.slice(0, 50),
   };
 }
@@ -1428,14 +1495,27 @@ export async function rebuildSupplierCatalog(opts?: {
       continue;
     }
 
-    const existing = await db.product.findFirst({
+    // Strict matching (fix: previous "contains" matchers had a prefix bug —
+    // supplier id 221 could substring-match the row of 2216 and hijack it).
+    // Candidates are matched broadly, then verified for exact id equality.
+    const candidateRows = await db.product.findMany({
       where: {
         OR: [
           { slug },
-          { specifications: { contains: `"supplier_product_id":${sp.id}` } },
-          { specifications: { contains: `"supplier_product_id":"${sp.id}"` } },
+          { slug: { startsWith: `${sp.id}-` } },
+          { supplierId: Number(sp.id) },
         ],
       },
+      orderBy: { createdAt: 'asc' },
+    });
+    const existing = candidateRows.find((c) => {
+      if (c.supplierId != null && Number(c.supplierId) === Number(sp.id)) return true;
+      try {
+        const s = typeof c.specifications === "string" ? JSON.parse(c.specifications || "{}") : (c.specifications || {});
+        return s.supplier_product_id != null && Number(s.supplier_product_id) === Number(sp.id);
+      } catch {
+        return false;
+      }
     });
 
     let existingSpecs: Record<string, any> = {};
@@ -1508,6 +1588,7 @@ export async function rebuildSupplierCatalog(opts?: {
         data: {
           title: finalTitle,
           shortDesc,
+          supplierId: sp.id ? Number(sp.id) : null,
           description: finalDescription,
           features: JSON.stringify(features),
           price: finalPrice,
@@ -1520,7 +1601,9 @@ export async function rebuildSupplierCatalog(opts?: {
           featured: catInfo.featured || existing.featured,
           salesCount: Math.max(catInfo.salesCount, existing.salesCount),
           image: sp.image || sp.imageUrl || sp.images?.[0] || existing.image,
-          isActive: true,
+          // manual_hidden flag: rows we deliberately hid (duplicate/junk cleanup)
+          // must NOT be resurrected by the periodic sync
+          isActive: existingSpecs.supplier_manual_hidden ? false : (stock > 0 && !isVpnProduct(title)),
           stock,
           lastSyncedAt: new Date(),
           specifications: JSON.stringify(nextSpecs),
@@ -1537,6 +1620,7 @@ export async function rebuildSupplierCatalog(opts?: {
           title: finalTitle,
           slug,
           shortDesc,
+          supplierId: sp.id ? Number(sp.id) : null,
           description: finalDescription,
           features: JSON.stringify(features),
           price: finalPrice,
@@ -1570,6 +1654,32 @@ export async function rebuildSupplierCatalog(opts?: {
     update: { value: new Date().toISOString() },
     create: { key: "last_full_sync_at", value: new Date().toISOString() },
   });
+
+  // Detect and deactivate missing supplier products
+  const rebuiltSupplierIds = new Set(rawProducts.map(p => Number(p.id)).filter(Boolean));
+  const rebuiltOurSupplierProducts = await db.product.findMany({
+    where: { fulfillmentMode: "AUTO" },
+    select: { id: true, specifications: true, supplierId: true }
+  });
+
+  let deactivatedMissing = 0;
+  for (const p of rebuiltOurSupplierProducts) {
+    let sid = p.supplierId;
+    if (!sid) {
+      try {
+        const specs = JSON.parse(p.specifications || "{}");
+        sid = Number(specs.supplier_product_id);
+      } catch {}
+    }
+    if (sid && !rebuiltSupplierIds.has(sid)) {
+      await db.product.update({
+        where: { id: p.id },
+        data: { stock: 0, isActive: false }
+      });
+      deactivatedMissing++;
+    }
+  }
+  deactivated += deactivatedMissing;
 
   return {
     ok: true,
@@ -1627,6 +1737,39 @@ export async function purchaseFromSupplier(
   if (!supplierProductId) return { ok: false, message: "شناسه محصول تأمین‌کننده یافت نشد", errorCode: "supplier_id_missing" };
   if (requiresPassword)
     return { ok: false, message: "این محصول نیازمند رمز مشتری است و فعلاً قابل فروش خودکار نیست", errorCode: "requires_password" };
+
+  // Canonical-merge fallback: if this row was hidden as a duplicate (or went
+  // out of stock), buy from the cheapest live sibling with the same Persian
+  // title instead — the customer keeps a working product after a merge.
+  if ((!product.isActive || (product.stock ?? 0) <= 0) && product.title) {
+    const siblings = await db.product.findMany({
+      where: {
+        title: product.title,
+        isActive: true,
+        stock: { gt: 0 },
+        id: { not: product.id },
+        fulfillmentMode: "AUTO",
+      },
+      orderBy: { price: "asc" },
+      take: 5,
+    });
+    const usable = await Promise.all(
+      siblings.map(async (s) => {
+        try {
+          const sp = JSON.parse(s.specifications || "{}");
+          const sid = Number(sp.supplier_product_id);
+          return sid && !sp.requires_password ? { id: s.id, sid, cost: Number(sp.cost_usd || sp.price_usd || s.price) } : null;
+        } catch {
+          return null;
+        }
+      })
+    );
+    const best = usable.filter(Boolean).sort((a, b) => (a!.cost || 0) - (b!.cost || 0))[0];
+    if (best) {
+      supplierProductId = best.sid;
+      if (best.cost) specCostUsd = best.cost;
+    }
+  }
 
   const requestPayload = {
     productId: supplierProductId,

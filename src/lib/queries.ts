@@ -277,9 +277,10 @@ export async function getProductBySlug(slug: string) {
     const match = englishDigits.match(/^(\d+)/);
     if (match) {
       const prefix = match[1];
+      // فقط «{id}-{متن}» — بدون fallback بدون خط تیره، چون prefix مشترک
+      // (مثلاً 221 و 2216) می‌توانست محصول اشتباهی را برگرداند
       orConditions.push(
         { slug: { startsWith: `${prefix}-` } },
-        { slug: { startsWith: prefix } },
         { id: prefix },
         { specifications: { contains: `"supplier_product_id":${prefix}` } },
         { specifications: { contains: `"supplier_product_id": ${prefix}` } }
