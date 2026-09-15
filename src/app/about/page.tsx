@@ -7,6 +7,7 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "درباره ما",
   description: `درباره ${SITE.name} — بازار لایسنس دیجیتال ایران با هدف ارائه لایسنس اوریجینال با بهترین قیمت.`,
+  alternates: { canonical: "/about" },
 };
 
 export default function AboutPage() {

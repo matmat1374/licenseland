@@ -4,6 +4,7 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "قوانین و مقررات",
   description: `قوانین و مقررات استفاده از خدمات ${SITE.name}.`,
+  alternates: { canonical: "/terms" },
 };
 
 export default function TermsPage() {

@@ -9,6 +9,7 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "سوالات متداول",
   description: "پاسخ پرتکرارترین سوالات کاربران درباره خرید لایسنس، تحویل و پشتیبانی.",
+  alternates: { canonical: "/faq" },
 };
 
 export default function FaqPage() {

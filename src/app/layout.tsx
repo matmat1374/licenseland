@@ -51,7 +51,6 @@ export const metadata: Metadata = {
     description: SITE.description,
   },
   robots: { index: true, follow: true },
-  alternates: { canonical: "/" },
   verification: {
     google: "google838a39fcd6d96c2f",
     other: {

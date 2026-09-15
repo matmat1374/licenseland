@@ -1,0 +1,317 @@
+{
+  "iteration": 2,
+  "run_id": "2026-09-15T20:07:38Z",
+  "head_commit_at_start": "e1d3185",
+  "head_commit_during_run": "eb86c043783d65138b6ddd2e94cfa5a3b04e8ca5",
+  "head_commit_note": "owner made 3 docs-only commits at 23:11-23:12 local during this run; no conflict with the files touched here",
+  "runtime": { "node": "v22.22.0", "next": "16.3.2", "platform": "win32" },
+  "axes_measured": [
+    "1 code-quality/type-safety",
+    "2 seo/crawl-integrity",
+    "3 security-headers/csp",
+    "4 storefront-weight/performance"
+  ],
+  "evidence_tags_legend": {
+    "observed": "directly present in source or runtime output",
+    "candidate": "plausible, not reproduced",
+    "reproduced": "a real or minimal equivalent input produced the symptom",
+    "confirmed": "reproduced AND a counterfactual check shows removing the cause removes the symptom"
+  },
+
+  "axis_1_type_safety": {
+    "commands": {
+      "npm run typecheck:app": { "cmd": "tsc --noEmit -p tsconfig.json", "exit": 0, "errors": 0, "note": "final state, after the generated artifact was regenerated" },
+      "npm run typecheck": { "cmd": "tsc --noEmit -p tsconfig.domain.json", "exit": 0, "errors": 0 },
+      "npm run lint": { "cmd": "eslint .", "exit": 1, "problems": 261, "errors": 250, "warnings": 11 },
+      "npm run test": { "cmd": "node --test kernel/test/*.test.ts", "exit": 0, "tests": 125, "pass": 125, "fail": 0 }
+    },
+    "first_measurement_of_typecheck_app": {
+      "exit": 2,
+      "error_count": 6,
+      "all_errors_in": ".next/dev/types/validator.ts line 728",
+      "verbatim": [
+        ".next/dev/types/validator.ts(728,1): error TS2304: Cannot find name 'rc'.",
+        ".next/dev/types/validator.ts(728,4): error TS2304: Cannot find name 'app'.",
+        ".next/dev/types/validator.ts(728,8): error TS2304: Cannot find name 'api'.",
+        ".next/dev/types/validator.ts(728,12): error TS2304: Cannot find name 'auth'.",
+        ".next/dev/types/validator.ts(728,17): error TS2304: Cannot find name 'otp'.",
+        ".next/dev/types/validator.ts(728,21): error TS2304: Cannot find name 'route'."
+      ],
+      "diagnosis": "the generated file had exactly 1 corrupt line out of 105 '// Validate' entries: line 728 read 'rc/app/api/auth/otp/route.ts' instead of '// Validate ../../../src/app/api/auth/otp/route.ts' (exactly a 21-byte prefix loss). 6 TS2304 errors follow from parsing that bare path as identifiers.",
+      "tag": "reproduced"
+    },
+    "counterfactual": {
+      "action": "rm -rf .next/dev && <next dev regenerated it>",
+      "result": "line 728 well-formed again ('  const handler = {} as typeof import(\"../../../src/app/api/cron/sync-products/route.js\")'); npm run typecheck:app exit 0",
+      "did_corruption_reproduce": false,
+      "tag": "confirmed",
+      "conclusion": "the red gate was a torn/concurrent write in a Next-generated artifact, NOT a defect in src/. 0 TS errors exist under src/ in every run."
+    },
+    "domain_tsconfig": {
+      "file": "tsconfig.domain.json",
+      "include_line_19": "\"include\": [\"kernel/src/**/*.ts\", \"kernel/test/**/*.ts\"]",
+      "exclude_key_present": false,
+      "excludes_src": "only by omission — no 'exclude' key exists in the file",
+      "tag": "observed"
+    },
+    "app_tsconfig": {
+      "file": "tsconfig.json",
+      "include_lines_35_41": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", ".next/dev/types/**/*.ts"],
+      "exclude_lines_42_49": ["node_modules", "kernel", "examples", "skills", "tests", "download"],
+      "covers_src": true,
+      "fragility": ".next/dev/types/**/*.ts is committed in include, so a corrupt generated dev artifact turns the app gate red (see above).",
+      "tag": "observed"
+    },
+    "lint_composition": {
+      "src_problems": 0,
+      "no_require_imports_x223": "from .agents/skills/**/scripts/*.cjs and root-level scratch .cjs files, not app code",
+      "react_hooks_set_state_in_effect_x16": "app code",
+      "react_hooks_error_boundaries_x4": "app code",
+      "react_hooks_immutability_x4": "app code",
+      "parsing_error_x3": "scratch/skill scripts",
+      "warning_next_script_for_ga_x1": "src/app/layout.tsx:111 (pre-existing, unrelated to this iteration's edits)",
+      "tag": "observed"
+    },
+    "ci": { "exists": false, "checked": [".github/workflows", ".gitlab-ci.yml", ".travis.yml", ".circleci/", "azure-pipelines.yml", "Jenkinsfile"], "tag": "observed" }
+  },
+
+  "axis_2_seo_crawl": {
+    "sitemap": {
+      "generator": "src/app/sitemap.ts",
+      "live_url_count": 724,
+      "live_duplicate_locs": 0,
+      "breakdown": { "static": 8, "category_query": 30, "product": 660, "blog": 26 },
+      "evidence": "curl -s https://liceno.ir/sitemap.xml | grep -o '<loc>[^<]*</loc>' | wc -l  =>  724",
+      "tag": "observed"
+    },
+    "routes": {
+      "page_tsx_count": 35,
+      "route_ts_count": 64,
+      "static_public_urls": ["/", "/about", "/blog", "/contact", "/faq", "/forgot-password", "/privacy", "/shop", "/terms"],
+      "missing_from_sitemap_unintended": 0,
+      "forgot_password_is_noindex": true,
+      "tag": "observed"
+    },
+    "dead_or_wasteful_sitemap_urls": {
+      "dead_urls_returning_404": 0,
+      "product_urls_that_301": 18,
+      "of_those_targets_absent_from_sitemap": 16,
+      "category_urls_returning_zero_products": 20,
+      "category_urls_total": 30,
+      "evidence": "all 18 redirect sources are keys of src/data/slug-redirects.json; each returned HTTP 301 (16/18 differ from present slug, 84 redirect pairs have both slugs still ACTIVE in prisma/db/custom.db)",
+      "tag": "reproduced"
+    },
+    "feed": {
+      "endpoint": "/api/torob",
+      "builder": "src/app/api/torob/route.ts:13-33 + src/lib/torob.ts:164-165",
+      "live_item_count": 660,
+      "slug_mismatches_vs_sitemap": 0,
+      "items_whos_page_url_301s": 18,
+      "tag": "observed"
+    },
+    "canonical": {
+      "root_cause": "src/app/layout.tsx:54  alternates: { canonical: \"/\" }  — merged into every route that does not override it",
+      "verified_before_live": {
+        "/": "https://liceno.ir",
+        "/shop": "https://liceno.ir",
+        "/blog": "https://liceno.ir",
+        "/about": "https://liceno.ir",
+        "/faq": "https://liceno.ir",
+        "/terms": "https://liceno.ir",
+        "/privacy": "https://liceno.ir",
+        "/forgot-password": "https://liceno.ir",
+        "/contact": "https://liceno.ir/contact"
+      },
+      "affected_url_counts": {
+        "indexable_top_level_pages": 6,
+        "blog_articles_inheriting": 26,
+        "shop_cat_query_urls_inheriting": 30,
+        "non_indexable_also_affected": ["/forgot-password", "/cart", "/checkout", "/login", "/register"]
+      },
+      "verified_after_local_build": {
+        "/": "https://liceno.ir",
+        "/shop": "https://liceno.ir/shop",
+        "/blog": "https://liceno.ir/blog",
+        "/about": "https://liceno.ir/about",
+        "/faq": "https://liceno.ir/faq",
+        "/terms": "https://liceno.ir/terms",
+        "/privacy": "https://liceno.ir/privacy",
+        "/forgot-password": "(none — page is robots:noindex)",
+        "/contact": "https://liceno.ir/contact",
+        "/blog/buy-original-license-guide-2024": "https://liceno.ir/blog/buy-original-license-guide-2024",
+        "/product/2162-1500-300-uc": "https://liceno.ir/product/2162-1500-300-uc",
+        "/shop?cat=ai": "https://liceno.ir/shop",
+        "/shop?search=x": "https://liceno.ir/shop"
+      },
+      "tag": "reproduced"
+    },
+    "robots": {
+      "generator": "src/app/robots.ts:4-16",
+      "sitemap_urls_that_are_disallowed": 0,
+      "api_torob_explicitly_allowed": true,
+      "tag": "observed"
+    },
+    "slug_redirects": {
+      "file": "src/data/slug-redirects.json",
+      "entries": 982,
+      "distinct_targets": 805,
+      "collision_groups": 123,
+      "max_slugs_pointing_at_one_target": 5,
+      "loaded_by": ["src/middleware.ts:4", "src/middleware.ts:13", "scripts/catalog-dedup-apply.mjs:33", "scripts/merge-by-identity-key.mjs:27"],
+      "matcher": "src/middleware.ts:57  [\"/product/:path*\", ...]",
+      "quirk": "the redirect only fires for percent-encoded paths; a raw-UTF-8 request for a redirect-source slug returned 200 while the percent-encoded form returned 301",
+      "tag": "reproduced"
+    },
+    "titles": {
+      "contact_doubled_suffix": "<title>تماس با ما | لایسنو | لایسنو</title>",
+      "cause": "src/app/contact/layout.tsx:5 title already ends with '| لایسنو' while src/app/layout.tsx:23 applies template '%s | لایسنو'",
+      "status": "NOT fixed this iteration (pre-existing); still reproducible on the local build",
+      "duplicate_root_default_title_on": ["/cart", "/checkout", "/checkout/demo-pay", "/login", "/register"],
+      "tag": "reproduced"
+    }
+  },
+
+  "axis_3_security_csp": {
+    "single_source_of_truth": "next.config.ts:8-36 (headers() at :44-48). src/middleware.ts sets no CSP; Caddyfile/Caddyfile.prod set no CSP.",
+    "live_production_header": {
+      "evidence": "curl -s -D - -o /dev/null https://liceno.ir/",
+      "value": "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self'; frame-ancestors 'none'; object-src 'none'; base-uri 'self'; form-action 'self'",
+      "contains_unsafe_eval": false,
+      "tag": "observed"
+    },
+    "contradiction_check_vs_backlog_1": {
+      "backlog_1_claim": "CSP allows both 'unsafe-inline' and 'unsafe-eval' for script-src, despite commit d316379 claiming to drop unsafe-eval",
+      "verdict": "the 'unsafe-eval' half of that claim is CONTRADICTED BY PRODUCTION: the live header above has no 'unsafe-eval'. Commit d316379 IS effective in production. The intermediate observation of a live 'unsafe-eval' header came from a STALE LOCAL build (.next baked at 14:38, before the 22:42 commit); .next/routes-manifest.json holds the header baked at build time, so a local `next start` without a rebuild keeps serving the old policy.",
+      "unsafe_inline_half": "still true — script-src still contains 'unsafe-inline'",
+      "tag": "reproduced"
+    },
+    "ga_blocked_finding": {
+      "cause": "the app loads its own GA script and sends GA4 beacons, but the policy allows neither",
+      "app_side_evidence": [
+        "src/app/layout.tsx:112-115  <script async src=\"https://www.googletagmanager.com/gtag/js?id=G-2N32NMVZV5\" />",
+        "src/app/layout.tsx:116-128  inline gtag bootstrap",
+        "src/lib/gtag.ts  trackSelectItem/trackViewItem -> window.gtag beacons",
+        "consumers: src/components/site/product-card.tsx:15, src/components/site/product-view-tracker.tsx:4"
+      ],
+      "set_difference_before": {
+        "external_script_origins_requested": ["https://www.googletagmanager.com"],
+        "origins_allowed_by_script_src": [],
+        "blocked_script_origins": ["https://www.googletagmanager.com"],
+        "blocked_connect_origins": ["https://www.google-analytics.com", "https://region1.google-analytics.com", "https://analytics.google.com"]
+      },
+      "set_difference_after": {
+        "blocked_script_origins": [],
+        "blocked_connect_origins": []
+      },
+      "tag": "confirmed",
+      "counterfactual": "same machine-checked set-difference run against the live (unfixed) response and against the local build of the fixed next.config.ts; the blocked set went from 4 origins to 0",
+      "caveat": "no browser was available in this session (agent.browsers reported 'Browser backend __no_browser_backend__ is unavailable'), so the block was proven as a policy/request set-difference, not by observing a console violation"
+    },
+    "inline_script_inventory": [
+      { "where": "src/app/layout.tsx:112-115", "what": "external GA loader", "blocks_removing_unsafe_inline": false },
+      { "where": "src/app/layout.tsx:116-128", "what": "inline gtag bootstrap (executed)", "blocks_removing_unsafe_inline": true },
+      { "where": "src/components/site/footer.tsx:186-190", "what": "enamad seal with inline onerror attribute", "blocks_removing_unsafe_inline": true },
+      { "where": "src/app/layout.tsx:129-136 + blog/[slug]:60 + contact/layout:40 + product/[slug]:197 + shop/page:74", "what": "JSON-LD data blocks", "blocks_removing_unsafe_inline": false },
+      { "where": "src/components/ui/chart.tsx:83", "what": "inline <style>", "blocks_removing_unsafe_inline": false },
+      { "where": "public/brand/*.html, public/slides/liceno-pitch.html", "what": "5 static pages with inline scripts, covered by the same /:path* rule", "blocks_removing_unsafe_inline": true }
+    ],
+    "nonce": { "plumbed": false, "note": "a per-request nonce cannot be delivered by next.config.ts headers(); it requires generating it in src/middleware.ts and moving the CSP there", "tag": "observed" },
+    "minimal_safe_target_policy": {
+      "immediate_no_code_change_equivalent": "script-src 'self' 'unsafe-inline' https://www.googletagmanager.com; connect-src 'self' https://www.google-analytics.com https://region1.google-analytics.com https://analytics.google.com",
+      "hardened_follow_up": "script-src 'self' 'nonce-{NONCE}' 'strict-dynamic' https://www.googletagmanager.com; script-src-attr 'none'",
+      "hardened_blockers": ["generate + thread a nonce from src/middleware.ts", "move CSP out of next.config.ts", "replace footer.tsx:188 inline onerror", "the 5 public/**/*.html static pages cannot carry a nonce"],
+      "tag": "candidate"
+    },
+    "other_headers": {
+      "emitted": {
+        "X-Content-Type-Options": "nosniff",
+        "X-Frame-Options": "DENY",
+        "Referrer-Policy": "strict-origin-when-cross-origin",
+        "Permissions-Policy": "camera=(), microphone=(), geolocation=()",
+        "X-DNS-Prefetch-Control": "on",
+        "Strict-Transport-Security": "max-age=15552000; includeSubDomains (prod only)"
+      },
+      "flags": [
+        "X-Powered-By: Next.js is not stripped (no poweredByHeader:false)",
+        "HSTS has two sources of truth: Next 180d vs Caddyfile.prod 2y + preload",
+        "Caddyfile.prod:23 sets X-Frame-Options SAMEORIGIN, weakening next.config.ts:10 DENY in the docker/proxy deployment",
+        "Permissions-Policy omits payment/usb/serial/bluetooth",
+        "img-src allows blanket https:"
+      ],
+      "tag": "observed"
+    }
+  },
+
+  "axis_4_page_weight": {
+    "measured": {
+      "/": { "live_raw_bytes": 353894, "gzip_bytes": 40126, "brotli_bytes": 25243, "script_tags": 33, "external_scripts": 24, "stylesheet_links": 2, "img_tags": 7, "preload_links": 8, "inline_flight_bytes": 141013, "largest_single_inline_blob": 93548, "local_build_raw_bytes": 349492 },
+      "/shop": { "live_raw_bytes": 717570, "gzip_bytes": 45421, "brotli_bytes": 28341, "script_tags": 29, "external_scripts": 22, "stylesheet_links": 2, "img_tags": 2, "inline_flight_bytes": 215307, "largest_single_inline_blob": 215327, "local_build_raw_bytes": 711600 },
+      "referenced_js": { "/": "23 files, 1754462 B raw / 510369 B gz", "/shop": "21 files, 1708081 B raw / 496516 B gz" }
+    },
+    "premise_correction": "there are ZERO <script type=\"application/json\"> tags; Next 16 streams the RSC payload as inline self.__next_f.push(...) scripts",
+    "top_contributors_ranked": [
+      { "rank": 1, "what": "lucide-react barrel `import * as LucideIcons` ships the whole 1,569-icon set", "where": ["src/components/site/header.tsx:33 (index at :131)", "src/components/site/footer.tsx:18 (:111)", "src/components/site/mobile-menu.tsx:11 (:100)", "src/app/shop/page.tsx:6 (server side)"], "raw_bytes": 726602, "gz_bytes": 188099, "affects": "every storefront route", "effort": "low-medium", "risk_if_naive": "icons are looked up dynamically from category data; a hardcoded registry can silently show the wrong icon for an unseen key" },
+      { "rank": 2, "what": "/shop un-paginated 100-product grid", "where": "src/app/shop/page.tsx:30  getProducts({ ..., limit: 100 })", "raw_bytes_removable": 460000, "measurement": "100 card anchors = 445,144 B (mean 4,364 B/card) + ~162,500 B flight; truncating to 24 measured -336,916 B raw markup (-64%) and est. -20,800 B gz", "effort": "one token, BUT not behaviour-preserving: there is no pagination UI, so lowering the limit hides products (revenue decision)" },
+      { "rank": 3, "what": "3 serialized fields ProductCard never reads (description, features, specifications)", "where": "src/lib/queries.ts:179-189 findMany with no `select`, then decorate(); type src/lib/queries.ts:12-41", "raw_bytes": { "/shop": 91079, "/": 51324 }, "share_of_flight": { "/shop": "48.2%", "/": "41.2%" }, "effort": "low-medium" },
+      { "rank": 4, "what": "/ BrandMarquee renders the 16-brand list twice per row (4x duplication)", "where": "home page brand marquee section", "raw_bytes": 77459, "share_of_home_html": "22.2%", "note": "duplication is load-bearing for the CSS seamless loop", "effort": "medium" },
+      { "rank": 5, "what": "/ TabbedProductCatalog serializes all 6 tabs (~46 of 56 products never rendered server-side)", "raw_bytes": 74000, "effort": "medium" }
+    ],
+    "other": {
+      "next_dynamic_usages_in_src": 0,
+      "unused_dependencies": ["@mdxeditor/editor", "react-syntax-highlighter", "@tanstack/react-table", "embla-carousel-react (ui/carousel.tsx imported by nothing)"],
+      "dead_component": "src/components/site/category-product-row.tsx (barrel-imports lucide but is imported nowhere)",
+      "recharts": "admin-only, not on storefront routes"
+    },
+    "tag": "observed",
+    "caveat": "all byte counts are uncompressed unless a gz/brotli number is given; HTML gzips to 6-11% while JS chunks gzip to ~29%, so raw-byte and gz-byte rankings differ"
+  },
+
+  "fixes_applied": [
+    {
+      "id": "fix-2.1",
+      "axis": "seo/crawl-integrity",
+      "title": "remove the site-wide default canonical; give each indexable page its own",
+      "files": ["src/app/layout.tsx", "src/app/page.tsx", "src/app/shop/page.tsx", "src/app/blog/page.tsx", "src/app/blog/[slug]/page.tsx", "src/app/about/page.tsx", "src/app/faq/page.tsx", "src/app/terms/page.tsx", "src/app/privacy/page.tsx"],
+      "diff_size": "13 insertions, 4 deletions (both fixes together)",
+      "risk": "low — metadata only, no runtime/data/auth/schema impact",
+      "verification": "local production build + curl of the emitted <link rel=canonical> on 13 URL shapes; /contact and /product/<slug> unchanged vs live",
+      "tag": "confirmed"
+    },
+    {
+      "id": "fix-2.2",
+      "axis": "security-headers/csp",
+      "title": "allow the app's own Google Analytics origins in the CSP",
+      "files": ["next.config.ts"],
+      "change": "script-src += https://www.googletagmanager.com (both branches); connect-src += https://www.google-analytics.com https://region1.google-analytics.com https://analytics.google.com. 'unsafe-eval' still dev-only.",
+      "risk": "low — narrowly widens an allowlist to the exact origins the app already requests; no unsafe-* token added",
+      "verification": "reconstructed both branches by evaluating the real next.config.ts in memory; curl -D - on the rebuilt local server; set-difference of requested vs allowed origins = 0 blocked",
+      "not_verified": "cannot be verified on production without a rebuild+redeploy (the header is baked into .next/routes-manifest.json at build time), and deploying requires owner approval",
+      "tag": "confirmed"
+    }
+  ],
+
+  "discovered_by_verifier": [
+    { "axis": "ops/schema", "item": "/order/* returns 500 against the LOCAL db (prisma/db/custom.db) because Order.fulfillmentStage (added by commit e1d3185) is missing there; audit-test.db runs the same query fine, and live production answers 404 (not 500), so this is a local migration gap, not a code defect.", "evidence": "The column main.Order.fulfillmentStage does not exist in the current database.", "action": "NEEDS OWNER APPROVAL — schema/data change is out of scope for this loop iteration", "impact": "high (local only)", "effort": "low (npx prisma db push)" },
+    { "axis": "seo", "item": "Two brand suffixes on article and contact titles: /blog/best-ai-coding-assistants-2026 -> '... (۲۰۲۶) | لایسنو | لایسنو' and /contact -> 'تماس با ما | لایسنو | لایسنو'. Root cause: the value already carries the brand and layout.tsx:23 applies the template '%s | لایسنو' again. Present on live too.", "impact": "medium", "effort": "low" }
+  ],
+
+  "next_candidates_ranked": [
+    { "rank": 0, "axis": "ops/schema", "item": "local DB is behind the schema: Order.fulfillmentStage missing -> /order/* 500s locally (found by the verifier). Schema/data change => owner approval required.", "impact": "high", "effort": "low" },
+    { "rank": 1, "axis": "seo", "item": "/shop?cat=<x> now canonicalises to /shop while src/app/sitemap.ts still advertises all 30 ?cat= URLs (20 of which render zero products). Decide one policy: self-canonical + sitemap, or drop from sitemap + keep canonical.", "impact": "medium", "effort": "low" },
+    { "rank": 2, "axis": "performance", "item": "strip the 3 never-read fields (description, features, specifications) from list queries via an explicit select; -91 KB flight on /shop, -51 KB on /", "impact": "high", "effort": "low-medium" },
+    { "rank": 3, "axis": "performance", "item": "replace the 3 `import * as LucideIcons` barrels with a static registry + fallback; -188 KB gz on every storefront route", "impact": "high", "effort": "medium" },
+    { "rank": 4, "axis": "seo", "item": "sitemap hygiene: stop advertising the 18 product URLs that 301 (16 of their targets are missing from the sitemap) and the 20 zero-product category URLs", "impact": "medium", "effort": "low" },
+    { "rank": 5, "axis": "quality", "item": "no CI exists; add one that runs typecheck:app + typecheck + test, and make the app gate immune to the generated .next/dev/types artifact", "impact": "medium", "effort": "low (needs human approval — infra config)" },
+    { "rank": 6, "axis": "security", "item": "nonce-based CSP to drop script-src 'unsafe-inline' (needs middleware + moving CSP out of next.config + fixing footer.tsx:188 + the 5 public/**/*.html pages)", "impact": "high", "effort": "high" },
+    { "rank": 7, "axis": "seo", "item": "/contact emits 'تماس با ما | لایسنو | لایسنو' (title template + a title that already carries the brand)", "impact": "low", "effort": "low" },
+    { "rank": 8, "axis": "routing", "item": "middleware slug-redirects only fire on percent-encoded paths; a raw-UTF-8 request to a redirect-source slug returns 200", "impact": "medium", "effort": "medium" },
+    { "rank": 9, "axis": "security", "item": "header hygiene: strip X-Powered-By, reconcile HSTS (Next 180d vs Caddy 2y+preload), and Caddyfile.prod's X-Frame-Options SAMEORIGIN overriding Next's DENY", "impact": "low", "effort": "low (infra config — needs approval)" },
+    { "rank": 10, "axis": "performance", "item": "/shop has no pagination (100-item cap) — adding paging unfreezes the -460 KB question, but it changes what customers can see, so it needs an owner decision", "impact": "high", "effort": "medium" }
+  ],
+
+  "not_measured": [
+    "production DB row counts (only live-active=660 is knowable; the repo DB shows 736 active, so 660 is the production number)",
+    "framer-motion's byte cost on the storefront routes (presence confirmed, chunk attribution not proven)",
+    "any browser-observed CSP violation (no browser backend available in this session)"
+  ]
+}

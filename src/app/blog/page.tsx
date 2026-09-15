@@ -10,6 +10,7 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "وبلاگ — راهنما و مقالات",
   description: "راهنمای خرید لایسنس، مقالات تخصصی هوش مصنوعی و نرم‌افزار، و نکات کاربردی.",
+  alternates: { canonical: "/blog" },
 };
 
 export default async function BlogPage({

@@ -11,6 +11,7 @@ export const metadata: Metadata = {
   title: "فروشگاه لایسنس — همه محصولات",
   description:
     "خرید لایسنس اوریجینال هوش مصنوعی و نرم‌افزار: ChatGPT، Midjourney، CapCut، Adobe، Spotify و...",
+  alternates: { canonical: "/shop" },
 };
 
 export default async function ShopPage({

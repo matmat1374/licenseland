@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -15,6 +16,8 @@ import { UnifiedTrustSection } from "@/components/site/unified-trust-section";
 // Storefront content (featured products, prices, banners) must not be cached for a
 // year at the CDN — revalidate every 5 minutes instead.
 export const revalidate = 300;
+
+export const metadata: Metadata = { alternates: { canonical: "/" } };
 
 export default async function HomePage() {
   const [bestsellers, articles, content] = await Promise.all([
