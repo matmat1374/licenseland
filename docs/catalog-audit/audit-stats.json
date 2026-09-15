@@ -1,0 +1,20 @@
+{
+  "totalProducts": 1049,
+  "trueDupGroups": 138,
+  "trueDupProducts": 341,
+  "misleadingGroups": 7,
+  "misleadingProducts": 44,
+  "flaggedProducts": 537,
+  "registryRows": 537,
+  "decisions": {
+    "keepBase": 128,
+    "merge": 213,
+    "rename": 65,
+    "keepUnchanged": 82,
+    "manualReview": 49
+  },
+  "claudeProducts": 36,
+  "similarTitleFamilyGroups": 21,
+  "similarTitleFamilyProducts": 327,
+  "redirectsPlanned": 187
+}

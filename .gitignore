@@ -39,3 +39,8 @@ gitleaks-report.json
 /*.js
 
 .openclaw-deploy-files.txt
+
+# catalog audit raw extracts / process files
+docs/catalog-audit/data/
+audit-test.db
+*.pre-dedup

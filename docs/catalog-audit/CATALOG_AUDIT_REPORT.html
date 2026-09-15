@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ممیزی کاتالوگ Liceno — تعریف محصول، تکراری‌ها و استاندارد نام‌گذاری</title>
+<style>
+  :root{
+    --ink:#16233a; --muted:#5f6b7a; --line:#d9d5cd; --paper:#f7f6f3; --card:#ffffff;
+    --navy:#17324d; --accent:#a8402f; --ok:#0f6b52; --warn:#8a6d1f;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--paper);color:var(--ink);
+       font-family:'Vazirmatn','Segoe UI',Tahoma,sans-serif;line-height:1.85;
+       font-size:16px;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:1120px;margin:0 auto;padding:48px 28px 96px}
+  header.masthead{border-bottom:2px solid var(--navy);padding-bottom:26px;margin-bottom:34px}
+  .eyebrow{font-size:12px;letter-spacing:.22em;color:var(--muted);text-transform:uppercase;margin:0 0 14px}
+  h1{font-size:38px;line-height:1.35;margin:0 0 14px;font-weight:800;letter-spacing:-.01em}
+  .lede{font-size:18px;color:var(--muted);margin:0;max-width:70ch}
+  .meta{margin-top:18px;font-size:13px;color:var(--muted);display:flex;gap:22px;flex-wrap:wrap}
+  h2{font-size:24px;margin:56px 0 6px;font-weight:800;letter-spacing:-.01em}
+  h2 .num{color:var(--accent);font-variant-numeric:tabular-nums;margin-inline-end:10px}
+  h3{font-size:17px;margin:26px 0 8px;font-weight:700}
+  .sub{color:var(--muted);font-size:14px;margin:0 0 18px}
+  p{margin:0 0 14px}
+  .rule{height:1px;background:var(--line);margin:26px 0}
+  .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin:26px 0 8px}
+  .kpi{background:var(--card);border:1px solid var(--line);border-radius:4px;padding:18px 16px}
+  .kpi .v{font-size:30px;font-weight:800;color:var(--navy);font-variant-numeric:tabular-nums;line-height:1.2}
+  .kpi .l{font-size:12.5px;color:var(--muted);margin-top:6px}
+  .kpi.bad .v{color:var(--accent)}
+  .kpi.ok .v{color:var(--ok)}
+  table{width:100%;border-collapse:collapse;margin:18px 0 10px;background:var(--card);font-size:14.5px}
+  caption{caption-side:top;text-align:right;font-size:13px;color:var(--muted);padding:0 0 8px}
+  th,td{padding:10px 12px;border-bottom:1px solid var(--line);text-align:right;vertical-align:top}
+  thead th{border-bottom:2px solid var(--navy);font-size:13px;color:var(--navy);font-weight:700;white-space:nowrap}
+  tbody tr:nth-child(even){background:#fbfaf8}
+  code,.mono{font-family:'Cascadia Mono',Consolas,monospace;font-size:12.8px;direction:ltr;display:inline-block;
+              background:#efece7;border:1px solid var(--line);border-radius:3px;padding:1px 6px;color:#2b3a4d}
+  .cols{display:grid;grid-template-columns:1fr 1fr;gap:22px;margin:20px 0}
+  .box{background:var(--card);border:1px solid var(--line);border-radius:4px;padding:20px 22px}
+  .box h3{margin-top:0}
+  .box.ours{border-top:3px solid var(--accent)}
+  .box.theirs{border-top:3px solid var(--navy)}
+  ul,ol{margin:0 0 14px;padding-inline-start:22px}
+  li{margin-bottom:8px}
+  .tag{display:inline-block;font-size:11.5px;letter-spacing:.04em;border-radius:3px;padding:2px 8px;font-weight:700}
+  .tag.ours{background:#f6e7e4;color:var(--accent)}
+  .tag.theirs{background:#e6edf4;color:var(--navy)}
+  .tag.ok{background:#e3efe9;color:var(--ok)}
+  .tag.warn{background:#f4eeda;color:var(--warn)}
+  figure{margin:26px 0;background:var(--card);border:1px solid var(--line);border-radius:4px;padding:18px}
+  figure svg{width:100%;height:auto;display:block}
+  figcaption{font-size:13px;color:var(--muted);margin-top:12px;padding-top:10px;border-top:1px solid var(--line)}
+  .flowfig{padding:10px}
+  .checklist{columns:2;column-gap:34px}
+  .checklist li{break-inside:avoid}
+  .callout{border-inline-start:4px solid var(--accent);background:#fdf4f2;padding:16px 20px;border-radius:0 4px 4px 0;margin:22px 0}
+  .callout.ok{border-color:var(--ok);background:#eef7f3}
+  footer{margin-top:64px;border-top:2px solid var(--navy);padding-top:20px;font-size:13px;color:var(--muted)}
+  .footnotes{font-size:13.5px;color:var(--muted)}
+  .footnotes li{margin-bottom:6px}
+  @media(max-width:860px){
+    .kpis{grid-template-columns:repeat(2,1fr)}
+    .cols{grid-template-columns:1fr}
+    .checklist{columns:1}
+    h1{font-size:28px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="masthead">
+  <p class="eyebrow">گزارش ممیزی کاتالوگ · Liceno (liceno.ir)</p>
+  <h1>تعریف محصول، محصولات تکراری و استاندارد نام‌گذاری</h1>
+  <p class="lede">چرا پنج محصول «Claude Pro (۱ ماهه)» با قیمت‌های ۵۹۰٬۰۰۰ تا ۲۶٬۲۴۳٬۰۰۰ تومان کنار هم دیده می‌شوند — و چگونه بدون تولید محصول تکراری، این تناقض را برای همیشه ببندیم.</p>
+  <div class="meta">
+    <span>دامنه: ۱٬۰۴۹ محصول</span>
+    <span>تاریخ: ۲۴ شهریور ۱۴۰۵</span>
+    <span>وضعیت: پیش‌نویس — در انتظار تأیید</span>
+    <span>داده‌ها: دیتابیس محلی + صفحات زندهٔ liceno.ir</span>
+  </div>
+</header>
+
+<h2><span class="num">۰۱</span>خلاصهٔ اجرایی</h2>
+<p class="sub">نیمی از کاتالوگ به نوعی درگیر تکرار یا ابهام عنوان است. علت، ترکیبی از دادهٔ خام تأمین‌کننده و دو ایراد مشخص در خط تولید کاتالوگ ماست.</p>
+
+<div class="kpis">
+  <div class="kpi"><div class="v">۱٬۰۴۹</div><div class="l">کل محصولات</div></div>
+  <div class="kpi bad"><div class="v">۵۳۷</div><div class="l">محصول دارای تکرار یا ابهام عنوان (۵۱٪)</div></div>
+  <div class="kpi bad"><div class="v">۱۳۸</div><div class="l">گروه تکراری واقعی (۳۴۱ محصول)</div></div>
+  <div class="kpi ok"><div class="v">۰</div><div class="l">گروه تکراری فعال، پس از اجرای پیش‌نویس</div></div>
+</div>
+
+<p>پنج محصول نمونه‌ای که فرستادید، همه در گروه <code>Claude Pro</code> قرار می‌گیرند: ۲۳ محصول که تنها سه تای آن‌ها <em>کردیت API</em>، یکی <em>صندلی پریمیوم</em> و یکی <em>اکانت تریال</em> است — اما هر ۲۳ محصول عنوان «Claude Pro (…)» دارند. جست‌وجوی «claude» در فروشگاه همین ابهام را به کاربر نشان می‌دهد: دو محصول با عنوان کامل یکسان و قیمت‌های ۱٬۰۰۱٬۰۰۰ و ۱٬۶۴۷٬۰۰۰ تومان.</p>
+
+<div class="callout">
+  <strong>نتیجهٔ کلیدی:</strong> تناقض‌ها یک‌طرفه نیستند. تأمین‌کننده دادهٔ مبهم می‌دهد (نام فنی، شناسهٔ تازه در هر فهرست‌گذاری)، و خط تولید ما این ابهام را «تثبیت و تکثیر» می‌کند. راه‌حل باید هم‌زمان هر دو سمت را ببندد.
+</div>
+
+<h2><span class="num">۰۲</span>شواهد و دامنهٔ بررسی</h2>
+<p class="sub">همهٔ محصولات از دیتابیس استخراج و با صفحات زندهٔ فروشگاه مقابله شد.</p>
+
+<table>
+  <caption>جدول ۱ — توزیع مشکلات در کل کاتالوگ</caption>
+  <thead><tr><th>نوع مشکل</th><th>تعریف</th><th>گروه</th><th>محصول</th></tr></thead>
+  <tbody>
+    <tr><td>تکراری واقعی</td><td>نام تأمین‌کننده یکسان (همان محصول، شناسهٔ تازه)</td><td>۱۳۸</td><td>۳۴۱</td></tr>
+    <tr><td>عنوان یکسان، کارکرد متفاوت</td><td>عنوان دقیقاً یکی، اما سهمیه/نوع دسترسی متفاوت</td><td>۷</td><td>۴۴</td></tr>
+    <tr><td>خانوادهٔ عنوان مشابه</td><td>هم‌برند و هم‌مدت، اما نوع دسترسی متفاوت (مثل Claude Pro)</td><td>۲۱</td><td>۳۲۷</td></tr>
+    <tr><td>شمارهٔ مجازی</td><td>عنوان فعلی گویا است؛ بدون تغییر</td><td>—</td><td>۸۲</td></tr>
+    <tr><th>جمع محصولات مسئله‌دار</th><th></th><th></th><th>۵۳۷</th></tr>
+  </tbody>
+</table>
+
+<figure>
+  <svg viewBox="0 0 900 300" role="img" aria-label="نمودار توزیع مشکلات کاتالوگ">
+    <rect width="900" height="300" fill="#ffffff"/>
+    <g font-family="Vazirmatn,Tahoma,sans-serif">
+      <!-- gridlines -->
+      <g stroke="#e6e2db">
+        <line x1="80" y1="40"  x2="860" y2="40"/><line x1="80" y1="90"  x2="860" y2="90"/>
+        <line x1="80" y1="140" x2="860" y2="140"/><line x1="80" y1="190" x2="860" y2="190"/>
+        <line x1="80" y1="240" x2="860" y2="240"/>
+      </g>
+      <line x1="80" y1="240" x2="860" y2="240" stroke="#16233a" stroke-width="1.5"/>
+      <g font-size="11" fill="#5f6b7a" text-anchor="end">
+        <text x="72" y="44">۴۰۰</text><text x="72" y="94">۳۰۰</text>
+        <text x="72" y="144">۲۰۰</text><text x="72" y="194">۱۰۰</text><text x="72" y="244">۰</text>
+      </g>
+      <!-- bars: 341, 44, 327, 82  (scale: 100 = 50px) -->
+      <rect x="130" y="69.5" width="120" height="170.5" fill="#a8402f"/>
+      <text x="190" y="60" text-anchor="middle" font-size="14" font-weight="700" fill="#a8402f">۳۴۱</text>
+      <text x="190" y="264" text-anchor="middle" font-size="12.5" fill="#16233a">تکراری واقعی</text>
+
+      <rect x="330" y="218" width="120" height="22" fill="#c98a7a"/>
+      <text x="390" y="209" text-anchor="middle" font-size="14" font-weight="700" fill="#a8402f">۴۴</text>
+      <text x="390" y="264" text-anchor="middle" font-size="12.5" fill="#16233a">عنوان یکسان</text>
+
+      <rect x="530" y="76.5" width="120" height="163.5" fill="#17324d"/>
+      <text x="590" y="67" text-anchor="middle" font-size="14" font-weight="700" fill="#17324d">۳۲۷</text>
+      <text x="590" y="264" text-anchor="middle" font-size="12.5" fill="#16233a">خانوادهٔ مشابه</text>
+
+      <rect x="730" y="199" width="120" height="41" fill="#9aa7b4"/>
+      <text x="790" y="190" text-anchor="middle" font-size="14" font-weight="700" fill="#5f6b7a">۸۲</text>
+      <text x="790" y="264" text-anchor="middle" font-size="12.5" fill="#16233a">شمارهٔ مجازی</text>
+    </g>
+  </svg>
+  <figcaption>شکل ۱ — محصولات درگیر به تفکیک نوع مشکل. بیشترین حجم، «تکراری واقعی» است که با ادغام حل می‌شود؛ «خانوادهٔ مشابه» با استاندارد نام‌گذاری.</figcaption>
+</figure>
+
+<h2><span class="num">۰۳</span>مطالعهٔ موردی: پنج لینک Claude</h2>
+<p class="sub">هر پنج محصول با عنوان تقریباً یکسان، اکنون در رجیستری یک عنوان و SKU یکتا دارند.</p>
+
+<table>
+  <caption>جدول ۲ — عنوان فعلی در برابر عنوان پیشنهادی (برگرفته از product-registry.csv)</caption>
+  <thead><tr><th>لینک (slug)</th><th>عنوان فعلی</th><th>کارکرد واقعی</th><th>عنوان پیشنهادی</th><th>SKU</th></tr></thead>
+  <tbody>
+    <tr><td><code>2421-claude-pro-۳-روزه</code></td><td>Claude Pro (۳ روزه)</td><td>کردیت API ۱۰۰M توکن</td><td><strong>کلود API — ۱۰۰M توکن (۳ روزه) — با گارانتی</strong></td><td><code>CLAUDE-API-100M-3D</code></td></tr>
+    <tr><td><code>4623-claude-pro-۱-روزه</code></td><td>Claude Pro (۱ روزه)</td><td>کردیت API ۵۰M توکن</td><td><strong>کلود API — ۵۰M توکن (۱ روزه) — با گارانتی</strong></td><td><code>CLAUDE-API-50M-1D</code></td></tr>
+    <tr><td><code>2879-claude-pro-۱-ماهه</code></td><td>Claude Pro (۱ ماهه)</td><td>صندلی اشتراکی پریمیوم</td><td><strong>کلود سیت اشتراکی (۱ ماهه)</strong></td><td><code>CLAUDE-SEAT-1M</code></td></tr>
+    <tr><td><code>2379-claude-pro-۱-ماهه</code></td><td>اکانت کلود پرو اختصاصی (Claude Pro AI)</td><td>اعتبار API ۵۰ دلاری</td><td><strong>کلود API — ۵۰$ (۱ ماهه) — با گارانتی</strong></td><td><code>CLAUDE-API-50USD-1M</code></td></tr>
+    <tr><td><code>2992-claude-pro-۱-ماهه</code></td><td>اکانت کلود پرو ۱ ماهه … | قانونی و پایدار</td><td>اکانت تریال قدیمی، بدون گارانتی</td><td><strong>کلود اکانت (۱ ماهه) — بدون گارانتی</strong></td><td><code>CLAUDE-ACC-1M-NOWAR</code></td></tr>
+  </tbody>
+</table>
+
+<div class="callout ok">
+  <strong>قبل ← بعد:</strong> پنج محصولی که پیش‌تر همه «Claude Pro …» بودند، حالا پنج عنوان کاملاً متفاوت دارند و تفاوت کارکردشان (کردیت / صندلی / اکانت) از خود عنوان خوانده می‌شود.
+</div>
+
+<h2><span class="num">۰۴</span>ریشه‌یابی: خطای ما در برابر خطای تأمین‌کننده</h2>
+<p class="sub">هر مورد با شاهد کد یا داده مستند شده است.</p>
+
+<div class="cols">
+  <div class="box ours">
+    <h3><span class="tag ours">سمت ما</span></h3>
+    <ol>
+      <li><strong>نرمال‌ساز عنوان، ویژگی را حذف می‌کند.</strong> در <code>localizeProduct()</code> همهٔ انواع Claude به «Claude Pro» فروکاسته و فقط مدت اضافه می‌شود؛ سهمیه و سطح دور ریخته می‌شود.</li>
+      <li><strong>کلید تطبیق سینک ضعیف است.</strong> تطبیق فقط با <code>supplier_product_id</code>؛ شناسهٔ تازه = محصول تازه.</li>
+      <li><strong>تطبیق رشتهٔ دقیق.</strong> «Openai» و «ChatGPT» یک محصول‌اند ولی یکی حساب نمی‌شوند.</li>
+      <li><strong>شرح کوتاه خام است.</strong> متن انگلیسی تأمین‌کننده بدون ساخت‌یافتگی در صفحه می‌آید.</li>
+      <li><strong>نبود دروازهٔ QA.</strong> هیچ مرحله‌ای تکرار عنوان را پیش از انتشار نمی‌گیرد.</li>
+      <li><strong>موجودی جعلی ۹۹.</strong> <code>Math.max(stock,99)</code> اعتماد و فوریت را از بین می‌برد.</li>
+    </ol>
+  </div>
+  <div class="box theirs">
+    <h3><span class="tag theirs">سمت تأمین‌کننده</span></h3>
+    <ol>
+      <li><strong>فهرست‌گذاری مجدد با شناسهٔ تازه.</strong> همان محصول با شناسهٔ جدید ثبت می‌شود.</li>
+      <li><strong>نام فنی و ناقص.</strong> «Claude API 50$ Token 1 month 30 days warranty» بدون فیلد ساخت‌یافته.</li>
+      <li><strong>نام یکسان برای محصولات متفاوت.</strong> «Claude Pro» هم برای کردیت، هم صندلی، هم اکانت.</li>
+      <li><strong>تغییر قیمت بدون اطلاع.</strong> ۵٫۶۹ / ۵٫۰۲ / ۵٫۰۲ دلار برای یک محصول.</li>
+      <li><strong>ابهام گارانتی.</strong> ترکیب «۱ ماهه» با «warranty 24H».</li>
+    </ol>
+  </div>
+</div>
+
+<figure class="flowfig">
+  <svg viewBox="0 0 1600 900" role="img" aria-label="نمودار مکانیزم تولید محصول تکراری و مسیر اصلاح">
+    <rect width="1600" height="900" fill="#ffffff"/>
+    <g font-family="Vazirmatn,Tahoma,sans-serif">
+      <defs>
+        <marker id="arR" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0,1 L8,5 L0,9 z" fill="#a8322d"/></marker>
+        <marker id="arG" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0,1 L8,5 L0,9 z" fill="#0f7b5a"/></marker>
+      </defs>
+      <text x="1540" y="52" text-anchor="end" font-size="30" font-weight="800" fill="#16233a">چرا محصول تکراری ساخته می‌شود؟</text>
+      <text x="1540" y="88" text-anchor="end" font-size="17" fill="#5f6b7a">مکانیزم فعلی در برابر مسیر اصلاح‌شده — نمونه: خانوادهٔ Claude Pro</text>
+      <line x1="60" y1="108" x2="1540" y2="108" stroke="#17324d" stroke-width="2"/>
+
+      <rect x="60" y="140" width="1480" height="290" rx="6" fill="#fdf3f2" stroke="#e8cfcc"/>
+      <text x="1520" y="176" text-anchor="end" font-size="20" font-weight="800" fill="#a8322d">وضعیت امروز — تکثیر تکراری</text>
+
+      <rect x="1180" y="210" width="320" height="115" rx="5" fill="#fff" stroke="#d6cdc9"/>
+      <text x="1480" y="246" text-anchor="end" font-size="16.5" font-weight="700" fill="#16233a">۱. تأمین‌کننده بازفهرست می‌کند</text>
+      <text x="1480" y="274" text-anchor="end" font-size="14.5" fill="#5f6b7a">همان محصول، شناسهٔ جدید</text>
+      <text x="1480" y="298" text-anchor="end" font-size="14.5" fill="#5f6b7a">۲۸۱۴ → ۳۲۶۵ → ۳۳۲۸</text>
+      <line x1="1180" y1="267" x2="1114" y2="267" stroke="#a8322d" stroke-width="2.5" marker-end="url(#arR)"/>
+
+      <rect x="792" y="210" width="320" height="115" rx="5" fill="#fff" stroke="#d6cdc9"/>
+      <text x="1092" y="246" text-anchor="end" font-size="16.5" font-weight="700" fill="#16233a">۲. تطبیق با شناسه</text>
+      <text x="1092" y="274" text-anchor="end" font-size="14.5" fill="#5f6b7a">کلید = supplier_product_id</text>
+      <text x="1092" y="298" text-anchor="end" font-size="14.5" fill="#5f6b7a">شناسهٔ جدید → بدون تطبیق</text>
+      <line x1="792" y1="267" x2="726" y2="267" stroke="#a8322d" stroke-width="2.5" marker-end="url(#arR)"/>
+
+      <rect x="404" y="210" width="320" height="115" rx="5" fill="#fff" stroke="#d6cdc9"/>
+      <text x="704" y="246" text-anchor="end" font-size="16.5" font-weight="700" fill="#16233a">۳. محصول جدید ساخته می‌شود</text>
+      <text x="704" y="274" text-anchor="end" font-size="14.5" fill="#5f6b7a">ردیف تازه با همان کارکرد</text>
+      <text x="704" y="298" text-anchor="end" font-size="14.5" fill="#5f6b7a">قیمت دلاری کمی متفاوت</text>
+      <line x1="404" y1="267" x2="338" y2="267" stroke="#a8322d" stroke-width="2.5" marker-end="url(#arR)"/>
+
+      <rect x="96" y="210" width="240" height="115" rx="5" fill="#fff" stroke="#d6cdc9"/>
+      <text x="316" y="246" text-anchor="end" font-size="16.5" font-weight="700" fill="#16233a">۴. عنوان ساخته می‌شود</text>
+      <text x="316" y="274" text-anchor="end" font-size="14.5" fill="#5f6b7a">برند + مدت</text>
+      <text x="316" y="298" text-anchor="end" font-size="14.5" fill="#5f6b7a">سهمیه و نوع حذف می‌شود</text>
+
+      <text x="1520" y="404" text-anchor="end" font-size="18" font-weight="800" fill="#a8322d">نتیجه: ۲۳ محصول «Claude Pro (…)» — کاربر تفاوت را نمی‌فهمد ✗</text>
+
+      <rect x="60" y="470" width="1480" height="290" rx="6" fill="#eef7f3" stroke="#cbe6dc"/>
+      <text x="1520" y="506" text-anchor="end" font-size="20" font-weight="800" fill="#0f7b5a">پس از اصلاح — ادغام و عنوان یکتا</text>
+
+      <rect x="1180" y="540" width="320" height="115" rx="5" fill="#fff" stroke="#bcd9cf"/>
+      <text x="1480" y="576" text-anchor="end" font-size="16.5" font-weight="700" fill="#16233a">۱. تأمین‌کننده بازفهرست می‌کند</text>
+      <text x="1480" y="604" text-anchor="end" font-size="14.5" fill="#5f6b7a">همان محصول، شناسهٔ جدید</text>
+      <text x="1480" y="628" text-anchor="end" font-size="14.5" fill="#5f6b7a">دادهٔ ورودی بی‌تغییر</text>
+      <line x1="1180" y1="597" x2="1114" y2="597" stroke="#0f7b5a" stroke-width="2.5" marker-end="url(#arG)"/>
+
+      <rect x="792" y="540" width="320" height="115" rx="5" fill="#fff" stroke="#bcd9cf"/>
+      <text x="1092" y="576" text-anchor="end" font-size="16.5" font-weight="700" fill="#16233a">۲. تطبیق با کلید نرمال‌شده</text>
+      <text x="1092" y="604" text-anchor="end" font-size="14.5" fill="#5f6b7a">برند + نوع + سهمیه + مدت</text>
+      <text x="1092" y="628" text-anchor="end" font-size="14.5" fill="#5f6b7a">«Openai» = «ChatGPT»</text>
+      <line x1="792" y1="597" x2="726" y2="597" stroke="#0f7b5a" stroke-width="2.5" marker-end="url(#arG)"/>
+
+      <rect x="404" y="540" width="320" height="115" rx="5" fill="#fff" stroke="#bcd9cf"/>
+      <text x="704" y="576" text-anchor="end" font-size="16.5" font-weight="700" fill="#16233a">۳. ادغام / به‌روزرسانی</text>
+      <text x="704" y="604" text-anchor="end" font-size="14.5" fill="#5f6b7a">مبنا حفظ، بقیه آرشیو</text>
+      <text x="704" y="628" text-anchor="end" font-size="14.5" fill="#5f6b7a">ریدایرکت ۳۰۱ → مبنا</text>
+      <line x1="404" y1="597" x2="338" y2="597" stroke="#0f7b5a" stroke-width="2.5" marker-end="url(#arG)"/>
+
+      <rect x="96" y="540" width="240" height="115" rx="5" fill="#fff" stroke="#bcd9cf"/>
+      <text x="316" y="576" text-anchor="end" font-size="16.5" font-weight="700" fill="#16233a">۴. عنوان استاندارد</text>
+      <text x="316" y="604" text-anchor="end" font-size="14.5" fill="#5f6b7a">نوع + سهمیه + مدت</text>
+      <text x="316" y="628" text-anchor="end" font-size="14.5" fill="#5f6b7a">+ SKU یکتا</text>
+
+      <text x="1520" y="722" text-anchor="end" font-size="18" font-weight="800" fill="#0f7b5a">نتیجه: «کلود API — ۱۰۰M توکن (۳ روزه) — با گارانتی» — یکتا و شفاف ✓</text>
+
+      <line x1="60" y1="790" x2="1540" y2="790" stroke="#d9d5cd"/>
+      <text x="1540" y="826" text-anchor="end" font-size="14" fill="#5f6b7a">ممیزی کاتالوگ Liceno — ۱٬۰۴۹ محصول — ۱۳۸ گروه تکراری (۳۴۱ محصول)</text>
+      <text x="1540" y="852" text-anchor="end" font-size="14" fill="#5f6b7a">پس از اجرای پیش‌نویس: ۰ گروه تکراری فعال · ۸۶ آرشیو · ۱۸۷ ریدایرکت · صفر حذف</text>
+    </g>
+  </svg>
+  <figcaption>شکل ۲ — زنجیرهٔ تولید تکراری (بالا) و مسیر اصلاح‌شده (پایین). ریشه در گام ۲ و ۴ است: کلید تطبیق ضعیف، و نرمال‌سازی عنوانی که سهمیه را حذف می‌کند.</figcaption>
+</figure>
+
+<h2><span class="num">۰۵</span>استاندارد نام‌گذاری و SKU</h2>
+<p class="sub">الگویی که تضمین می‌کند دو محصول با کارکرد متفاوت هرگز عنوان یکسان نگیرند.</p>
+
+<p><strong>الگوی عنوان:</strong> <code>[برند] [نوع دسترسی] [سهمیه/سطح] ([مدت]) — [گارانتی]</code></p>
+<p><strong>الگوی SKU:</strong> <code>BRAND-TYPE-QUOTA-DUR-[TIER]-[NOWAR]</code></p>
+
+<table>
+  <caption>جدول ۳ — نمونه‌های اعمال‌شده روی خانواده‌های پرتکرار</caption>
+  <thead><tr><th>عنوان فعلی</th><th>عنوان پیشنهادی</th><th>SKU</th></tr></thead>
+  <tbody>
+    <tr><td>API Claude Standard 200M Token 1 Day – full warranty</td><td>کلود API — ۲۰۰M توکن (۱ روزه) — با گارانتی</td><td><code>CLAUDE-API-200M-1D-STD</code></td></tr>
+    <tr><td>API Claude VIP High Stable 15M Token 1 Day</td><td>کلود API — ۱۵M توکن (۱ روزه) — با گارانتی</td><td><code>CLAUDE-API-15M-1D-VIP</code></td></tr>
+    <tr><td>API Cursor Pro 2600 Credits 1 month full warranty</td><td>کرسر API — ۲۶۰۰ کردیت (۱ ماهه) — با گارانتی</td><td><code>CURSOR-API-2600-1M</code></td></tr>
+    <tr><td>Google Play Gift Card (US) - US $10 Gift Card Code</td><td>گوگل پلی گیفت‌کارت ۱۰$</td><td><code>GPLAY-GC-10USD</code></td></tr>
+    <tr><td>YOUTUBE PREMIUM SLOT 6 MONTHS full warranty</td><td>یوتیوب سیت اشتراکی (۶ ماهه) — با گارانتی</td><td><code>YOUTUBE-SEAT-6M</code></td></tr>
+  </tbody>
+</table>
+
+<h2><span class="num">۰۶</span>فیلدهای اجباری تفکیک‌کننده</h2>
+<p class="sub">حداقل مشخصاتی که باید در هر صفحهٔ محصول دیده شود.</p>
+
+<table>
+  <thead><tr><th>فیلد</th><th>چرا حیاتی است</th><th>نمایش</th></tr></thead>
+  <tbody>
+    <tr><td>نوع دسترسی</td><td>اکانت / سیت اشتراکی / API / گیفت‌کارت — مهم‌ترین تفکیک</td><td>بج بالای عنوان</td></tr>
+    <tr><td>مدت اعتبار</td><td>از تاریخ تحویل، نه «۱ ماه» مبهم</td><td>ردیف مشخصات</td></tr>
+    <tr><td>سهمیه / مقدار مصرف</td><td>۱۰۰M توکن یا ۵۰$ — بدون آن دو محصول یکسان به‌نظر می‌رسند</td><td>ردیف مشخصات + عنوان</td></tr>
+    <tr><td>تعداد کاربر/دستگاه</td><td>اشتراکی یا اختصاصی بودن</td><td>ردیف مشخصات</td></tr>
+    <tr><td>محدودیت منطقه‌ای</td><td>نیاز به IP/کشور خاص</td><td>هشدار قرمز در صورت وجود</td></tr>
+    <tr><td>گارانتی و شرط تعویض</td><td>«بدون گارانتی» یک واقعیت است، نه شرم</td><td>بج گارانتی</td></tr>
+    <tr><td>زمان تحویل</td><td>آنی یا تا N ساعت</td><td>جعبهٔ خرید</td></tr>
+  </tbody>
+</table>
+
+<h2><span class="num">۰۷</span>برنامهٔ ادغام و نتیجهٔ راستی‌آزمایی</h2>
+<p class="sub">هیچ ردیفی حذف نمی‌شود؛ تکراری‌ها آرشیو و به مبنا ریدایرکت می‌شوند تا سفارش و سئو سالم بمانند.</p>
+
+<table>
+  <caption>جدول ۴ — نتیجهٔ اجرای پیش‌نویس روی کپی دیتابیس</caption>
+  <thead><tr><th>سنجه</th><th>قبل</th><th>بعد</th><th>وضعیت</th></tr></thead>
+  <tbody>
+    <tr><td>گروه تکراری فعال</td><td>۱۳۸</td><td>۰</td><td><span class="tag ok">حل شد</span></td></tr>
+    <tr><td>گروه عنوان گمراه‌کننده</td><td>۷</td><td>۱</td><td><span class="tag warn">۱ مورد بررسی دستی</span></td></tr>
+    <tr><td>محصول آرشیو‌شده</td><td>۰</td><td>۸۶</td><td><span class="tag ok">ادغام</span></td></tr>
+    <tr><td>عنوان تغییر‌یافته</td><td>۰</td><td>۷۵</td><td><span class="tag ok">استاندارد شد</span></td></tr>
+    <tr><td>ریدایرکت ۳۰۱</td><td>۷۷۷</td><td>۹۶۴</td><td><span class="tag ok">+۱۸۷</span></td></tr>
+    <tr><td>ردیف حذف‌شده</td><td>—</td><td>۰</td><td><span class="tag ok">سالم</span></td></tr>
+    <tr><td>سفارش‌ها / کلیدهای لایسنس</td><td>—</td><td>دست‌نخورده</td><td><span class="tag ok">سالم</span></td></tr>
+  </tbody>
+</table>
+
+<div class="callout">
+  <strong>چرا آرشیو و نه حذف؟</strong> سفارش‌های گذشته به <code>OrderItem.productId</code> وصل‌اند. حذف محصول، تاریخچهٔ خرید کاربر را می‌شکند. آرشیو + ریدایرکت، هم صفحه را از فروشگاه حذف می‌کند و هم سابقهٔ سفارش و رتبهٔ سئو را نگه می‌دارد.
+</div>
+
+<h2><span class="num">۰۸</span>رویهٔ پیشگیری و چک‌لیست کنترل کیفیت</h2>
+
+<table>
+  <caption>جدول ۵ — SOP انتشار محصول جدید</caption>
+  <thead><tr><th>گام</th><th>مسئول</th><th>کار</th><th>شرط عبور</th></tr></thead>
+  <tbody>
+    <tr><td>۱</td><td>محتوا</td><td>استخراج مشخصات با قالب درخواست از تأمین‌کننده</td><td>۱۲ فیلد ستاره‌دار کامل</td></tr>
+    <tr><td>۲</td><td>محتوا</td><td>ساخت عنوان و SKU با استاندارد</td><td>الگو رعایت شده</td></tr>
+    <tr><td>۳</td><td>محتوا</td><td>جست‌وجوی عنوان و SKU در پنل</td><td>صفر برخورد</td></tr>
+    <tr><td>۴</td><td>فنی</td><td>ثبت پیش‌نویس (<code>isActive=false</code>)</td><td>ردیف ساخته شد</td></tr>
+    <tr><td>۵</td><td>QA</td><td>اجرای چک‌لیست</td><td>۱۰۰٪ تیک</td></tr>
+    <tr><td>۶</td><td>مالک</td><td>تأیید نهایی و انتشار</td><td>صفحه ۲۰۰</td></tr>
+  </tbody>
+</table>
+
+<div class="box">
+<h3>چک‌لیست پیش از انتشار</h3>
+<ul class="checklist">
+  <li>الگوی عنوان رعایت شده</li>
+  <li>نوع دسترسی صریح است</li>
+  <li>سهمیه در عنوان آمده (API و گیفت‌کارت)</li>
+  <li>مدت در پرانتز آمده</li>
+  <li>عنوان با هیچ محصول دیگری یکسان نیست</li>
+  <li>عنوان هم‌مدت با کارکرد متفاوت یکسان نیست</li>
+  <li>عنوان ≤ ۷۰ کاراکتر</li>
+  <li>SKU یکتاست</li>
+  <li>مشخصات کامل (مدت، سهمیه، کاربر، منطقه، گارانتی)</li>
+  <li>شرح فارسی و قابل‌فهم است</li>
+  <li>قیمت با cost_usd هم‌خوان است</li>
+  <li>موجودی واقعی است (نه ۹۹ ثابت)</li>
+</ul>
+</div>
+
+<div class="callout ok">
+  <strong>اجرای آزمایشی:</strong> چک‌لیست روی محصول واقعی <code>۲۳۷۵</code> (یک Claude API روزه) اجرا شد → عبور. آزمون معکوس با عنوان «Claude Pro (۱ روزه)» بدون سهمیه → در بند «سهمیه در عنوان» قرمز شد و انتشار متوقف گشت. یعنی چک‌لیست همان خطای امروز را می‌گیرد.
+</div>
+
+<h2><span class="num">۰۹</span>قدم‌های بعدی</h2>
+<table>
+  <thead><tr><th>#</th><th>کار</th><th>مسئول</th><th>زمان</th></tr></thead>
+  <tbody>
+    <tr><td>۱</td><td>تأیید ۴۹ مورد «بررسی دستی» در رجیستری</td><td>مالک محصول</td><td>۱ روز</td></tr>
+    <tr><td>۲</td><td>ارسال قالب درخواست اطلاعات به تأمین‌کننده</td><td>مالک محصول</td><td>۲ روز</td></tr>
+    <tr><td>۳</td><td>اصلاح ریشه‌ای کد (کلید نرمال‌شده + نرمال‌ساز عنوان)</td><td>فنی</td><td>۲ روز</td></tr>
+    <tr><td>۴</td><td>اجرای نهایی روی پروداکشن + دیپلوی</td><td>فنی</td><td>۱ ساعت</td></tr>
+    <tr><td>۵</td><td>تست ریدایرکت‌ها و بازبینی جست‌وجو</td><td>فنی + مالک</td><td>۲ ساعت</td></tr>
+    <tr><td>۶</td><td>فعال‌سازی چک‌لیست در فرایند انتشار</td><td>مالک محصول</td><td>۱ ساعت</td></tr>
+  </tbody>
+</table>
+
+<footer>
+  <p><strong>منابع و مبنای داده:</strong></p>
+  <ol class="footnotes">
+    <li>دیتابیس محلی پروژه (<code>prisma/db/custom.db</code>) — ۱٬۰۴۹ ردیف محصول، استخراج‌شده با <code>scripts/catalog-audit-registry.cjs</code>.</li>
+    <li>صفحات زنده: پنج لینک نمونهٔ Claude و پاسخ <code>/api/products?search=claude</code> روی liceno.ir.</li>
+    <li>شواهد کد: <code>src/lib/supplier.ts → localizeProduct()</code> و <code>scripts/rebuild-catalog.mjs</code>.</li>
+    <li>راستی‌آزمایی روی کپی دیتابیس (<code>audit-test.db</code>)؛ هیچ تغییری روی داده‌های زنده اعمال نشده است.</li>
+  </ol>
+  <p>فایل‌های همراه: <code>product-registry.csv</code> · <code>ROOT_CAUSE.md</code> · <code>NAMING_SKU_STANDARD.md</code> · <code>MERGE_PLAN.md</code> · <code>SUPPLIER_INFO_REQUEST_TEMPLATE.md</code> · <code>SOP_QA_CHECKLIST.md</code></p>
+</footer>
+
+</div>
+</body>
+</html>

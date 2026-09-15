@@ -1,0 +1,98 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900" font-family="Vazirmatn, Tahoma, 'Segoe UI', sans-serif">
+  <defs>
+    <marker id="ar" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
+      <path d="M0,1 L8,5 L0,9 z" fill="#1b2a41"/>
+    </marker>
+    <marker id="arG" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
+      <path d="M0,1 L8,5 L0,9 z" fill="#0f7b5a"/>
+    </marker>
+    <marker id="arR" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
+      <path d="M0,1 L8,5 L0,9 z" fill="#a8322d"/>
+    </marker>
+  </defs>
+
+  <rect width="1600" height="900" fill="#f7f6f3"/>
+
+  <text x="1560" y="62" text-anchor="end" font-size="34" font-weight="700" fill="#1b2a41">چرا محصول تکراری ساخته می‌شود؟</text>
+  <text x="1560" y="98" text-anchor="end" font-size="19" fill="#6b7280">مکانیزم فعلی در برابر مسیر اصلاح‌شده — نمونه: خانوادهٔ Claude Pro</text>
+  <line x1="60" y1="118" x2="1540" y2="118" stroke="#1b2a41" stroke-width="2"/>
+
+  <!-- ===== BAND 1: TODAY (bug) ===== -->
+  <rect x="60" y="150" width="1480" height="300" rx="6" fill="#fdf3f2" stroke="#e8cfcc"/>
+  <text x="1520" y="188" text-anchor="end" font-size="21" font-weight="700" fill="#a8322d">وضعیت امروز — تکثیر تکراری</text>
+
+  <!-- boxes (RTL: right to left) -->
+  <g>
+    <rect x="1180" y="220" width="320" height="120" rx="5" fill="#ffffff" stroke="#d6cdc9"/>
+    <text x="1480" y="258" text-anchor="end" font-size="17" font-weight="700" fill="#1b2a41">۱. تأمین‌کننده بازفهرست می‌کند</text>
+    <text x="1480" y="288" text-anchor="end" font-size="15" fill="#4b5563">همان محصول، شناسهٔ جدید</text>
+    <text x="1480" y="312" text-anchor="end" font-size="15" fill="#4b5563">۲۸۱۴ → ۳۲۶۵ → ۳۳۲۸</text>
+  </g>
+  <line x1="1180" y1="280" x2="1112" y2="280" stroke="#a8322d" stroke-width="2.5" marker-end="url(#arR)"/>
+
+  <g>
+    <rect x="792" y="220" width="320" height="120" rx="5" fill="#ffffff" stroke="#d6cdc9"/>
+    <text x="1092" y="258" text-anchor="end" font-size="17" font-weight="700" fill="#1b2a41">۲. سینک با شناسه تطبیق می‌دهد</text>
+    <text x="1092" y="288" text-anchor="end" font-size="15" fill="#4b5563">کلید جست‌وجو = supplier_product_id</text>
+    <text x="1092" y="312" text-anchor="end" font-size="15" fill="#4b5563">شناسهٔ جدید → هیچ تطبیقی نمی‌یابد</text>
+  </g>
+  <line x1="792" y1="280" x2="724" y2="280" stroke="#a8322d" stroke-width="2.5" marker-end="url(#arR)"/>
+
+  <g>
+    <rect x="404" y="220" width="320" height="120" rx="5" fill="#ffffff" stroke="#d6cdc9"/>
+    <text x="704" y="258" text-anchor="end" font-size="17" font-weight="700" fill="#1b2a41">۳. محصول جدید ساخته می‌شود</text>
+    <text x="704" y="288" text-anchor="end" font-size="15" fill="#4b5563">ردیف تازه با همان کارکرد</text>
+    <text x="704" y="312" text-anchor="end" font-size="15" fill="#4b5563">قیمت دلاری کمی متفاوت</text>
+  </g>
+  <line x1="404" y1="280" x2="336" y2="280" stroke="#a8322d" stroke-width="2.5" marker-end="url(#arR)"/>
+
+  <g>
+    <rect x="96" y="220" width="240" height="120" rx="5" fill="#ffffff" stroke="#d6cdc9"/>
+    <text x="316" y="258" text-anchor="end" font-size="17" font-weight="700" fill="#1b2a41">۴. عنوان ساخته می‌شود</text>
+    <text x="316" y="288" text-anchor="end" font-size="15" fill="#4b5563">برند + مدت</text>
+    <text x="316" y="312" text-anchor="end" font-size="15" fill="#4b5563">سهمیه و نوع حذف می‌شود</text>
+  </g>
+
+  <text x="1520" y="404" text-anchor="end" font-size="19" font-weight="700" fill="#a8322d">نتیجه: ۲۳ محصول «Claude Pro (…)» — کاربر تفاوت را نمی‌فهمد ✗</text>
+
+  <!-- ===== BAND 2: AFTER FIX ===== -->
+  <rect x="60" y="490" width="1480" height="300" rx="6" fill="#eef7f3" stroke="#cbe6dc"/>
+  <text x="1520" y="528" text-anchor="end" font-size="21" font-weight="700" fill="#0f7b5a">پس از اصلاح — ادغام و عنوان یکتا</text>
+
+  <g>
+    <rect x="1180" y="560" width="320" height="120" rx="5" fill="#ffffff" stroke="#bcd9cf"/>
+    <text x="1480" y="598" text-anchor="end" font-size="17" font-weight="700" fill="#1b2a41">۱. تأمین‌کننده بازفهرست می‌کند</text>
+    <text x="1480" y="628" text-anchor="end" font-size="15" fill="#4b5563">همان محصول، شناسهٔ جدید</text>
+    <text x="1480" y="652" text-anchor="end" font-size="15" fill="#4b5563">بی‌تغییر در دادهٔ ورودی</text>
+  </g>
+  <line x1="1180" y1="620" x2="1112" y2="620" stroke="#0f7b5a" stroke-width="2.5" marker-end="url(#arG)"/>
+
+  <g>
+    <rect x="792" y="560" width="320" height="120" rx="5" fill="#ffffff" stroke="#bcd9cf"/>
+    <text x="1092" y="598" text-anchor="end" font-size="17" font-weight="700" fill="#1b2a41">۲. تطبیق با کلید نرمال‌شده</text>
+    <text x="1092" y="628" text-anchor="end" font-size="15" fill="#4b5563">برند + نوع + سهمیه + مدت</text>
+    <text x="1092" y="652" text-anchor="end" font-size="15" fill="#4b5563">«Openai» = «ChatGPT» = یک محصول</text>
+  </g>
+  <line x1="792" y1="620" x2="724" y2="620" stroke="#0f7b5a" stroke-width="2.5" marker-end="url(#arG)"/>
+
+  <g>
+    <rect x="404" y="560" width="320" height="120" rx="5" fill="#ffffff" stroke="#bcd9cf"/>
+    <text x="704" y="598" text-anchor="end" font-size="17" font-weight="700" fill="#1b2a41">۳. ادغام / به‌روزرسانی</text>
+    <text x="704" y="628" text-anchor="end" font-size="15" fill="#4b5563">محصول مبنا حفظ، بقیه آرشیو</text>
+    <text x="704" y="652" text-anchor="end" font-size="15" fill="#4b5563">ریدایرکت ۳۰۱ → مبنا</text>
+  </g>
+  <line x1="404" y1="620" x2="336" y2="620" stroke="#0f7b5a" stroke-width="2.5" marker-end="url(#arG)"/>
+
+  <g>
+    <rect x="96" y="560" width="240" height="120" rx="5" fill="#ffffff" stroke="#bcd9cf"/>
+    <text x="316" y="598" text-anchor="end" font-size="17" font-weight="700" fill="#1b2a41">۴. عنوان استاندارد</text>
+    <text x="316" y="628" text-anchor="end" font-size="15" fill="#4b5563">نوع + سهمیه + مدت</text>
+    <text x="316" y="652" text-anchor="end" font-size="15" fill="#4b5563">+ SKU یکتا</text>
+  </g>
+
+  <text x="1520" y="744" text-anchor="end" font-size="19" font-weight="700" fill="#0f7b5a">نتیجه: «کلود API — ۱۰۰M توکن (۳ روزه) — با گارانتی» — یکتا و شفاف ✓</text>
+
+  <line x1="60" y1="800" x2="1540" y2="800" stroke="#d6cdc9"/>
+  <text x="1560" y="838" text-anchor="end" font-size="15" fill="#6b7280">ممیزی کاتالوگ Liceno — ۱٬۰۴۹ محصول — ۱۳۸ گروه تکراری، ۳۴۱ محصول</text>
+  <text x="1560" y="864" text-anchor="end" font-size="15" fill="#6b7280">پس از اجرای پیش‌نویس: ۰ گروه تکراری فعال · ۸۶ آرشیو · ۱۸۷ ریدایرکت · صفر حذف</text>
+</svg>
