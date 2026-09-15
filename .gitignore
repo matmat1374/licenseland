@@ -23,3 +23,18 @@ agent-ctx/
 *.bak
 kernel/dist/
 tool-results/
+
+# agent workspaces & scratch
+Users/
+scratch/
+temp_ssh/
+deploy-temp/
+.freebuff/
+# build artifacts w/ embedded credentials
+deploy-bundle.tar.gz
+deploy_bundle.tar.gz
+next-build.tar.gz
+gitleaks-report.json
+# root-level scratch scripts (contain server credentials - keep out of git)
+/*.js
+

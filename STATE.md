@@ -1,7 +1,8 @@
 # State
 
 ## 2026-09-15 — UX/CX audit + P0/P1 fixes (see docs/UX_AUDIT_2026-09-15.md)
-Full-site UX audit as 10 personas (code + live prod GET tests). Report: docs/UX_AUDIT_2026-09-15.md (27 findings). NOT yet committed/deployed.
+Full-site UX audit as 10 personas (code + live prod GET tests). Report: docs/UX_AUDIT_2026-09-15.md (27 findings).
+COMMITTED (05b7e9d) and DEPLOYED to production (bundle deploy + build + pm2 reload). Live checks: home 200, /api/health ok, /forgot-password 200 (public), /terms 200 with zero false-email claims, liceno.ir 200. Backup of previous live files at /root/backups/ux_prev_*.tgz on server.
 P0 trust fixes (all done): order page no longer claims email delivery (3 spots); FAQ + Terms delivery promises corrected; PROCESSING/PENDING_SUPPORT added to dashboard STATUS_MAP (were shown as "در انتظار پرداخت"!); new /forgot-password page (login link was 404); SMS failure now returns honest 503 in prod (dev keeps console-OTP flow); 6 dead AI-advisor links replaced with stable /shop?search= links.
 P1 checkout-path fixes (all done): cart cleared after payment via ?cc=1 + ClearCartOnSuccess (sessionStorage snapshot preserves a NEW cart built in another tab); coupon field added to checkout + ?coupon= passthrough (previously only /cart could apply codes); price-asc/desc sorts on _effectivePrice not raw price; cart header counter toFa (was toToman → "۳,۰۰۰ مورد"); AUTO stock shows "موجود — تحویل آنی" + _stockIsApprox (no more fake ۹۹ number).
 Verified: 106/106 kernel tests, typecheck clean, all pages 200 on dev server, home + forgot-password render clean in preview, no console errors from changes.
