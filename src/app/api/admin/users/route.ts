@@ -33,6 +33,14 @@ export async function GET(request: Request) {
       where,
       orderBy: { createdAt: "desc" },
       include: {
+        loyalty: {
+          select: {
+            tier: true,
+            totalPoints: true,
+            lifetimePoints: true,
+            totalSpent: true,
+          }
+        },
         orders: {
           select: { total: true },
           where: { status: "PAID" }
@@ -47,7 +55,10 @@ export async function GET(request: Request) {
       ...user,
       password: "", // hide password
       orderCount: user._count.orders,
-      totalSpent: user.orders.reduce((sum: number, order: any) => sum + order.total, 0)
+      totalSpent: user.orders.reduce((sum: number, order: any) => sum + order.total, 0),
+      tier: user.loyalty?.tier || "BRONZE",
+      totalPoints: user.loyalty?.totalPoints || 0,
+      lifetimePoints: user.loyalty?.lifetimePoints || 0,
     }));
 
     return NextResponse.json(formattedUsers);

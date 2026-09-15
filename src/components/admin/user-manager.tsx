@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { Search, MoreVertical, Edit, Key, Eye, UserPlus, X } from "lucide-react";
+import { Search, MoreVertical, Edit, Key, Eye, UserPlus, X, Gift, Sparkles } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -25,6 +25,8 @@ export function UserManager() {
   const [passModal, setPassModal] = useState<any>(null);
   const [addModal, setAddModal] = useState(false);
   const [profileModal, setProfileModal] = useState<any>(null);
+  const [bonusModal, setBonusModal] = useState<any>(null);
+  const [bonusLoading, setBonusLoading] = useState(false);
 
   useEffect(() => {
     fetchUsers();
@@ -92,6 +94,38 @@ export function UserManager() {
     }
   }
 
+  async function handleBonus(e: React.FormEvent) {
+    e.preventDefault();
+    if (!bonusModal) return;
+    const fd = new FormData(e.target as HTMLFormElement);
+    const points = Number(fd.get("points"));
+    const description = (fd.get("description") as string) || "امتیاز تشویقی مدیریت";
+    if (!points || points <= 0) {
+      alert("لطفاً یک عدد مثبت برای امتیاز وارد کنید");
+      return;
+    }
+    setBonusLoading(true);
+    try {
+      const res = await fetch(`/api/admin/users/${bonusModal.id}/points`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ points, description }),
+      });
+      const data = await res.json();
+      if (res.ok && data.ok) {
+        setBonusModal(null);
+        fetchUsers();
+        alert(`تعداد ${toFa(points)} امتیاز تشویقی با موفقیت ثبت شد.`);
+      } else {
+        alert(data.message || "خطا در اعطای امتیاز");
+      }
+    } catch {
+      alert("خطای ارتباط با سرور");
+    } finally {
+      setBonusLoading(false);
+    }
+  }
+
   async function openProfile(user: any) {
     const res = await fetch(`/api/admin/users/${user.id}`);
     const data = await res.json();
@@ -131,6 +165,8 @@ export function UserManager() {
               <th className="p-4 font-medium text-muted-foreground">کاربر</th>
               <th className="p-4 font-medium text-muted-foreground">تماس</th>
               <th className="p-4 font-medium text-muted-foreground">نقش</th>
+              <th className="p-4 font-medium text-muted-foreground">رده وفاداری</th>
+              <th className="p-4 font-medium text-muted-foreground">موجودی امتیاز</th>
               <th className="p-4 font-medium text-muted-foreground">عضویت</th>
               <th className="p-4 font-medium text-muted-foreground">سفارشات</th>
               <th className="p-4 font-medium text-muted-foreground">عملیات</th>
@@ -138,45 +174,69 @@ export function UserManager() {
           </thead>
           <tbody className="divide-y divide-border">
             {loading ? (
-              <tr><td colSpan={6} className="p-8 text-center text-muted-foreground">در حال بارگذاری...</td></tr>
+              <tr><td colSpan={8} className="p-8 text-center text-muted-foreground">در حال بارگذاری...</td></tr>
             ) : users.length === 0 ? (
-              <tr><td colSpan={6} className="p-8 text-center text-muted-foreground">کاربری یافت نشد</td></tr>
-            ) : users.map(user => (
-              <tr key={user.id} className="hover:bg-muted/30 transition-colors">
-                <td className="p-4">
-                  <div className="flex items-center gap-3">
-                    <Avatar className="h-9 w-9">
-                      <AvatarFallback>{user.name?.[0] || (user.phone ? user.phone.slice(-2) : user.email?.[0]?.toUpperCase())}</AvatarFallback>
-                    </Avatar>
-                    <div>
-                      <div className="font-bold">{user.name || user.phone || "بدون نام"}</div>
-                      <div className="text-xs text-muted-foreground">{user.email?.endsWith("@liceno.ir") ? user.phone || "" : user.email}</div>
+              <tr><td colSpan={8} className="p-8 text-center text-muted-foreground">کاربری یافت نشد</td></tr>
+            ) : users.map(user => {
+              const tier = user.tier || "BRONZE";
+              const tierStyles: Record<string, { label: string; className: string }> = {
+                BRONZE: { label: "برنزی", className: "bg-amber-700/15 text-amber-800 dark:text-amber-400 border-amber-700/30" },
+                SILVER: { label: "نقره‌ای", className: "bg-slate-400/20 text-slate-700 dark:text-slate-300 border-slate-400/40" },
+                GOLD: { label: "طلایی", className: "bg-amber-400/20 text-amber-700 dark:text-amber-400 border-amber-400/40" },
+                DIAMOND: { label: "الماس", className: "bg-cyan-400/20 text-cyan-700 dark:text-cyan-300 border-cyan-400/40" },
+              };
+              const t = tierStyles[tier] || tierStyles.BRONZE;
+
+              return (
+                <tr key={user.id} className="hover:bg-muted/30 transition-colors">
+                  <td className="p-4">
+                    <div className="flex items-center gap-3">
+                      <Avatar className="h-9 w-9">
+                        <AvatarFallback>{user.name?.[0] || (user.phone ? user.phone.slice(-2) : user.email?.[0]?.toUpperCase())}</AvatarFallback>
+                      </Avatar>
+                      <div>
+                        <div className="font-bold">{user.name || user.phone || "بدون نام"}</div>
+                        <div className="text-xs text-muted-foreground">{user.email?.endsWith("@liceno.ir") ? user.phone || "" : user.email}</div>
+                      </div>
                     </div>
-                  </div>
-                </td>
-                <td className="p-4 dir-ltr text-right">{user.phone || "-"}</td>
-                <td className="p-4">
-                  <Badge variant={user.role === "ADMIN" ? "default" : "secondary"}>{user.role}</Badge>
-                </td>
-                <td className="p-4">{formatJalaliDate(user.createdAt)}</td>
-                <td className="p-4">
-                  <div className="font-medium">{toFa(user.orderCount)} سفارش</div>
-                  <div className="text-xs text-muted-foreground">{toToman(user.totalSpent)} تومان</div>
-                </td>
-                <td className="p-4">
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="icon"><MoreVertical className="h-4 w-4" /></Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem onClick={() => openProfile(user)}><Eye className="h-4 w-4 ml-2" /> مشاهده پروفایل</DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => setEditModal(user)}><Edit className="h-4 w-4 ml-2" /> ویرایش کاربر</DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => setPassModal(user)}><Key className="h-4 w-4 ml-2" /> تغییر رمز عبور</DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </td>
-              </tr>
-            ))}
+                  </td>
+                  <td className="p-4 dir-ltr text-right">{user.phone || "-"}</td>
+                  <td className="p-4">
+                    <Badge variant={user.role === "ADMIN" ? "default" : "secondary"}>{user.role}</Badge>
+                  </td>
+                  <td className="p-4">
+                    <Badge variant="outline" className={`text-xs font-semibold px-2.5 py-0.5 ${t.className}`}>
+                      {t.label}
+                    </Badge>
+                  </td>
+                  <td className="p-4">
+                    <div className="font-bold text-amber-600 dark:text-amber-400 font-mono" dir="ltr">
+                      {toFa(user.totalPoints || 0)} pt
+                    </div>
+                  </td>
+                  <td className="p-4">{formatJalaliDate(user.createdAt)}</td>
+                  <td className="p-4">
+                    <div className="font-medium">{toFa(user.orderCount)} سفارش</div>
+                    <div className="text-xs text-muted-foreground">{toToman(user.totalSpent)} تومان</div>
+                  </td>
+                  <td className="p-4">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="icon"><MoreVertical className="h-4 w-4" /></Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem onClick={() => openProfile(user)}><Eye className="h-4 w-4 ml-2" /> مشاهده پروفایل</DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => setBonusModal(user)} className="text-amber-600 dark:text-amber-400">
+                          <Gift className="h-4 w-4 ml-2" /> اعطای امتیاز تشویقی
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => setEditModal(user)}><Edit className="h-4 w-4 ml-2" /> ویرایش کاربر</DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => setPassModal(user)}><Key className="h-4 w-4 ml-2" /> تغییر رمز عبور</DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>
@@ -280,6 +340,53 @@ export function UserManager() {
                 </div>
               )}
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Bonus Points Modal */}
+      {bonusModal && (
+        <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4">
+          <div className="bg-card rounded-xl w-full max-w-sm p-6 relative border border-border shadow-xl">
+            <button
+              onClick={() => setBonusModal(null)}
+              className="absolute left-4 top-4 text-muted-foreground hover:text-foreground"
+            >
+              <X className="h-5 w-5" />
+            </button>
+            <div className="flex items-center gap-2 mb-2 text-amber-500">
+              <Gift className="h-5 w-5" />
+              <h3 className="text-lg font-bold text-foreground">اعطای امتیاز تشویقی</h3>
+            </div>
+            <p className="text-xs text-muted-foreground mb-4">
+              کاربر: <span className="font-bold text-foreground">{bonusModal.name || bonusModal.phone || bonusModal.email}</span>
+              {" "}(موجودی فعلی: {toFa(bonusModal.totalPoints || 0)} pt)
+            </p>
+            <form onSubmit={handleBonus} className="space-y-4">
+              <div>
+                <label className="text-xs font-medium block mb-1">تعداد امتیاز تشویقی</label>
+                <Input
+                  name="points"
+                  type="number"
+                  min="1"
+                  placeholder="مثال: ۵۰"
+                  required
+                  dir="ltr"
+                  className="font-mono text-center"
+                />
+              </div>
+              <div>
+                <label className="text-xs font-medium block mb-1">دلیل / توضیحات (اختیاری)</label>
+                <Input
+                  name="description"
+                  placeholder="مثال: هدیه ثبت‌نام، جبران مشکل فنی و..."
+                  defaultValue="امتیاز تشویقی مدیریت"
+                />
+              </div>
+              <Button type="submit" className="w-full gap-2" disabled={bonusLoading}>
+                {bonusLoading ? "در حال ثبت..." : "افزودن امتیاز به کاربر"}
+              </Button>
+            </form>
           </div>
         </div>
       )}

@@ -35,6 +35,8 @@ model User {
   accounts      Account[]
   sessions      Session[]
   supplierOrders SupplierOrder[]
+  loyalty       UserLoyalty?
+  badges        UserBadge[]
 }
 
 // ----------------------------- NextAuth -----------------------------
@@ -91,6 +93,7 @@ model Product {
   id              String   @id @default(cuid())
   title           String
   slug            String   @unique
+  supplierId      Int?     // Supplier product ID (e.g. irMarket product ID)
   shortDesc       String
   description     String   // markdown
   features        String   // JSON string array of feature lines
@@ -125,6 +128,7 @@ model Product {
 
   @@index([category])
   @@index([isActive])
+  @@index([supplierId])
 }
 
 // ----------------------------- License Keys (inventory) -----------------------------
@@ -203,6 +207,8 @@ model Review {
   comment   String
   verified  Boolean  @default(false)
   approved  Boolean  @default(false) // must be manually approved — no auto-approve
+  reply     String?
+  replyAt   DateTime?
   createdAt DateTime @default(now())
 
   product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
@@ -543,4 +549,42 @@ model SeoMeta {
 
   @@unique([entityType, entityId])
   @@index([entityType])
+}
+
+// ----------------------------- Gamification & Loyalty -----------------------------
+model UserLoyalty {
+  id             String       @id @default(cuid())
+  userId         String       @unique
+  tier           String       @default("BRONZE") // BRONZE | SILVER | GOLD | DIAMOND
+  totalSpent     Int          @default(0)
+  totalPoints    Int          @default(0)
+  lifetimePoints Int          @default(0)
+  updatedAt      DateTime     @updatedAt
+  createdAt      DateTime     @default(now())
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  events         PointEvent[]
+  @@index([tier])
+}
+
+model PointEvent {
+  id          String      @id @default(cuid())
+  loyaltyId   String
+  type        String      // EARN | REDEEM | EXPIRE | BONUS | REFUND
+  points      Int
+  description String
+  orderId     String?
+  createdAt   DateTime    @default(now())
+  loyalty     UserLoyalty @relation(fields: [loyaltyId], references: [id], onDelete: Cascade)
+  @@index([loyaltyId])
+  @@index([orderId])
+}
+
+model UserBadge {
+  id        String   @id @default(cuid())
+  userId    String
+  badge     String   // FIRST_BUY | FIVE_ORDERS | HIGH_SPENDER | POINT_MASTER
+  awardedAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@unique([userId, badge])
+  @@index([userId])
 }

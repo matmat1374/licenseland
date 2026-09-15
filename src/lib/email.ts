@@ -64,7 +64,7 @@ export function getProductActivationGuide(title: string, brand?: string | null):
   return `دستورالعمل استفاده از لایسنس:
 ۱. کد لایسنس یا اطلاعات کاربری درج‌شده در این پیام را کپی نمایید.
 ۲. وارد وب‌سایت یا نرم‌افزار مربوطه شده و در بخش فعال‌سازی یا ورود، اطلاعات را وارد فرمایید.
-۳. در صورت بروز هرگونه سوال یا نیاز به راهنمایی، پشتیبانی لایسنس‌لند از طریق تلگرام و تیکت همراه شماست.`;
+۳. در صورت بروز هرگونه سوال یا نیاز به راهنمایی، پشتیبانی لایسنو از طریق تلگرام و تیکت همراه شماست.`;
 }
 
 function getSmtpTransporter() {
@@ -159,7 +159,7 @@ ${guide}
       `;
     }
 
-    const emailSubject = `تحویل لایسنس و سفارش شما #${order.code} - لایسنس لند`;
+    const emailSubject = `تحویل لایسنس و سفارش شما #${order.code} - لایسنو`;
 
     const htmlBody = `
       <!DOCTYPE html>
@@ -171,12 +171,12 @@ ${guide}
         <div style="max-width: 600px; margin: 0 auto; background-color: #121815; border: 1px solid #232d26; border-radius: 16px; padding: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
           
           <div style="text-align: center; margin-bottom: 25px; border-bottom: 1px solid #232d26; padding-bottom: 20px;">
-            <h1 style="color: #10b981; margin: 0; font-size: 24px; font-weight: 900;">LICENO | لایسنس‌لند</h1>
+            <h1 style="color: #10b981; margin: 0; font-size: 24px; font-weight: 900;">LICENO | لایسنو</h1>
             <p style="color: #94a3b8; font-size: 14px; margin-top: 5px;">سفارش شما با موفقیت تکمیل و لایسنس‌ها صادر شدند</p>
           </div>
 
           <div style="margin-bottom: 20px; font-size: 14px; line-height: 1.8;">
-            <p>کاربر گرامی، با سپاس از خرید شما از <strong>لایسنس‌لند</strong>، جزئیات سفارش و لایسنس‌های اختصاصی شما در ادامه تقدیم می‌گردد:</p>
+            <p>کاربر گرامی، با سپاس از خرید شما از <strong>لایسنو</strong>، جزئیات سفارش و لایسنس‌های اختصاصی شما در ادامه تقدیم می‌گردد:</p>
             <div style="background: #181f1b; padding: 12px 16px; border-radius: 8px; margin: 15px 0;">
               <div><strong>کد پیگیری سفارش:</strong> <span style="color: #10b981; font-family: monospace;">${order.code}</span></div>
               <div><strong>مبلغ پرداختی:</strong> ${toToman(order.total)} تومان</div>
@@ -191,7 +191,7 @@ ${guide}
           </div>
 
           <div style="border-top: 1px solid #232d26; padding-top: 15px; text-align: center; font-size: 12px; color: #64748b;">
-            این ایمیل به صورت خودکار صادر شده است. پشتیبانی ۲۴/۷ لایسنس‌لند از طریق تیکت و تلگرام در دسترس شماست.
+            این ایمیل به صورت خودکار صادر شده است. پشتیبانی ۲۴/۷ لایسنو از طریق تیکت و تلگرام در دسترس شماست.
           </div>
         </div>
       </body>
@@ -202,7 +202,7 @@ ${guide}
 
     if (transporter) {
       await transporter.sendMail({
-        from: process.env.SMTP_FROM || '"لایسنس‌لند" <support@liceno.ir>',
+        from: process.env.SMTP_FROM || '"لایسنو" <support@liceno.ir>',
         to: recipientEmail,
         subject: emailSubject,
         text: `سفارش #${order.code}\n${itemsText}\nلینک پیگیری: ${trackingUrl}`,

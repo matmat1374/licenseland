@@ -1,11 +1,24 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { getToken } from "next-auth/jwt";
-
+import slugRedirects from "@/data/slug-redirects.json";
 const SECRET = process.env.NEXTAUTH_SECRET || "";
 
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
+
+  // 301 redirects for old duplicate product slugs
+  if (pathname.startsWith('/product/')) {
+    const slug = decodeURIComponent(pathname.replace('/product/', ''));
+    const newSlug = (slugRedirects as Record<string, string>)[slug];
+    if (newSlug) {
+      const newUrl = req.nextUrl.clone();
+      newUrl.pathname = `/product/${newSlug}`;
+      return NextResponse.redirect(newUrl, 301);
+    }
+    return NextResponse.next();
+  }
+
   const isApiRoute = pathname.startsWith("/api/");
   const token = await getToken({ req, secret: SECRET });
 
@@ -41,5 +54,5 @@ export async function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/dashboard/:path*", "/admin/:path*", "/api/profile/:path*", "/api/admin/:path*"],
+  matcher: ["/product/:path*", "/dashboard/:path*", "/dashboard", "/admin/:path*", "/admin", "/api/profile/:path*", "/api/admin/:path*"],
 };
