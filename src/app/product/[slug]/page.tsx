@@ -25,6 +25,7 @@ import { Star, Check, ChevronLeft, TrendingUp, AlertTriangle, HelpCircle } from 
 import { ProductReviews } from "@/components/site/product-reviews";
 import { toFa } from "@/lib/date";
 import { SITE, FAQS } from "@/lib/constants";
+import { buildTorobMetaTags, resolveTorobImage } from "@/lib/torob";
 import ReactMarkdown from "react-markdown";
 import type { Metadata } from "next";
 
@@ -49,11 +50,16 @@ export async function generateMetadata({
     robots: outOfStock
       ? { index: false, follow: true }
       : { index: true, follow: true },
+    // Torob crawler meta tags (no-JS page). Values come from src/lib/torob.ts
+    // so this page and the /api/torob feed can never disagree.
+    other: buildTorobMetaTags(product, SITE.url),
     openGraph: {
       title: product.title,
       description: `${product.shortDesc} — قیمت: ${toFa((price || 0).toLocaleString("en-US"))} تومان`,
       type: "website",
       url: canonical,
+      // Always an absolute image: product photo -> brand card -> site default.
+      images: [{ url: resolveTorobImage(product, SITE.url) }],
     },
     twitter: {
       card: "summary_large_image",
