@@ -38,3 +38,4 @@ gitleaks-report.json
 # root-level scratch scripts (contain server credentials - keep out of git)
 /*.js
 
+.openclaw-deploy-files.txt
