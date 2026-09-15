@@ -3,6 +3,16 @@ import { effectivePrice } from "@/lib/format";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 
+// Catalog LIST queries never expose these heavy text columns to any consumer
+// (ProductCard, sliders, SearchDialog, /api/products). Omitting them from the
+// returned rows trims the serialized RSC/JSON weight of /shop and the home page.
+// Product detail pages use getProductBySlug (include), which is unaffected.
+const LIST_OMIT = {
+  description: true,
+  features: true,
+  specifications: true,
+} as const;
+
 // ----------------------------- Catalog -----------------------------
 
 export async function getCategories() {
@@ -186,6 +196,7 @@ export async function getProducts(opts?: {
     },
     orderBy,
     take: limit,
+    omit: LIST_OMIT,
   });
 
   const remainingLimit = limit ? limit - inStockProducts.length : undefined;
@@ -202,6 +213,7 @@ export async function getProducts(opts?: {
     },
     orderBy,
     take: remainingLimit,
+    omit: LIST_OMIT,
   }) : [];
 
   const products = [...inStockProducts, ...outOfStockProducts];
@@ -213,6 +225,7 @@ export async function getProducts(opts?: {
       where: { isActive: true },
       orderBy: { salesCount: "desc" },
       take: limit || 8,
+      omit: LIST_OMIT,
     });
     const seen = new Set(list.map((p) => p.id));
     for (const fb of fallbackProducts) {
@@ -313,6 +326,7 @@ export async function getRelatedProducts(category: string, excludeSlug: string, 
     where: { category, isActive: true, slug: { not: excludeSlug } },
     take: limit + 4,
     orderBy: { salesCount: "desc" },
+    omit: LIST_OMIT,
   });
   const mapped = products.slice(0, limit).map(decorate);
   mapped.sort((a, b) => {
@@ -347,7 +361,8 @@ export async function getBannerProducts(identifiers: string[], fallbackCategory?
       orderBy: [
         { sortOrder: "asc" },
         { salesCount: "desc" },
-      ]
+      ],
+      omit: LIST_OMIT,
     });
     products = fetched.map(decorate);
     if (idsOrSlugs.length > 0) {
@@ -390,6 +405,7 @@ export async function getBannerProducts(identifiers: string[], fallbackCategory?
         { salesCount: "desc" },
       ],
       take: limit - products.length,
+      omit: LIST_OMIT,
     });
     
     // If still empty or fewer than limit, fallback to any top selling active products
@@ -407,6 +423,7 @@ export async function getBannerProducts(identifiers: string[], fallbackCategory?
           { stock: "desc" }
         ],
         take: limit - (products.length + fallbackProducts.length),
+        omit: LIST_OMIT,
       });
       fallbackProducts = [...fallbackProducts, ...moreProducts];
     }
