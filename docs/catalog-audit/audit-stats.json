@@ -11,9 +11,9 @@
   "decisions": {
     "keepBase": 138,
     "merge": 203,
-    "rename": 67,
+    "rename": 75,
     "keepUnchanged": 82,
-    "manualReview": 49
+    "manualReview": 41
   },
   "claudeProducts": 36,
   "redirectsPlanned": 203,

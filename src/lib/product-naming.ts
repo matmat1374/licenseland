@@ -82,7 +82,10 @@ const DURATIONS: Array<{ re: RegExp; fa: string; code: string }> = [
  * window, not the subscription length (seen on real supplier rows).
  */
 export function parseAttributes(input: string): ProductAttributes {
-  const s = String(input || "");
+  const raw = String(input || "");
+  // Persian digits are common in localised names ("۱۸ ماهه", "۱۴ روزه"), so match
+  // against a Latin-digit copy as well — without it those durations never parse.
+  const s = raw + " " + toEnDigits(raw);
   const attrs: ProductAttributes = {
     accessType: "unknown", quota: null, quotaCode: null,
     durationFa: null, durationCode: null, tier: null, warranty: "unknown",
@@ -91,9 +94,9 @@ export function parseAttributes(input: string): ProductAttributes {
   // access type
   if (/premium\s*seat|\bseat\b|صندلی|سیت/i.test(s)) attrs.accessType = "seat";
   else if (/\bapi\b|token|credit|کردیت/i.test(s)) attrs.accessType = "api";
-  else if (/gift\s*card|giftcard/i.test(s)) attrs.accessType = "giftcard";
+  else if (/gift\s*card|giftcard|network\s*card|psn\s*card|redeem\s*code/i.test(s)) attrs.accessType = "giftcard";
   else if (/شماره\s*مجازی|virtual/i.test(s)) attrs.accessType = "virtual";
-  else if (/\baccount\b|اکانت/i.test(s)) attrs.accessType = "account";
+  else if (/\baccount\b|اکانت|\binvite\b/i.test(s)) attrs.accessType = "account";
 
   // quota
   let m = s.match(/(\d+)\s*M\s*(?:credit|token)/i) || s.match(/(\d+)\s*(?:million)?\s*tokens?/i);
@@ -122,6 +125,8 @@ export function parseAttributes(input: string): ProductAttributes {
 
   // tier
   if (/\bvip\b/i.test(s)) attrs.tier = "VIP";
+  else if (/\bbusiness\b/i.test(s)) attrs.tier = "Business";
+  else if (/\bteam\b/i.test(s)) attrs.tier = "Team";
   else if (/\bmega\b/i.test(s)) attrs.tier = "Mega";
   else if (/\bstandard\b/i.test(s)) attrs.tier = "Standard";
 

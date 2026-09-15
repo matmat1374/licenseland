@@ -26,14 +26,15 @@ function specsOf(r) {
 }
 
 function parseAttrs(r) {
-  const s = (r.shortDesc || "") + " " + (r.title || "");
+  const raw = (r.shortDesc || "") + " " + (r.title || "");
+  const s = raw + " " + raw.replace(/[۰-۹]/g, (d) => String("۰۱۲۳۴۵۶۷۸۹".indexOf(d)));
   const out = { access: "", quota: "", duration: "", warranty: "", tier: "" };
 
   if (/premium seat|seat/i.test(s)) out.access = "سیت اشتراکی";
   else if (/api|token|credit/i.test(s)) out.access = "API/توکن";
-  else if (/gift card|giftcard/i.test(s)) out.access = "گیفت‌کارت";
+  else if (/gift card|giftcard|network card|psn card|redeem code/i.test(s)) out.access = "گیفت‌کارت";
   else if (/شماره مجازی|virtual/i.test(s)) out.access = "شماره مجازی";
-  else if (/account|اکانت/i.test(s)) out.access = "اکانت";
+  else if (/account|اکانت|invite/i.test(s)) out.access = "اکانت";
   else out.access = "نامشخص";
 
   const mT = s.match(/(\d+)\s*M\s*(credit|token)/i) || s.match(/(\d+)\s*(million)?\s*tokens?/i);
@@ -57,6 +58,8 @@ function parseAttrs(r) {
   else if (/warranty|گارانتی/i.test(s)) out.warranty = "با گارانتی";
 
   if (/\bvip\b/i.test(s)) out.tier = "VIP";
+  else if (/\bbusiness\b/i.test(s)) out.tier = "Business";
+  else if (/\bteam\b/i.test(s)) out.tier = "Team";
   else if (/\bstandard\b/i.test(s)) out.tier = "Standard";
   else if (/\bmega\b/i.test(s)) out.tier = "Mega";
 
@@ -116,7 +119,8 @@ function makeSku(r, a) {
   const map = { "۱": "1", "۲": "2", "۳": "3", "۶": "6", "۷": "7", "۱۴": "14" };
   const n = map[durNum] || durNum;
   const unit = /روزه/.test(a.duration) ? "D" : "M";
-  return [brand, type, quota, n + unit, a.tier ? skuPart(a.tier).slice(0, 4) : "", a.warranty === "بدون گارانتی" ? "NOWAR" : ""]
+  const dur = a.duration ? n + unit : "";
+  return [brand, type, quota, dur, a.tier ? skuPart(a.tier).slice(0, 4) : "", a.warranty === "بدون گارانتی" ? "NOWAR" : ""]
     .filter(Boolean).join("-");
 }
 function makeTitle(r, a) {
@@ -240,14 +244,15 @@ for (const r of rows) {
     fFlag ? "similar-title-family" : "",
   ].filter(Boolean).join("+");
 
+  const manual = decision.startsWith("بررسی دستی");
   csvRows.push({
     product_id: r.id,
     slug: r.slug,
     issue_type: issue,
     group_size: (dupKey ? byDesc.get(dupKey).length : (tFlag?.size || fFlag?.size || 0)),
     current_title: r.title,
-    proposed_title: makeTitle(r, a),
-    proposed_sku: makeSku(r, a),
+    proposed_title: manual ? (r.title || "") : makeTitle(r, a),
+    proposed_sku: manual ? "" : makeSku(r, a),
     price_toman: r.price,
     cost_usd: sp.cost_usd ?? "",
     supplier_product_id: sp.supplier_product_id ?? "",
