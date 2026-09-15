@@ -1198,12 +1198,16 @@ export async function importProductsFromSupplier(
         markup_used: effectiveMarkup,
       };
 
-      const isAvailable = stock > 0 && !isVpnProduct(title);
+      // manual_hidden flag: rows we deliberately hid (duplicate/junk cleanup)
+      // must NOT be resurrected by the periodic sync — same guard as rebuildSupplierCatalog
+      const isAvailable = existingSpecs.supplier_manual_hidden
+        ? false
+        : stock > 0 && !isVpnProduct(title);
       await db.product.update({
         where: { id: existing.id },
         data: {
           price: finalPrice,
-          stock: stock,
+          stock: existingSpecs.supplier_manual_hidden ? 0 : stock,
           isActive: isAvailable,
           lastSyncedAt: new Date(),
           specifications: JSON.stringify(nextSpecs),
@@ -1211,7 +1215,7 @@ export async function importProductsFromSupplier(
         },
       });
       updated++;
-      details.push(`به‌روز شد: ${existing.title} — ${finalPrice.toLocaleString("fa-IR")} ت ($${priceUSD} × ${usdRate.toLocaleString("fa-IR")} × ${(100+effectiveMarkup)/100})`);
+      details.push(`به‌روز شد: ${existing.title} — ${finalPrice.toLocaleString("fa-IR")} ت ($${priceUSD} × ${usdRate.toLocaleString("fa-IR")} × ${(100+effectiveMarkup)/100})${existingSpecs.supplier_manual_hidden ? " [hidden-kept]" : ""}`);
     } else {
       const nextSpecs = {
         supplier_product_id: sp.id,
