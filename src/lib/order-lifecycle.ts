@@ -1,13 +1,18 @@
 /**
- * Order delivery lifecycle.
- * ------------------------
- * Two independent axes:
- *   • `Order.status`            — PAYMENT     (PENDING → PAID / FAILED / CANCELLED)
- *   • `Order.fulfillmentStage`  — DELIVERY    (NONE → PURCHASING → PURCHASED → READY_TO_SHIP → SHIPPED → DELIVERED, or RETURNED)
+ * Order delivery lifecycle — digital goods (licences, accounts, subscriptions).
+ * ---------------------------------------------------------------------------
+ * There is NO physical shipping in this business, so the lifecycle stops at
+ * "delivered to the customer", not "shipped". Two axes stay independent:
+ *   • `Order.status`           — PAYMENT  (PENDING → PAID / FAILED / CANCELLED)
+ *   • `Order.fulfillmentStage` — DELIVERY (NONE → PURCHASING → PURCHASED → READY_TO_DELIVER → DELIVERED)
  *
- * Every change writes an `OrderStatusEvent` (audit trail) and enqueues the
- * matching customer email, so the SOP ("who changed what, when, and did the
- * customer get told?") is answerable with one query.
+ * The `Shipment` table is reused as the **delivery record** for digital goods:
+ *   carrier      → delivery method ("AUTO" = licence issued by the supplier API,
+ *                  "MANUAL" = admin delivered the account/credentials by hand)
+ *   trackingCode → short reference shown to the customer (e.g. licence reference)
+ *   note         → what the admin handed over
+ *
+ * Every change writes an `OrderStatusEvent` and queues the matching customer email.
  */
 
 import { db } from "@/lib/db";
@@ -16,17 +21,24 @@ import { emailOrderEvent, type EmailEvent } from "@/lib/email-infra";
 export const PAYMENT_STATUSES = ["PENDING", "PAID", "FAILED", "CANCELLED", "PROCESSING", "PENDING_SUPPORT"] as const;
 export type PaymentStatus = (typeof PAYMENT_STATUSES)[number];
 
-export const FULFILLMENT_STAGES = ["NONE", "PURCHASING", "PURCHASED", "READY_TO_SHIP", "SHIPPED", "DELIVERED", "RETURNED"] as const;
+export const FULFILLMENT_STAGES = ["NONE", "PURCHASING", "PURCHASED", "READY_TO_DELIVER", "DELIVERED", "RETURNED"] as const;
 export type FulfillmentStage = (typeof FULFILLMENT_STAGES)[number];
+
+export const DELIVERY_METHODS = ["AUTO", "MANUAL"] as const;
+export type DeliveryMethod = (typeof DELIVERY_METHODS)[number];
 
 export const STAGE_FA: Record<string, string> = {
   NONE: "در انتظار شروع",
   PURCHASING: "در حال خرید از تأمین‌کننده",
   PURCHASED: "خریداری‌شده از تأمین‌کننده",
-  READY_TO_SHIP: "آماده ارسال",
-  SHIPPED: "ارسال‌شده",
-  DELIVERED: "تحویل‌شده",
+  READY_TO_DELIVER: "آماده تحویل به مشتری",
+  DELIVERED: "تحویل‌شده به مشتری",
   RETURNED: "مرجوعی",
+};
+
+export const METHOD_FA: Record<string, string> = {
+  AUTO: "خودکار (تحویل لایسنس از API)",
+  MANUAL: "دستی (ارسال اطلاعات توسط پشتیبانی)",
 };
 
 export const STATUS_FA: Record<string, string> = {
@@ -38,13 +50,12 @@ export const STATUS_FA: Record<string, string> = {
   PENDING_SUPPORT: "در انتظار پشتیبانی",
 };
 
-/** Allowed forward transitions. Anything else is rejected (and logged). */
+/** Allowed forward transitions. Anything else is refused (and logged). */
 const NEXT: Record<string, string[]> = {
-  NONE: ["PURCHASING", "PURCHASED", "READY_TO_SHIP", "RETURNED"],
-  PURCHASING: ["PURCHASED", "READY_TO_SHIP", "RETURNED"],
-  PURCHASED: ["READY_TO_SHIP", "SHIPPED", "RETURNED"],
-  READY_TO_SHIP: ["SHIPPED", "RETURNED"],
-  SHIPPED: ["DELIVERED", "RETURNED"],
+  NONE: ["PURCHASING", "PURCHASED", "READY_TO_DELIVER", "RETURNED"],
+  PURCHASING: ["PURCHASED", "READY_TO_DELIVER", "RETURNED"],
+  PURCHASED: ["READY_TO_DELIVER", "DELIVERED", "RETURNED"],
+  READY_TO_DELIVER: ["DELIVERED", "RETURNED"],
   DELIVERED: ["RETURNED"],
   RETURNED: [],
 };
@@ -61,7 +72,6 @@ export function canTransition(from: string, to: string): boolean {
 /** Stage change → customer email template. */
 const STAGE_EMAIL: Partial<Record<string, EmailEvent>> = {
   PURCHASED: "supplier_purchased",
-  SHIPPED: "shipped",
   DELIVERED: "delivered",
 };
 
@@ -86,11 +96,10 @@ export async function logEvent(args: {
 }
 
 export async function getOrderLifecycle(orderId: string) {
-  const order = await db.order.findFirst({
+  return db.order.findFirst({
     where: { OR: [{ id: orderId }, { code: orderId }] },
     include: { shipment: true, statusEvents: { orderBy: { createdAt: "asc" } } },
   });
-  return order;
 }
 
 /**
@@ -146,54 +155,54 @@ export async function setPaymentStatus(
 }
 
 /**
- * Record the physical handover: carrier + tracking code. Moving to SHIPPED is
- * implied, and the customer is emailed the tracking code.
+ * Record the DIGITAL handover: how the licence/account reached the customer.
+ * There is no carrier and no tracking code in this business — `method` says
+ * whether the supplier API issued it automatically or support handed it over.
  */
-export async function recordShipment(
+export async function recordDelivery(
   orderId: string,
-  args: { carrier?: string; trackingCode?: string; note?: string; actor?: string; status?: "SHIPPED" | "READY_TO_SHIP" },
+  args: { method?: DeliveryMethod; reference?: string; note?: string; actor?: string } = {},
 ): Promise<{ ok: boolean; message: string; emailId?: string }> {
   const order = await db.order.findFirst({ where: { OR: [{ id: orderId }, { code: orderId }] } });
   if (!order) return { ok: false, message: "سفارش یافت نشد" };
-  const target = args.status || "SHIPPED";
 
-  const shipment = await db.shipment.upsert({
+  const issued = await db.licenseKey.count({ where: { orderItem: { orderId: order.id } } }).catch(() => 0);
+  const method: DeliveryMethod = args.method || (issued > 0 ? "AUTO" : "MANUAL");
+
+  await db.shipment.upsert({
     where: { orderId: order.id },
     create: {
       orderId: order.id,
-      carrier: args.carrier || null,
-      trackingCode: args.trackingCode || null,
-      status: target,
+      carrier: method,                                   // delivery method
+      trackingCode: args.reference || (issued > 0 ? `${issued} لایسنس` : null),
       note: args.note || null,
-      shippedAt: target === "SHIPPED" ? new Date() : null,
+      status: "DELIVERED",
+      deliveredAt: new Date(),
     },
     update: {
-      carrier: args.carrier || null,
-      trackingCode: args.trackingCode || null,
-      status: target,
+      carrier: method,
+      trackingCode: args.reference || (issued > 0 ? `${issued} لایسنس` : null),
       note: args.note || null,
-      ...(target === "SHIPPED" ? { shippedAt: new Date() } : {}),
+      status: "DELIVERED",
+      deliveredAt: new Date(),
     },
   });
-  await logEvent({ orderId: order.id, field: "shipment", fromValue: null, toValue: target, actor: args.actor, note: `حامل: ${args.carrier || "—"} | کد رهگیری: ${args.trackingCode || "—"}` });
+  await logEvent({
+    orderId: order.id,
+    field: "delivery",
+    fromValue: null,
+    toValue: "DELIVERED",
+    actor: args.actor,
+    note: `${METHOD_FA[method]}${args.note ? ` — ${args.note}` : ""}`,
+  });
 
-  let emailId: string | undefined;
-  const st = await setFulfillmentStage(order.id, target, { actor: args.actor, note: args.note });
-  if (st.ok) emailId = st.emailId;
-  return { ok: true, message: st.ok ? `ارسال ثبت شد (${args.trackingCode || "بدون کد رهگیری"})` : st.message, emailId };
+  const st = await setFulfillmentStage(order.id, "DELIVERED", { actor: args.actor, note: args.note });
+  return { ok: st.ok, message: st.ok ? `تحویل ثبت شد (${METHOD_FA[method]})` : st.message, emailId: st.emailId };
 }
 
-/** Mark the order delivered (closes the loop and emails the customer). */
+/** Mark the order delivered when the licence/account is already with the customer. */
 export async function markDelivered(orderId: string, opts: { actor?: string; note?: string } = {}) {
-  const order = await db.order.findFirst({ where: { OR: [{ id: orderId }, { code: orderId }] } });
-  if (!order) return { ok: false, message: "سفارش یافت نشد" };
-  await db.shipment.upsert({
-    where: { orderId: order.id },
-    create: { orderId: order.id, status: "DELIVERED", deliveredAt: new Date() },
-    update: { status: "DELIVERED", deliveredAt: new Date() },
-  });
-  await logEvent({ orderId: order.id, field: "shipment", fromValue: null, toValue: "DELIVERED", actor: opts.actor, note: opts.note });
-  return setFulfillmentStage(order.id, "DELIVERED", opts);
+  return recordDelivery(orderId, { actor: opts.actor, note: opts.note });
 }
 
 /** Who did what, in order — drives the customer timeline and the SOP audit. */

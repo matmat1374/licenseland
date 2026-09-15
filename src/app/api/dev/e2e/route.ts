@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { setPaymentStatus, setFulfillmentStage, recordShipment, markDelivered } from "@/lib/order-lifecycle";
+import { setPaymentStatus, setFulfillmentStage, recordDelivery } from "@/lib/order-lifecycle";
 import { emailOrderEvent, processEmailQueue, activeProvider, EMAIL_EVENTS } from "@/lib/email-infra";
 
 /**
@@ -55,17 +55,14 @@ export async function POST() {
   rec("۴. خریداری‌شده از تأمین‌کننده", bought);
 
   // ── ready → shipped with tracking
-  const ready = await setFulfillmentStage(order.id, "READY_TO_SHIP", { actor: "admin", note: "آماده بسته‌بندی" });
-  rec("۵. آماده ارسال", ready);
+  const ready = await setFulfillmentStage(order.id, "READY_TO_DELIVER", { actor: "admin", note: "آماده بسته‌بندی" });
+  rec("۵. آماده تحویل", ready);
 
-  const shipped = await recordShipment(order.id, { carrier: "تیپاکس", trackingCode: "TRK-E2E-7788", actor: "admin", note: "تحویل به پست" });
-  rec("۶. ثبت ارسال + کد رهگیری", shipped);
+  const deliveredRec = await recordDelivery(order.id, { method: "AUTO", reference: "LIC-E2E-7788", actor: "admin", note: "لایسنس از API تأمین‌کننده" });
+  rec("۶. تحویل دیجیتال به مشتری", deliveredRec);
 
   // ── delivered
-  const delivered = await markDelivered(order.id, { actor: "admin", note: "تحویل به مشتری" });
-  rec("۷. تحویل‌شده", delivered);
-
-  // ── follow-up email (post-sale)
+    // ── follow-up email (post-sale)
   const e7 = await emailOrderEvent(order.id, "followup", { note: "نظر شما برای ما ارزشمند است." });
   rec("ایمیل پیگیری پس از فروش", { queued: e7.ok });
 

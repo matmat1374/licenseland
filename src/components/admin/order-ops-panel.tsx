@@ -38,25 +38,25 @@ export function OrderOpsPanel({ orderId, stage }: { orderId: string; stage: stri
         <button className={btn} disabled={!!busy} onClick={() => call("purchase", `/api/admin/orders/${orderId}/purchase`)}>
           {busy === "purchase" ? "در حال خرید…" : "۱. خرید از تأمین‌کننده"}
         </button>
-        <button className={btn} disabled={!!busy} onClick={() => call("ready", `/api/admin/orders/${orderId}/stage`, { field: "fulfillmentStage", to: "READY_TO_SHIP" })}>
-          آماده ارسال
+        <button className={btn} disabled={!!busy} onClick={() => call("ready", `/api/admin/orders/${orderId}/stage`, { field: "fulfillmentStage", to: "READY_TO_DELIVER" })}>
+          آماده تحویل
         </button>
       </div>
 
       <div className="mt-4 flex flex-wrap items-end gap-2">
         <label className="text-[13px] text-zinc-600">
-          حامل
-          <input className="mt-1 block w-40 rounded border border-zinc-300 px-2 py-1.5 text-sm" value={carrier} onChange={(e) => setCarrier(e.target.value)} placeholder="پست / تیپاکس" />
+          روش تحویل
+          <input className="mt-1 block w-40 rounded border border-zinc-300 px-2 py-1.5 text-sm" value={carrier} onChange={(e) => setCarrier(e.target.value)} placeholder="خودکار یا دستی" />
         </label>
         <label className="text-[13px] text-zinc-600">
-          کد رهگیری
+          مرجع/لایسنس
           <input className="mt-1 block w-48 rounded border border-zinc-300 px-2 py-1.5 text-sm" style={{ direction: "ltr" }} value={tracking} onChange={(e) => setTracking(e.target.value)} placeholder="TRK-123456" />
         </label>
         <button className={btn} disabled={!!busy} onClick={() => call("ship", `/api/admin/orders/${orderId}/shipment`, { carrier, trackingCode: tracking })}>
-          {busy === "ship" ? "در حال ثبت…" : "۲. ثبت ارسال"}
+          {busy === "ship" ? "در حال ثبت…" : "۲. تحویل به مشتری"}
         </button>
         <button className={btn} disabled={!!busy} onClick={() => call("deliver", `/api/admin/orders/${orderId}/deliver`)}>
-          {busy === "deliver" ? "…" : "۳. تحویل شد"}
+          {busy === "deliver" ? "…" : "تحویل خودکار"}
         </button>
       </div>
 

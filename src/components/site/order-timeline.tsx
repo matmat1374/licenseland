@@ -21,7 +21,7 @@ export function OrderTimeline({
 }) {
   const label = (e: Ev) =>
     e.field === "status" ? STATUS_FA[e.toValue] || e.toValue
-    : e.field === "shipment" ? `ارسال: ${STAGE_FA[e.toValue] || e.toValue}`
+    : e.field === "shipment" ? `تحویل: ${STAGE_FA[e.toValue] || e.toValue}`
     : STAGE_FA[e.toValue] || e.toValue;
 
   return (
@@ -42,7 +42,7 @@ export function OrderTimeline({
           <dd className="font-medium">{STAGE_FA[stage] || stage}</dd>
         </div>
         <div className="flex justify-between border-b border-zinc-100 py-1">
-          <dt className="text-zinc-500">کد رهگیری</dt>
+          <dt className="text-zinc-500">روش تحویل</dt>
           <dd className="font-medium" style={{ direction: "ltr" }}>
             {shipment?.trackingCode ? `${shipment.trackingCode}${shipment.carrier ? ` (${shipment.carrier})` : ""}` : "—"}
           </dd>
