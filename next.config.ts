@@ -8,6 +8,11 @@ const isProd = process.env.NODE_ENV === "production";
 const securityHeaders = [
   { key: "X-Content-Type-Options", value: "nosniff" },
   { key: "X-Frame-Options", value: "DENY" },
+  // Cross-origin isolation hardening (loop iteration 8 / SEC-01): the app opens
+  // no popups/OAuth windows and embeds no cross-origin resources, so the
+  // strictest values are safe and browser-verified below.
+  { key: "Cross-Origin-Opener-Policy", value: "same-origin" },
+  { key: "Cross-Origin-Resource-Policy", value: "same-origin" },
   { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
   { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=()" },
   { key: "X-DNS-Prefetch-Control", value: "on" },
