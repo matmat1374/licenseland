@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="borderGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#F59E0B" />
+      <stop offset="50%" stop-color="#10B981" />
+      <stop offset="100%" stop-color="#0D9488" />
+    </linearGradient>
+    <linearGradient id="glassGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.1" />
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0.0" />
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="8" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <filter id="shadow">
+      <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#10B981" flood-opacity="0.4"/>
+    </filter>
+  </defs>
+  
+  <rect x="24" y="24" width="464" height="464" rx="128" fill="#0B0F19" stroke="url(#borderGrad)" stroke-width="12"/>
+  <rect x="30" y="30" width="452" height="452" rx="122" fill="url(#glassGrad)"/>
+  
+  <g transform="translate(256, 256) rotate(45) translate(-256, -256)" filter="url(#shadow)">
+    <!-- Key Vector -->
+    <path d="M300,160 A60,60 0 1,0 216,215 L216,330 L256,330 L256,370 L296,370 L296,330 L320,330 L320,270 L274,228 A60,60 0 0,0 300,160 Z" fill="#10B981" filter="url(#glow)"/>
+    <circle cx="260" cy="160" r="20" fill="#0B0F19"/>
+  </g>
+</svg>

@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>پورتال برند کیت اینستاگرام لایسنس‌لند</title>
+    <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.0.0/Vazirmatn-font-face.css" rel="stylesheet" type="text/css" />
+    <style>
+        :root {
+            --bg-color: #0B0F19;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --accent: #10B981;
+            --accent-hover: #059669;
+            --card-bg: rgba(30, 41, 59, 0.7);
+            --border-color: rgba(255,255,255,0.1);
+        }
+
+        body {
+            font-family: 'Vazirmatn', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 4rem;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 2rem;
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            background: linear-gradient(to right, #10B981, #0D9488);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin: 0;
+        }
+
+        section {
+            margin-bottom: 4rem;
+        }
+
+        h2 {
+            font-size: 1.8rem;
+            margin-bottom: 2rem;
+            border-right: 4px solid var(--accent);
+            padding-right: 1rem;
+        }
+
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.5rem;
+            backdrop-filter: blur(10px);
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .img-preview {
+            width: 100%;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+        
+        .img-preview img {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .circle-crop img {
+            border-radius: 50%;
+            aspect-ratio: 1/1;
+            object-fit: cover;
+        }
+
+        .btn {
+            display: inline-block;
+            background: var(--accent);
+            color: white;
+            padding: 0.8rem 1.5rem;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: background 0.3s;
+            border: none;
+            cursor: pointer;
+            width: 100%;
+            text-align: center;
+            box-sizing: border-box;
+        }
+
+        .btn:hover {
+            background: var(--accent-hover);
+        }
+        
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--accent);
+            color: var(--accent);
+            margin-top: 10px;
+        }
+
+        .btn-outline:hover {
+            background: rgba(16, 185, 129, 0.1);
+        }
+
+        .color-palette {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .color-card {
+            flex: 1;
+            min-width: 150px;
+            background: var(--card-bg);
+            border-radius: 8px;
+            padding: 1rem;
+            text-align: center;
+            border: 1px solid var(--border-color);
+            cursor: pointer;
+        }
+
+        .color-swatch {
+            height: 80px;
+            border-radius: 6px;
+            margin-bottom: 1rem;
+        }
+
+        /* Motion Simulator */
+        .motion-container {
+            height: 300px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #000;
+            border-radius: 8px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .motion-key {
+            width: 60px;
+            height: 60px;
+            background: var(--accent);
+            clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+            animation: keyMotion 4s infinite ease-in-out;
+            position: relative;
+            z-index: 2;
+        }
+
+        .motion-light {
+            position: absolute;
+            width: 150px;
+            height: 150px;
+            background: radial-gradient(circle, rgba(16,185,129,0.4) 0%, transparent 70%);
+            animation: breatheLight 4s infinite ease-in-out;
+            z-index: 1;
+        }
+
+        @keyframes keyMotion {
+            0%, 100% { transform: rotate(45deg) scale(1); }
+            50% { transform: rotate(0deg) scale(1.1); }
+        }
+
+        @keyframes breatheLight {
+            0%, 100% { opacity: 0.5; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.5); }
+        }
+    </style>
+    <script>
+        function toggleCircleCrop() {
+            const preview = document.getElementById('emblem-preview');
+            preview.classList.toggle('circle-crop');
+        }
+
+        function copyColor(hex) {
+            navigator.clipboard.writeText(hex).then(() => {
+                alert('کپی شد: ' + hex);
+            });
+        }
+    </script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>پورتال برند کیت اینستاگرام لایسنس‌لند</h1>
+            <p style="color: var(--text-secondary)">منابع گرافیکی و هویت بصری مخصوص شبکه‌های اجتماعی</p>
+        </header>
+
+        <!-- Section 1: 3D Emblem -->
+        <section>
+            <h2>نشان ۳بعدی لوگو (مخصوص آواتار و پروفایل اینستاگرام)</h2>
+            <div class="card" style="max-width: 500px;">
+                <div class="img-preview" id="emblem-preview">
+                    <img src="liceno-3d-emblem.jpg" alt="Liceno 3D Emblem" />
+                </div>
+                <button class="btn btn-outline" onclick="toggleCircleCrop()">تغییر حالت برش دایره‌ای</button>
+                <a href="liceno-3d-emblem.jpg" download class="btn" style="margin-top: 1rem;">دانلود تصویر</a>
+            </div>
+        </section>
+
+        <!-- Section 2: Vector Kits -->
+        <section>
+            <h2>کیت وکتورهای لوگو (SVG شفاف)</h2>
+            <div class="card-grid">
+                <div class="card">
+                    <div class="img-preview" style="height: 150px;">
+                        <span style="color: #64748b">لوگوی رسمی</span>
+                    </div>
+                    <h3>لوگوی رسمی سایت</h3>
+                    <p style="font-size: 0.9em; color: var(--text-secondary)">Dark Banner & Light Banner</p>
+                    <a href="#" class="btn btn-outline">دانلود SVG</a>
+                </div>
+                <div class="card">
+                    <div class="img-preview" style="height: 150px;">
+                        <span style="color: #64748b">آیکون مربعی</span>
+                    </div>
+                    <h3>لوگوی مربعی آیکون</h3>
+                    <p style="font-size: 0.9em; color: var(--text-secondary)">Square Squircle SVG</p>
+                    <a href="#" class="btn btn-outline">دانلود SVG</a>
+                </div>
+                <div class="card">
+                    <div class="img-preview" style="height: 150px;">
+                        <span style="color: #64748b">واترمارک</span>
+                    </div>
+                    <h3>واترمارک گوشه پست‌ها</h3>
+                    <p style="font-size: 0.9em; color: var(--text-secondary)">Corner Watermark</p>
+                    <a href="#" class="btn btn-outline">دانلود SVG</a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 3: Motion Graphics -->
+        <section>
+            <h2>موشنگرافیک رسمی سایت (Live Motion Preview)</h2>
+            <div class="card">
+                <div class="motion-container">
+                    <div class="motion-light"></div>
+                    <div class="motion-key"></div>
+                </div>
+                <div style="margin-top: 1.5rem; text-align: center;">
+                    <a href="liceno-official-motion.html" class="btn">مشاهده و دانلود سورس موشن</a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 4: Color Palette -->
+        <section>
+            <h2>پالت رنگی اینستاگرام (1-Click Copy)</h2>
+            <div class="color-palette">
+                <div class="color-card" onclick="copyColor('#10B981')">
+                    <div class="color-swatch" style="background: #10B981;"></div>
+                    <strong>Emerald</strong><br>
+                    <span style="color: var(--text-secondary)">#10B981</span>
+                </div>
+                <div class="color-card" onclick="copyColor('#F59E0B')">
+                    <div class="color-swatch" style="background: #F59E0B;"></div>
+                    <strong>Amber</strong><br>
+                    <span style="color: var(--text-secondary)">#F59E0B</span>
+                </div>
+                <div class="color-card" onclick="copyColor('#0D9488')">
+                    <div class="color-swatch" style="background: #0D9488;"></div>
+                    <strong>Teal</strong><br>
+                    <span style="color: var(--text-secondary)">#0D9488</span>
+                </div>
+                <div class="color-card" onclick="copyColor('#0B0F19')">
+                    <div class="color-swatch" style="background: #0B0F19; border: 1px solid #1e293b;"></div>
+                    <strong>Deep Night</strong><br>
+                    <span style="color: var(--text-secondary)">#0B0F19</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 5: Story Template -->
+        <section>
+            <h2>قالب استوری / ریلز (9:16)</h2>
+            <div class="card" style="max-width: 400px;">
+                <div class="img-preview" style="aspect-ratio: 9/16; height: auto;">
+                    <img src="liceno-story-brand.jpg" alt="Liceno Story Brand" />
+                </div>
+                <a href="liceno-story-brand.jpg" download class="btn">دانلود قالب</a>
+            </div>
+        </section>
+    </div>
+</body>
+</html>

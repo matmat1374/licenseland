@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 200" width="800" height="200">
+  <defs>
+    <!-- Same defs for icon -->
+    <linearGradient id="borderGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#F59E0B" />
+      <stop offset="50%" stop-color="#10B981" />
+      <stop offset="100%" stop-color="#0D9488" />
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <g transform="translate(40, 40)">
+    <rect x="0" y="0" width="120" height="120" rx="32" fill="#FFFFFF" stroke="url(#borderGrad)" stroke-width="4"/>
+    <g transform="translate(60, 60) rotate(45) translate(-60, -60)">
+      <path d="M72,38 A15,15 0 1,0 50,52 L50,82 L60,82 L60,92 L70,92 L70,82 L76,82 L76,66 L65,55 A15,15 0 0,0 72,38 Z" fill="#10B981" filter="url(#glow)"/>
+      <circle cx="60" cy="38" r="5" fill="#FFFFFF"/>
+    </g>
+  </g>
+
+  <g transform="translate(200, 110)">
+    <text x="0" y="0" font-family="tahoma, sans-serif" font-size="72" font-weight="bold" fill="#0F172A" letter-spacing="2">لایسـنـو</text>
+    <text x="0" y="40" font-family="system-ui, sans-serif" font-size="20" font-weight="600" fill="#475569" letter-spacing="6">LICENO <tspan fill="#10B981">•</tspan> LEGAL STORE</text>
+  </g>
+</svg>

@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Liceno Official Motion</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.0.0/Vazirmatn-font-face.css" rel="stylesheet" type="text/css" />
+    <style>
+        body { font-family: 'Vazirmatn', sans-serif; transition: background-color 0.3s ease, color 0.3s ease; }
+        .emerald-glow { filter: drop-shadow(0 0 8px rgba(16, 185, 129, 0.5)); }
+        .gradient-border {
+            border: 1px solid transparent;
+            background: linear-gradient(135deg, #FBBF24 0%, #10B981 50%, #0D9488 100%) border-box;
+            -webkit-mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+        }
+        
+        .animated-logo-container {
+            animation: breathe 4s ease-in-out infinite;
+        }
+        
+        .key-icon {
+            transition: transform 0.3s ease, filter 0.3s ease;
+        }
+
+        .playing .key-icon {
+            animation: rotateKey 3s ease-in-out infinite;
+        }
+        .playing .squircle-bg {
+            animation: pulseScale 3s ease-in-out infinite;
+        }
+
+        @keyframes breathe {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        @keyframes rotateKey {
+            0%, 100% { transform: rotate(45deg); filter: drop-shadow(0 0 8px rgba(16, 185, 129, 0.5)); }
+            50% { transform: rotate(0deg); filter: drop-shadow(0 0 12px rgba(16, 185, 129, 0.8)); }
+        }
+
+        @keyframes pulseScale {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.06); }
+        }
+
+        /* Dark mode settings */
+        body.dark-mode { background-color: #0B0F19; color: #FFFFFF; }
+        body.light-mode { background-color: #FFFFFF; color: #0F172A; }
+    </style>
+</head>
+<body class="dark-mode h-screen flex flex-col items-center justify-center p-8">
+    <div id="export-frame" class="relative flex flex-col items-center justify-center w-[1080px] h-[1080px] aspect-square rounded-3xl overflow-hidden shrink-0 shadow-2xl" style="background: inherit;">
+        
+        <div class="animated-logo-container group cursor-pointer flex flex-col items-center gap-6">
+            
+            <div class="squircle-bg relative flex items-center justify-center w-32 h-32 rounded-3xl border border-transparent" style="background: linear-gradient(inherit, inherit) padding-box, linear-gradient(135deg, #FBBF24 0%, #10B981 50%, #0D9488 100%) border-box;">
+                <div class="absolute inset-0 rounded-3xl gradient-border"></div>
+                
+                <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" class="key-icon emerald-glow text-emerald-500 transform rotate-45" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M2.586 17.414A2 2 0 0 0 2 18.828V21a1 1 0 0 0 1 1h3a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h1a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h.172a2 2 0 0 0 1.414-.586l.814-.814a6.5 6.5 0 1 0-4-4z"/>
+                    <circle cx="16.5" cy="7.5" r="1.5" />
+                    <circle cx="16.5" cy="7.5" r="0.5" fill="currentColor" stroke="none"/>
+                </svg>
+            </div>
+
+            <div class="flex flex-col items-center text-center mt-4">
+                <h1 class="text-6xl font-black mb-2 tracking-tight">لایسـنـو</h1>
+                <p class="text-xl tracking-[0.3em] font-medium opacity-80 uppercase mt-2">
+                    LICENO <span class="text-emerald-500 mx-1">•</span> LEGAL STORE
+                </p>
+            </div>
+            
+        </div>
+    </div>
+
+    <div class="mt-8 flex gap-4 no-export">
+        <button id="toggle-play" class="px-6 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-full font-bold transition-colors">Play Motion</button>
+        <button id="toggle-theme" class="px-6 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-full font-bold transition-colors">Toggle Theme</button>
+        <button id="export-png" class="px-6 py-2 bg-amber-600 hover:bg-amber-500 text-white rounded-full font-bold transition-colors">Export PNG</button>
+    </div>
+
+    <script>
+        const body = document.body;
+        const playBtn = document.getElementById('toggle-play');
+        const themeBtn = document.getElementById('toggle-theme');
+        const exportBtn = document.getElementById('export-png');
+        const frame = document.getElementById('export-frame');
+
+        let isPlaying = false;
+
+        playBtn.addEventListener('click', () => {
+            isPlaying = !isPlaying;
+            if(isPlaying) {
+                body.classList.add('playing');
+                playBtn.textContent = 'Pause Motion';
+            } else {
+                body.classList.remove('playing');
+                playBtn.textContent = 'Play Motion';
+            }
+        });
+
+        themeBtn.addEventListener('click', () => {
+            if(body.classList.contains('dark-mode')) {
+                body.classList.remove('dark-mode');
+                body.classList.add('light-mode');
+            } else {
+                body.classList.remove('light-mode');
+                body.classList.add('dark-mode');
+            }
+        });
+
+        exportBtn.addEventListener('click', () => {
+            html2canvas(frame, { scale: 2 }).then(canvas => {
+                const link = document.createElement('a');
+                link.download = 'liceno-motion-frame.png';
+                link.href = canvas.toDataURL();
+                link.click();
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="200" viewBox="0 0 800 200" style="background: #FFFFFF; font-family: sans-serif;">
+    <defs>
+        <linearGradient id="brand-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#FBBF24" />
+            <stop offset="50%" stop-color="#10B981" />
+            <stop offset="100%" stop-color="#0D9488" />
+        </linearGradient>
+        <filter id="emerald-glow" x="-50%" y="-50%" width="200%" height="200%">
+            <feDropShadow dx="0" dy="0" stdDeviation="1.5" flood-color="#10B981" flood-opacity="0.5" />
+        </filter>
+    </defs>
+    
+    <g transform="translate(100, 50)">
+        <rect x="0" y="0" width="100" height="100" rx="25" fill="none" stroke="url(#brand-grad)" stroke-width="5" />
+        <g transform="translate(50, 50) rotate(45) scale(2.5) translate(-12, -12)" filter="url(#emerald-glow)">
+            <path d="M2.586 17.414A2 2 0 0 0 2 18.828V21a1 1 0 0 0 1 1h3a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h1a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h.172a2 2 0 0 0 1.414-.586l.814-.814a6.5 6.5 0 1 0-4-4z" fill="none" stroke="#10B981" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="16.5" cy="7.5" r="1.5" fill="none" stroke="#10B981" stroke-width="1.5"/>
+            <circle cx="16.5" cy="7.5" r="0.5" fill="#10B981" />
+        </g>
+    </g>
+
+    <g transform="translate(250, 100)" fill="#0F172A">
+        <text x="0" y="0" font-size="64" font-weight="900" font-family="'Segoe UI', Tahoma, Geneva, Verdana, sans-serif">لایسـنـو</text>
+        <text x="5" y="40" font-size="20" letter-spacing="10" fill="#475569">LICENO <tspan fill="#10B981">•</tspan> LEGAL STORE</text>
+    </g>
+</svg>
