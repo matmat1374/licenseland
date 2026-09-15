@@ -1,4 +1,13 @@
-﻿# State
+# State
+
+## 2026-09-16 - Loop iteration 9: static asset caching (PERF-02)
+Scope: ONE item from the live-audit/verify-fixes backlog - PERF-02 (static assets served with Cache-Control: public, max-age=0, so every page view re-downloaded the hero/slider art; live-verified on /slider/brain.png = 947,819 B). Branch: fix/loop-9 (local only, NOT pushed - loop constraint). Commit 2c5b7f9 (parent eb8aba1 = iteration 8).
+CHANGE (next.config.ts only): new headers() rule listed before the /:path* catch-all, matching binary extensions png|jpg|jpeg|gif|svg|ico|webp|avif|woff|woff2 and setting Cache-Control: public, max-age=604800, stale-while-revalidate=86400 (7 days). It repeats the security headers so it is correct whether Next merges rules or uses the first match. HTML/API/document routes are NOT matched, so nothing can go stale.
+VERIFIED on a local prod build (next start -p 3011): /slider/brain.png, /slider/owl.png, /products-3d/claude.jpg, /brand/liceno-header-logo-light.svg, /enamad.png, /og-default.png all return the new cache value + all security headers. Non-regression: / = s-maxage=300; /shop + /blog = private, no-cache, no-store, max-age=0, must-revalidate; /cart = s-maxage=31536000; /api/torob = empty (force-dynamic); /manifest.json = public, max-age=0 (.json not matched - correct); /favicon.ico still 404 (pre-existing open item).
+GATES (final tree): typecheck:app EXIT 0 - test 125/125 pass, 0 fail, 0 skipped.
+DEPLOYMENT: origin/main == main == 39dd9c2 (iteration 6). Live production NOW matches iteration 6: sitemap.xml = 692 loc / 0 cat= (iteration-3 FIX A IS now live - it was 30 cat= at the iteration-5 check), /manifest.json 200 + /order 307 (iteration 6 live), canonical/CSP from iteration 2 live. Iterations 8 (COOP/CORP, eb8aba1) + 9 (static cache, 2c5b7f9) are committed on fix/loop-9 but NOT deployed.
+LIVE AUDIT / VERIFY-FIXES (2026-09-16 02:36): 15/16 probed live endpoints 200 (/favicon.ico 404; /admin,/dashboard,/order 307; /manifest.json 200); verify-fixes = 6 PASS / 5 FAIL. PASS: SEO-01 canonical, SEO-03 product schema image+IRR, SEO-04 article schema, SEO-07 sitemap no query-params, SEO-09 manifest.json, BUG-01 /order not 404. FAIL: SEO-02 torob feed images (og-default in 14/20), PERF-01 hero image 947KB, PERF-02 static cache (fixed locally this run), SEO-08 www->apex redirect, SEC-01 COOP/CORP (coded in iteration 8, undeployed).
+NEEDS OWNER: push + deploy iterations 8+9 (would flip SEC-01 + PERF-02 to PASS live). Next open live items to pick up: SEO-02, PERF-01, SEO-08.
 
 ## 2026-09-15 — Loop iteration 5: CI (see loop-run-log.md)
 Scope: ONE item carried from the iteration-3 backlog axis "code quality" — the repo had NO CI at all (no `.github/`). Branch: `fix/loop-5` (local only, NOT pushed — loop constraint).
