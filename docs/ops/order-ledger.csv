@@ -1,0 +1,4 @@
+﻿order_code,customer_name,customer_phone,items,payment_status,fulfillment_stage,supplier_order_code,supplier_ref,cost_usd,sell_total,margin,carrier,tracking_code,owner,next_action,due_at,last_email,email_status,notes
+LL-100001,مشتری نمونه,09120000000,Claude Pro API — 10M توکن × ۱,PAID,DELIVERED,SO-100001,2375,2.42,1003000,,تیپاکس,TRK-1001,عملیات,بسته شد,1405/06/24,delivered,SENT,تحویل موفق
+LL-100002,مشتری نمونه ۲,09120000001,Cursor Pro API — 2600 کردیت × ۱,PAID,PURCHASED,SO-100002,4244,1.48,682000,,,,عملیات,آماده‌سازی ارسال,1405/06/25,supplier_purchased,SENT,
+LL-100003,مشتری نمونه ۳,09120000002,Netflix 4K Ultra HD × ۱,PENDING,NONE,,,,2969000,,,,پشتیبان,پیگیری پرداخت,1405/06/25,order_created,SENT,
