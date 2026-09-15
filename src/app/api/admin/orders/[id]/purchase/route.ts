@@ -36,7 +36,10 @@ export async function POST(_req: Request, { params }: { params: Promise<{ id: st
   if (result.ok) {
     const st = await setFulfillmentStage(order.id, "PURCHASED", { actor: "admin", note: "خرید از تأمین‌کننده با موفقیت انجام شد" });
     // the supplier purchase record carries the id / amount / time / status
-    const so = await db.supplierOrder.findFirst({ where: { orderItem: { orderId: order.id } }, orderBy: { createdAt: "desc" } });
+    const itemIds = (await db.orderItem.findMany({ where: { orderId: order.id }, select: { id: true } })).map((i) => i.id);
+    const so = itemIds.length
+      ? await db.supplierOrder.findFirst({ where: { orderItemId: { in: itemIds } }, orderBy: { createdAt: "desc" } })
+      : null;
     return NextResponse.json({ ok: true, message: result.message, stage: st.message, emailQueued: Boolean(st.emailId), supplierOrder: so ? { code: so.code, status: so.status, supplierRef: so.supplierRef, costUsd: so.costUsd, at: so.createdAt } : null, elapsedMs: Date.now() - startedAt.getTime() });
   }
 

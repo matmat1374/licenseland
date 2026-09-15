@@ -46,7 +46,7 @@ export default async function OrderPage({
 
   // cc=1 comes from the payment verify redirect: this order was just paid,
   // so the persisted cart must be cleared once (P1 checkout-path fix).
-  const shouldClearCart = sp.cc === "1" && sp.paid === "1";
+  const shouldClearCart = (sp as any).cc === "1" && sp.paid === "1";
 
   // C1 fix — authorization (was: public guest fallback by id/code, with
   // sequential order codes this leaked every sold license key):

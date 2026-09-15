@@ -16,7 +16,8 @@
     "test": "node --test kernel/test/*.test.ts",
     "coverage": "node --test --experimental-test-coverage kernel/test/*.test.ts",
     "verify": "npm run typecheck && npm run lint && npm run coverage",
-    "supplier:probe": "node scripts/probe-supplier.mjs"
+    "supplier:probe": "node scripts/probe-supplier.mjs",
+    "typecheck:app": "tsc --noEmit -p tsconfig.json"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
