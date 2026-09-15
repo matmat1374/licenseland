@@ -56,11 +56,11 @@ test("parseAttributes handles dollar quota written after the number", () => {
 
 test("the five audited Claude links get five distinct, self-explaining titles", () => {
   const cases: Array<[string, string, string, string]> = [
-    ["API 100M Token Claude 3 Days - full warranty", "کلود API — ۱۰۰M توکن (۳ روزه) — با گارانتی", "CLAUDE-API-100M-3D", "CLAUDE|API|100M|3D"],
-    ["Claude API 50M Tokens 1 day full warranty", "کلود API — ۵۰M توکن (۱ روزه) — با گارانتی", "CLAUDE-API-50M-1D", "CLAUDE|API|50M|1D"],
-    ["Claude Premium Seat 1 Month", "کلود سیت اشتراکی (۱ ماهه)", "CLAUDE-SEAT-1M", "CLAUDE|SEAT|NOQ|1M"],
-    ["Claude API 50$ Token 1 month 30 days warranty", "کلود API — ۵۰$ (۱ ماهه) — با گارانتی", "CLAUDE-API-50USD-1M", "CLAUDE|API|50USD|1M"],
-    ["The old CLAUDE FREE account was created more than 1 month ago, 365-day limit, no warranty", "کلود اکانت (۱ ماهه) — بدون گارانتی", "CLAUDE-ACC-1M-NOWAR", "CLAUDE|ACCOUNT|NOQ|1M"],
+    ["API 100M Token Claude 3 Days - full warranty", "کلود API — ۱۰۰M توکن (۳ روزه) — با گارانتی", "CLAUDE-API-100M-3D", "CLAUDE|api 100m token claude 3 days"],
+    ["Claude API 50M Tokens 1 day full warranty", "کلود API — ۵۰M توکن (۱ روزه) — با گارانتی", "CLAUDE-API-50M-1D", "CLAUDE|claude api 50m tokens 1 day"],
+    ["Claude Premium Seat 1 Month", "کلود سیت اشتراکی (۱ ماهه)", "CLAUDE-SEAT-1M", "CLAUDE|claude premium seat 1 month"],
+    ["Claude API 50$ Token 1 month 30 days warranty", "کلود API — ۵۰$ (۱ ماهه) — با گارانتی", "CLAUDE-API-50USD-1M", "CLAUDE|claude api 50 token 1 month 30 days"],
+    ["The old CLAUDE FREE account was created more than 1 month ago, 365-day limit, no warranty", "کلود اکانت (۱ ماهه) — بدون گارانتی", "CLAUDE-ACC-1M-NOWAR", "CLAUDE|the old claude free account was created more than 1 month ago 365 day limit"],
   ];
   const titles = new Set<string>();
   for (const [name, title, sku, key] of cases) {
@@ -86,7 +86,7 @@ test("buildDedupKey collapses re-listed supplier ids to one product", () => {
   ];
   const keys = names.map((n) => buildDedupKey(n));
   assert.equal(new Set(keys).size, 1, `expected one key, got: ${[...new Set(keys)].join(" , ")}`);
-  assert.equal(keys[0], "CLAUDE|API|100M|1D|STANDARD");
+  assert.equal(keys[0], "CLAUDE|api claude standard 100m token 1 day");
 });
 
 test("buildDedupKey keeps genuinely different products apart", () => {

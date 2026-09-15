@@ -179,7 +179,7 @@ export function buildProductTitle(brandFa: string, a: ProductAttributes): string
   if (a.tier && !t.toLowerCase().includes(a.tier.toLowerCase())) t += ` (${a.tier})`;
   if (a.durationFa && !t.includes(a.durationFa)) t += ` (${a.durationFa})`;
   if (a.warranty === "none" && !/بدون\s*گارانتی/i.test(t)) t += " — بدون گارانتی";
-  else if (a.warranty === "with" && a.accessType !== "giftcard" && a.accessType !== "virtual" && !/با\s*گارانتی/i.test(t)) {
+  else if (a.warranty === "with" && a.accessType !== "giftcard" && !/با\s*گارانتی/i.test(t)) {
     t += " — با گارانتی";
   }
   return t.replace(/\s+/g, " ").trim();
@@ -212,33 +212,42 @@ export function extractCountry(input: string): string | null {
   return s.toUpperCase().replace(/\s+/g, "_");
 }
 
+/** Normalised supplier name — the real identity of an offering. */
+export function normalizeSupplierName(input: string): string {
+  return String(input || "").toLowerCase()
+    .replace(/[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}\u{FE0F}\u{2B00}-\u{2BFF}]/gu, " ")
+    .replace(/\bopenai\b/g, "chatgpt")
+    .replace(/\b(official|slot|full warranty|full|no warranty|with warranty|warranty)\b/g, " ")
+    .replace(/[^a-z0-9\u0600-\u06FF\s]/g, " ")
+    .replace(/\s+/g, " ").trim();
+}
+
 /**
- * Stable identity key for a supplier offering. Two listings of the same
- * product map to the same key even when the supplier changes the id, the
- * casing, the brand alias ("Openai" vs "ChatGPT") or the noise words
- * ("official", "slot", "full warranty").
+ * Stable identity key for a supplier offering. Two listings of the same product
+ * map to the same key even when the supplier changes the id, the casing, the
+ * brand alias ("Openai" vs "ChatGPT") or the noise words ("official", "slot",
+ * "full warranty").
  *
- * Virtual numbers are keyed by country — collapsing them would merge ten
- * different countries into one product, which is worse than the bug.
+ * The key is deliberately built from the NORMALISED NAME, not from parsed
+ * attributes: attribute parsing cannot tell "100 Telegram Stars" from "250
+ * Telegram Stars", and merging those would delete real product lines. Name
+ * equality is the conservative, verifiable signal — a first attempt at an
+ * attribute-based key silently collapsed all Telegram Stars denominations.
+ *
+ * Virtual numbers are keyed by country — their real distinguisher.
  */
 export function buildDedupKey(input: string, opts?: { category?: string }): string {
   const s = String(input || "");
   const brand = detectBrand(s);
   const a = parseAttributes(s);
-  const brandKey = brand ? brand.code : s.toLowerCase()
-    .replace(/[^a-z0-9\u0600-\u06FF\s]/g, " ")
-    .replace(/\s+/g, " ").trim().split(" ").slice(0, 2).join("_").toUpperCase();
+  const brandKey = brand ? brand.code : "ITEM";
 
   const isVirtual = a.accessType === "virtual" || /virtual|otp|شماره\s*مجازی/i.test(opts?.category || "");
   if (isVirtual) {
     return [brandKey, "VNO", extractCountry(s) || "UNK"].join("|");
   }
 
-  return [
-    brandKey,
-    a.accessType !== "unknown" ? a.accessType.toUpperCase() : "GEN",
-    a.quotaCode || "NOQ",
-    a.durationCode || "NOD",
-    a.tier ? a.tier.toUpperCase() : "",
-  ].filter(Boolean).join("|");
+  const normalized = normalizeSupplierName(s);
+  if (!normalized) return [brandKey, "EMPTY"].join("|");
+  return [brandKey, normalized].join("|");
 }

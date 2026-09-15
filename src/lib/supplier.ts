@@ -1177,6 +1177,16 @@ export async function importProductsFromSupplier(
     const loc = localizeProduct((sp.title || sp.name || title).toString().trim(), catSlug, sp);
     const finalTitle = loc.title;
     const shortDesc = loc.shortDesc;
+
+    // Audit fix (M2): the supplier id changed (re-listing) so nothing matched above.
+    // Match by product identity instead of creating a duplicate row.
+    if (!existing) {
+      const identityKey = buildDedupKey(shortDesc, { category: catSlug });
+      existing = await db.product.findFirst({
+        where: { isActive: true, specifications: { contains: `"dedup_key":"${identityKey}"` } },
+        orderBy: { createdAt: "asc" },
+      });
+    }
     const finalDescription = loc.description || pickDescription(sp) || `## ${finalTitle}\n\nمحصول اوریجینال با تحویل آنی و پشتیبانی ۲۴ ساعته.`;
 
     const brand = sp.brand ? String(sp.brand) : null;
@@ -1198,6 +1208,8 @@ export async function importProductsFromSupplier(
       const nextSpecs = {
         ...existingSpecs,
         supplier_product_id: sp.id,
+        // Audit fix (M2): identity key so a re-listed offering matches the existing row.
+        dedup_key: buildDedupKey(shortDesc, { category: catSlug }),
         price_usd: priceUSD,
         cost_usd: priceUSD,
         usd_rate: usdRate,
@@ -1230,6 +1242,8 @@ export async function importProductsFromSupplier(
     } else {
       const nextSpecs = {
         supplier_product_id: sp.id,
+        // Audit fix (M2): identity key so a re-listed offering matches the existing row.
+        dedup_key: buildDedupKey(shortDesc, { category: catSlug }),
         price_usd: priceUSD,
         cost_usd: priceUSD,
         pricing_unit: sp.pricing_unit,
@@ -1500,6 +1514,16 @@ export async function rebuildSupplierCatalog(opts?: {
     const loc = localizeProduct((sp.title || sp.name || title).toString().trim(), catSlug, sp);
     const finalTitle = loc.title;
     const shortDesc = loc.shortDesc;
+
+    // Audit fix (M2): the supplier id changed (re-listing) so nothing matched above.
+    // Match by product identity instead of creating a duplicate row.
+    if (!existing) {
+      const identityKey = buildDedupKey(shortDesc, { category: catSlug });
+      existing = await db.product.findFirst({
+        where: { isActive: true, specifications: { contains: `"dedup_key":"${identityKey}"` } },
+        orderBy: { createdAt: "asc" },
+      });
+    }
     const finalDescription = loc.description || pickDescription(sp) || `## ${finalTitle}\n\nمحصول اوریجینال با تحویل آنی و پشتیبانی ۲۴ ساعته.`;
 
     // Unique pretty slug
@@ -1587,6 +1611,8 @@ export async function rebuildSupplierCatalog(opts?: {
     const nextSpecs = {
       ...existingSpecs,
       supplier_product_id: sp.id,
+      // Audit fix (M2): identity key so a re-listed offering matches the existing row.
+      dedup_key: buildDedupKey(shortDesc, { category: catSlug }),
       price_usd: priceUSD,
       cost_usd: priceUSD,
       pricing_unit: sp.pricing_unit,
