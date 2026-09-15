@@ -1,0 +1,996 @@
+{
+  "tag": "after",
+  "base": "http://localhost:3011",
+  "categories": [
+    {
+      "slug": "ai",
+      "status": 200,
+      "products": 15,
+      "emptyState": false,
+      "title": "فروشگاه لایسنس — همه محصولات | لایسنو",
+      "canonical": "https://liceno.ir/shop",
+      "h1": "هوش مصنوعی"
+    },
+    {
+      "slug": "virtual-numbers",
+      "status": 200,
+      "products": 100,
+      "emptyState": false,
+      "title": "فروشگاه لایسنس — همه محصولات | لایسنو",
+      "canonical": "https://liceno.ir/shop",
+      "h1": "شماره مجازی و OTP"
+    },
+    {
+      "slug": "api-credits",
+      "status": 200,
+      "products": 56,
+      "emptyState": false,
+      "title": "فروشگاه لایسنس — همه محصولات | لایسنو",
+      "canonical": "https://liceno.ir/shop",
+      "h1": "توکن و کردیت API"
+    },
+    {
+      "slug": "dev-tools",
+      "status": 200,
+      "products": 56,
+      "emptyState": false,
+      "title": "فروشگاه لایسنس — همه محصولات | لایسنو",
+      "canonical": "https://liceno.ir/shop",
+      "h1": "ابزارهای توسعه و برنامه‌نویسی"
+    },
+    {
+      "slug": "design",
+      "status": 200,
+      "products": 29,
+      "emptyState": false,
+      "title": "فروشگاه لایسنس — همه محصولات | لایسنو",
+      "canonical": "https://liceno.ir/shop",
+      "h1": "طراحی و گرافیک"
+    },
+    {
+      "slug": "streaming",
+      "status": 200,
+      "products": 20,
+      "emptyState": false,
+      "title": "فروشگاه لایسنس — همه محصولات | لایسنو",
+      "canonical": "https://liceno.ir/shop",
+      "h1": "استریم و سرگرمی"
+    },
+    {
+      "slug": "software",
+      "status": 200,
+      "products": 100,
+      "emptyState": false,
+      "title": "فروشگاه لایسنس — همه محصولات | لایسنو",
+      "canonical": "https://liceno.ir/shop",
+      "h1": "نرم‌افزار و توسعه"
+    },
+    {
+      "slug": "gaming",
+      "status": 200,
+      "products": 32,
+      "emptyState": false,
+      "title": "فروشگاه لایسنس — همه محصولات | لایسنو",
+      "canonical": "https://liceno.ir/shop",
+      "h1": "گیمینگ و گیفت‌کارت"
+    },
+    {
+      "slug": "productivity",
+      "status": 200,
+      "products": 100,
+      "emptyState": false,
+      "title": "فروشگاه لایسنس — همه محصولات | لایسنو",
+      "canonical": "https://liceno.ir/shop",
+      "h1": "نرم‌افزار و بهره‌وری"
+    },
+    {
+      "slug": "social",
+      "status": 200,
+      "products": 25,
+      "emptyState": false,
+      "title": "فروشگاه لایسنس — همه محصولات | لایسنو",
+      "canonical": "https://liceno.ir/shop",
+      "h1": "شبکه‌های اجتماعی"
+    },
+    {
+      "slug": "giftcards",
+      "status": 200,
+      "products": 0,
+      "emptyState": true,
+      "title": "فروشگاه لایسنس — همه محصولات | لایسنو",
+      "canonical": "https://liceno.ir/shop",
+      "h1": "گیفت کارت"
+    },
+    {
+      "slug": "other",
+      "status": 200,
+      "products": 0,
+      "emptyState": true,
+      "title": "فروشگاه لایسنس — همه محصولات | لایسنو",
+      "canonical": "https://liceno.ir/shop",
+      "h1": "سایر محصولات"
+    },
+    {
+      "slug": "ai-media",
+      "status": 200,
+      "products": 0,
+      "emptyState": true,
+      "title": "فروشگاه لایسنس — همه محصولات | لایسنو",
+      "canonical": "https://liceno.ir/shop",
+      "h1": "هوش مصنوعی تصویر و ویدیو"
+    },
+    {
+      "slug": "education",
+      "status": 200,
+      "products": 0,
+      "emptyState": true,
+      "title": "فروشگاه لایسنس — همه محصولات | لایسنو",
+      "canonical": "https://liceno.ir/shop",
+      "h1": "آموزش"
+    },
+    {
+      "slug": "security",
+      "status": 200,
+      "products": 0,
+      "emptyState": true,
+      "title": "فروشگاه لایسنس — همه محصولات | لایسنو",
+      "canonical": "https://liceno.ir/shop",
+      "h1": "امنیت و آنتی‌ویروس"
+    },
+    {
+      "slug": "uc (global)",
+      "status": 200,
+      "products": 0,
+      "emptyState": true,
+      "title": "فروشگاه لایسنس — همه محصولات | لایسنو",
+      "canonical": "https://liceno.ir/shop",
+      "h1": "uc (global)"
+    },
+    {
+      "slug": "stars",
+      "status": 200,
+      "products": 0,
+      "emptyState": true,
+      "title": "فروشگاه لایسنس — همه محصولات | لایسنو",
+      "canonical": "https://liceno.ir/shop",
+      "h1": "stars"
+    },
+    {
+      "slug": "apis & dev tools",
+      "status": 200,
+      "products": 0,
+      "emptyState": true,
+      "title": "فروشگاه لایسنس — همه محصولات | لایسنو",
+      "canonical": "https://liceno.ir/shop",
+      "h1": "apis &amp; dev tools"
+    },
+    {
+      "slug": "otp numbers",
+      "status": 200,
+      "products": 0,
+      "emptyState": true,
+      "title": "فروشگاه لایسنس — همه محصولات | لایسنو",
+      "canonical": "https://liceno.ir/shop",
+      "h1": "otp numbers"
+    },
+    {
+      "slug": "cp (in)",
+      "status": 200,
+      "products": 0,
+      "emptyState": true,
+      "title": "فروشگاه لایسنس — همه محصولات | لایسنو",
+      "canonical": "https://liceno.ir/shop",
+      "h1": "cp (in)"
+    },
+    {
+      "slug": "ai video & image",
+      "status": 200,
+      "products": 0,
+      "emptyState": true,
+      "title": "فروشگاه لایسنس — همه محصولات | لایسنو",
+      "canonical": "https://liceno.ir/shop",
+      "h1": "ai video &amp; image"
+    },
+    {
+      "slug": "design tools",
+      "status": 200,
+      "products": 0,
+      "emptyState": true,
+      "title": "فروشگاه لایسنس — همه محصولات | لایسنو",
+      "canonical": "https://liceno.ir/shop",
+      "h1": "design tools"
+    },
+    {
+      "slug": "accounts & ai video",
+      "status": 200,
+      "products": 0,
+      "emptyState": true,
+      "title": "فروشگاه لایسنس — همه محصولات | لایسنو",
+      "canonical": "https://liceno.ir/shop",
+      "h1": "accounts &amp; ai video"
+    },
+    {
+      "slug": "ai chatbots",
+      "status": 200,
+      "products": 0,
+      "emptyState": true,
+      "title": "فروشگاه لایسنس — همه محصولات | لایسنو",
+      "canonical": "https://liceno.ir/shop",
+      "h1": "ai chatbots"
+    },
+    {
+      "slug": "nitro",
+      "status": 200,
+      "products": 0,
+      "emptyState": true,
+      "title": "فروشگاه لایسنس — همه محصولات | لایسنو",
+      "canonical": "https://liceno.ir/shop",
+      "h1": "nitro"
+    },
+    {
+      "slug": "play - us",
+      "status": 200,
+      "products": 0,
+      "emptyState": true,
+      "title": "فروشگاه لایسنس — همه محصولات | لایسنو",
+      "canonical": "https://liceno.ir/shop",
+      "h1": "play - us"
+    },
+    {
+      "slug": "itunes - us",
+      "status": 200,
+      "products": 0,
+      "emptyState": true,
+      "title": "فروشگاه لایسنس — همه محصولات | لایسنو",
+      "canonical": "https://liceno.ir/shop",
+      "h1": "itunes - us"
+    },
+    {
+      "slug": "psn (us)",
+      "status": 200,
+      "products": 0,
+      "emptyState": true,
+      "title": "فروشگاه لایسنس — همه محصولات | لایسنو",
+      "canonical": "https://liceno.ir/shop",
+      "h1": "psn (us)"
+    },
+    {
+      "slug": "premium",
+      "status": 200,
+      "products": 0,
+      "emptyState": true,
+      "title": "فروشگاه لایسنس — همه محصولات | لایسنو",
+      "canonical": "https://liceno.ir/shop",
+      "h1": "premium"
+    },
+    {
+      "slug": "followers",
+      "status": 200,
+      "products": 0,
+      "emptyState": true,
+      "title": "فروشگاه لایسنس — همه محصولات | لایسنو",
+      "canonical": "https://liceno.ir/shop",
+      "h1": "followers"
+    }
+  ],
+  "categoriesSummary": {
+    "total": 30,
+    "nonEmpty": 10,
+    "empty": 20,
+    "distinctTitles": 1,
+    "distinctCanonicals": 1,
+    "distinctH1": 30
+  },
+  "payload": {
+    "/": {
+      "status": 200,
+      "htmlBytes": 348962,
+      "gzipBytes": 38840,
+      "brotliBytes": 24711,
+      "flightBytes": 124115,
+      "flightRawInHtmlBytes": 120853,
+      "description": {
+        "occurrences": 56,
+        "bytes": 15270
+      },
+      "features": {
+        "occurrences": 56,
+        "bytes": 6608
+      },
+      "specifications": {
+        "occurrences": 56,
+        "bytes": 14921
+      },
+      "shortDesc": {
+        "occurrences": 56,
+        "bytes": 2216
+      },
+      "title_field": {
+        "occurrences": 59,
+        "bytes": 2447
+      },
+      "lucideClassNames": [
+        "arrow-left",
+        "badge-percent",
+        "chevron-down",
+        "code-xml",
+        "credit-card",
+        "gamepad-2",
+        "gamepad2",
+        "headphones",
+        "house",
+        "instagram",
+        "key-round",
+        "layout-grid",
+        "mail",
+        "map-pin",
+        "menu",
+        "moon",
+        "music",
+        "pen-tool",
+        "phone",
+        "play",
+        "plus",
+        "repeat",
+        "search",
+        "send",
+        "share-2",
+        "share2",
+        "shield-check",
+        "shopping-bag",
+        "shopping-cart",
+        "smartphone",
+        "sparkles",
+        "star",
+        "user",
+        "youtube",
+        "zap"
+      ],
+      "iconClassesTotal": 79
+    },
+    "/shop": {
+      "status": 200,
+      "htmlBytes": 711080,
+      "gzipBytes": 44613,
+      "brotliBytes": 27488,
+      "flightBytes": 188606,
+      "flightRawInHtmlBytes": 184907,
+      "description": {
+        "occurrences": 101,
+        "bytes": 27195
+      },
+      "features": {
+        "occurrences": 101,
+        "bytes": 11975
+      },
+      "specifications": {
+        "occurrences": 100,
+        "bytes": 26913
+      },
+      "shortDesc": {
+        "occurrences": 100,
+        "bytes": 4223
+      },
+      "title_field": {
+        "occurrences": 100,
+        "bytes": 4329
+      },
+      "lucideClassNames": [
+        "arrow-left",
+        "badge-percent",
+        "chevron-down",
+        "circle-check",
+        "clock",
+        "code-xml",
+        "credit-card",
+        "external-link",
+        "flame",
+        "gamepad-2",
+        "gamepad2",
+        "headphones",
+        "house",
+        "instagram",
+        "key-round",
+        "layout-grid",
+        "mail",
+        "map-pin",
+        "menu",
+        "moon",
+        "pen-tool",
+        "phone",
+        "play",
+        "search",
+        "send",
+        "share-2",
+        "share2",
+        "shield-check",
+        "shopping-bag",
+        "shopping-cart",
+        "sliders-horizontal",
+        "smartphone",
+        "sparkles",
+        "star",
+        "trending-down",
+        "user",
+        "zap"
+      ],
+      "iconClassesTotal": 129
+    },
+    "/shop?cat=ai": {
+      "status": 200,
+      "htmlBytes": 157782,
+      "gzipBytes": 21401,
+      "brotliBytes": 15552,
+      "flightBytes": 43088,
+      "flightRawInHtmlBytes": 43466,
+      "description": {
+        "occurrences": 15,
+        "bytes": 4013
+      },
+      "features": {
+        "occurrences": 15,
+        "bytes": 1770
+      },
+      "specifications": {
+        "occurrences": 15,
+        "bytes": 3913
+      },
+      "shortDesc": {
+        "occurrences": 15,
+        "bytes": 508
+      },
+      "title_field": {
+        "occurrences": 15,
+        "bytes": 496
+      },
+      "lucideClassNames": [
+        "badge-percent",
+        "chevron-down",
+        "code-xml",
+        "credit-card",
+        "gamepad-2",
+        "gamepad2",
+        "headphones",
+        "house",
+        "instagram",
+        "key-round",
+        "layout-grid",
+        "mail",
+        "map-pin",
+        "menu",
+        "moon",
+        "pen-tool",
+        "phone",
+        "play",
+        "search",
+        "send",
+        "share-2",
+        "share2",
+        "shield-check",
+        "shopping-bag",
+        "shopping-cart",
+        "sliders-horizontal",
+        "smartphone",
+        "sparkles",
+        "star",
+        "user",
+        "zap"
+      ],
+      "iconClassesTotal": 49
+    },
+    "/contact": {
+      "status": 200,
+      "htmlBytes": 61900,
+      "gzipBytes": 12241,
+      "brotliBytes": 9609,
+      "flightBytes": 14336,
+      "flightRawInHtmlBytes": 15663,
+      "description": {
+        "occurrences": 0,
+        "bytes": 0
+      },
+      "features": {
+        "occurrences": 0,
+        "bytes": 0
+      },
+      "specifications": {
+        "occurrences": 0,
+        "bytes": 0
+      },
+      "shortDesc": {
+        "occurrences": 0,
+        "bytes": 0
+      },
+      "title_field": {
+        "occurrences": 0,
+        "bytes": 0
+      },
+      "lucideClassNames": [
+        "badge-percent",
+        "chevron-down",
+        "code-xml",
+        "credit-card",
+        "gamepad-2",
+        "gamepad2",
+        "headphones",
+        "house",
+        "instagram",
+        "key-round",
+        "layout-grid",
+        "mail",
+        "map-pin",
+        "menu",
+        "message-circle",
+        "moon",
+        "pen-tool",
+        "phone",
+        "play",
+        "search",
+        "send",
+        "share-2",
+        "share2",
+        "shield-check",
+        "shopping-bag",
+        "shopping-cart",
+        "smartphone",
+        "sparkles",
+        "user",
+        "zap"
+      ],
+      "iconClassesTotal": 40
+    }
+  },
+  "chunks": {
+    "/": {
+      "count": 22,
+      "rawTotal": 1055558,
+      "gzTotal": 330164,
+      "rows": [
+        {
+          "file": "/_next/static/chunks/3794-6a58054fbfb41769.js",
+          "raw": 241388,
+          "gz": 65550
+        },
+        {
+          "file": "/_next/static/chunks/4bd1b696-8a4ab4fdf0ae305a.js",
+          "raw": 201060,
+          "gz": 63160
+        },
+        {
+          "file": "/_next/static/chunks/2798-22c2de0ae896ae81.js",
+          "raw": 125194,
+          "gz": 40972
+        },
+        {
+          "file": "/_next/static/chunks/polyfills-42372ed130431b0a.js",
+          "raw": 112594,
+          "gz": 39520
+        },
+        {
+          "file": "/_next/static/chunks/app/layout-da1a43e45ef1fab4.js",
+          "raw": 50499,
+          "gz": 13179
+        },
+        {
+          "file": "/_next/static/chunks/app/page-83de6c9d16f1d058.js",
+          "raw": 42238,
+          "gz": 11975
+        },
+        {
+          "file": "/_next/static/chunks/5882-1dfcf98d0cc25e4f.js",
+          "raw": 39460,
+          "gz": 11417
+        },
+        {
+          "file": "/_next/static/chunks/3886-a1ac1db19705e68c.js",
+          "raw": 34661,
+          "gz": 11043
+        },
+        {
+          "file": "/_next/static/chunks/1244-4c76fc8cea846588.js",
+          "raw": 32502,
+          "gz": 9370
+        },
+        {
+          "file": "/_next/static/chunks/8409-093b53a4d945b81c.js",
+          "raw": 27332,
+          "gz": 8604
+        },
+        {
+          "file": "/_next/static/chunks/5886-f8626c37dc0309b4.js",
+          "raw": 25985,
+          "gz": 8722
+        },
+        {
+          "file": "/_next/static/chunks/3813-193c3c4420d5dc93.js",
+          "raw": 25785,
+          "gz": 10240
+        },
+        {
+          "file": "/_next/static/chunks/951-786ee4e1973b32f4.js",
+          "raw": 22703,
+          "gz": 8021
+        },
+        {
+          "file": "/_next/static/chunks/4338-1e045356777be4be.js",
+          "raw": 17616,
+          "gz": 6209
+        },
+        {
+          "file": "/_next/static/chunks/3650-98c86c5d4815b2cc.js",
+          "raw": 11929,
+          "gz": 4327
+        },
+        {
+          "file": "/_next/static/chunks/8896-f52463f96c4876da.js",
+          "raw": 11504,
+          "gz": 4287
+        },
+        {
+          "file": "/_next/static/chunks/989-ac5c6c3a341b8f0c.js",
+          "raw": 8981,
+          "gz": 3378
+        },
+        {
+          "file": "/_next/static/chunks/8500-01a63dafd809e317.js",
+          "raw": 8665,
+          "gz": 3561
+        },
+        {
+          "file": "/_next/static/chunks/9854-56193332c77a4c00.js",
+          "raw": 7400,
+          "gz": 2707
+        },
+        {
+          "file": "/_next/static/chunks/5628-07b9ccbd2afc62cd.js",
+          "raw": 3930,
+          "gz": 1834
+        },
+        {
+          "file": "/_next/static/chunks/webpack-f8550791bdab7d93.js",
+          "raw": 3603,
+          "gz": 1856
+        },
+        {
+          "file": "/_next/static/chunks/main-app-3cff91ba544d33a2.js",
+          "raw": 529,
+          "gz": 232
+        }
+      ]
+    },
+    "/shop": {
+      "count": 20,
+      "rawTotal": 1009390,
+      "gzTotal": 316355,
+      "rows": [
+        {
+          "file": "/_next/static/chunks/3794-6a58054fbfb41769.js",
+          "raw": 241388,
+          "gz": 65550
+        },
+        {
+          "file": "/_next/static/chunks/4bd1b696-8a4ab4fdf0ae305a.js",
+          "raw": 201060,
+          "gz": 63160
+        },
+        {
+          "file": "/_next/static/chunks/2798-22c2de0ae896ae81.js",
+          "raw": 125194,
+          "gz": 40972
+        },
+        {
+          "file": "/_next/static/chunks/polyfills-42372ed130431b0a.js",
+          "raw": 112594,
+          "gz": 39520
+        },
+        {
+          "file": "/_next/static/chunks/app/layout-da1a43e45ef1fab4.js",
+          "raw": 50499,
+          "gz": 13179
+        },
+        {
+          "file": "/_next/static/chunks/5882-1dfcf98d0cc25e4f.js",
+          "raw": 39460,
+          "gz": 11417
+        },
+        {
+          "file": "/_next/static/chunks/3886-a1ac1db19705e68c.js",
+          "raw": 34661,
+          "gz": 11043
+        },
+        {
+          "file": "/_next/static/chunks/1244-4c76fc8cea846588.js",
+          "raw": 32502,
+          "gz": 9370
+        },
+        {
+          "file": "/_next/static/chunks/8409-093b53a4d945b81c.js",
+          "raw": 27332,
+          "gz": 8604
+        },
+        {
+          "file": "/_next/static/chunks/5886-f8626c37dc0309b4.js",
+          "raw": 25985,
+          "gz": 8722
+        },
+        {
+          "file": "/_next/static/chunks/3813-193c3c4420d5dc93.js",
+          "raw": 25785,
+          "gz": 10240
+        },
+        {
+          "file": "/_next/static/chunks/951-786ee4e1973b32f4.js",
+          "raw": 22703,
+          "gz": 8021
+        },
+        {
+          "file": "/_next/static/chunks/4338-1e045356777be4be.js",
+          "raw": 17616,
+          "gz": 6209
+        },
+        {
+          "file": "/_next/static/chunks/3650-98c86c5d4815b2cc.js",
+          "raw": 11929,
+          "gz": 4327
+        },
+        {
+          "file": "/_next/static/chunks/8896-f52463f96c4876da.js",
+          "raw": 11504,
+          "gz": 4287
+        },
+        {
+          "file": "/_next/static/chunks/989-ac5c6c3a341b8f0c.js",
+          "raw": 8981,
+          "gz": 3378
+        },
+        {
+          "file": "/_next/static/chunks/8500-01a63dafd809e317.js",
+          "raw": 8665,
+          "gz": 3561
+        },
+        {
+          "file": "/_next/static/chunks/9854-56193332c77a4c00.js",
+          "raw": 7400,
+          "gz": 2707
+        },
+        {
+          "file": "/_next/static/chunks/webpack-f8550791bdab7d93.js",
+          "raw": 3603,
+          "gz": 1856
+        },
+        {
+          "file": "/_next/static/chunks/main-app-3cff91ba544d33a2.js",
+          "raw": 529,
+          "gz": 232
+        }
+      ]
+    },
+    "/shop?cat=ai": {
+      "count": 20,
+      "rawTotal": 1009390,
+      "gzTotal": 316355,
+      "rows": [
+        {
+          "file": "/_next/static/chunks/3794-6a58054fbfb41769.js",
+          "raw": 241388,
+          "gz": 65550
+        },
+        {
+          "file": "/_next/static/chunks/4bd1b696-8a4ab4fdf0ae305a.js",
+          "raw": 201060,
+          "gz": 63160
+        },
+        {
+          "file": "/_next/static/chunks/2798-22c2de0ae896ae81.js",
+          "raw": 125194,
+          "gz": 40972
+        },
+        {
+          "file": "/_next/static/chunks/polyfills-42372ed130431b0a.js",
+          "raw": 112594,
+          "gz": 39520
+        },
+        {
+          "file": "/_next/static/chunks/app/layout-da1a43e45ef1fab4.js",
+          "raw": 50499,
+          "gz": 13179
+        },
+        {
+          "file": "/_next/static/chunks/5882-1dfcf98d0cc25e4f.js",
+          "raw": 39460,
+          "gz": 11417
+        },
+        {
+          "file": "/_next/static/chunks/3886-a1ac1db19705e68c.js",
+          "raw": 34661,
+          "gz": 11043
+        },
+        {
+          "file": "/_next/static/chunks/1244-4c76fc8cea846588.js",
+          "raw": 32502,
+          "gz": 9370
+        },
+        {
+          "file": "/_next/static/chunks/8409-093b53a4d945b81c.js",
+          "raw": 27332,
+          "gz": 8604
+        },
+        {
+          "file": "/_next/static/chunks/5886-f8626c37dc0309b4.js",
+          "raw": 25985,
+          "gz": 8722
+        },
+        {
+          "file": "/_next/static/chunks/3813-193c3c4420d5dc93.js",
+          "raw": 25785,
+          "gz": 10240
+        },
+        {
+          "file": "/_next/static/chunks/951-786ee4e1973b32f4.js",
+          "raw": 22703,
+          "gz": 8021
+        },
+        {
+          "file": "/_next/static/chunks/4338-1e045356777be4be.js",
+          "raw": 17616,
+          "gz": 6209
+        },
+        {
+          "file": "/_next/static/chunks/3650-98c86c5d4815b2cc.js",
+          "raw": 11929,
+          "gz": 4327
+        },
+        {
+          "file": "/_next/static/chunks/8896-f52463f96c4876da.js",
+          "raw": 11504,
+          "gz": 4287
+        },
+        {
+          "file": "/_next/static/chunks/989-ac5c6c3a341b8f0c.js",
+          "raw": 8981,
+          "gz": 3378
+        },
+        {
+          "file": "/_next/static/chunks/8500-01a63dafd809e317.js",
+          "raw": 8665,
+          "gz": 3561
+        },
+        {
+          "file": "/_next/static/chunks/9854-56193332c77a4c00.js",
+          "raw": 7400,
+          "gz": 2707
+        },
+        {
+          "file": "/_next/static/chunks/webpack-f8550791bdab7d93.js",
+          "raw": 3603,
+          "gz": 1856
+        },
+        {
+          "file": "/_next/static/chunks/main-app-3cff91ba544d33a2.js",
+          "raw": 529,
+          "gz": 232
+        }
+      ]
+    },
+    "/contact": {
+      "count": 21,
+      "rawTotal": 1023084,
+      "gzTotal": 321513,
+      "rows": [
+        {
+          "file": "/_next/static/chunks/3794-6a58054fbfb41769.js",
+          "raw": 241388,
+          "gz": 65550
+        },
+        {
+          "file": "/_next/static/chunks/4bd1b696-8a4ab4fdf0ae305a.js",
+          "raw": 201060,
+          "gz": 63160
+        },
+        {
+          "file": "/_next/static/chunks/2798-22c2de0ae896ae81.js",
+          "raw": 125194,
+          "gz": 40972
+        },
+        {
+          "file": "/_next/static/chunks/polyfills-42372ed130431b0a.js",
+          "raw": 112594,
+          "gz": 39520
+        },
+        {
+          "file": "/_next/static/chunks/app/layout-da1a43e45ef1fab4.js",
+          "raw": 50499,
+          "gz": 13179
+        },
+        {
+          "file": "/_next/static/chunks/5882-1dfcf98d0cc25e4f.js",
+          "raw": 39460,
+          "gz": 11417
+        },
+        {
+          "file": "/_next/static/chunks/3886-a1ac1db19705e68c.js",
+          "raw": 34661,
+          "gz": 11043
+        },
+        {
+          "file": "/_next/static/chunks/1244-4c76fc8cea846588.js",
+          "raw": 32502,
+          "gz": 9370
+        },
+        {
+          "file": "/_next/static/chunks/8409-093b53a4d945b81c.js",
+          "raw": 27332,
+          "gz": 8604
+        },
+        {
+          "file": "/_next/static/chunks/5886-f8626c37dc0309b4.js",
+          "raw": 25985,
+          "gz": 8722
+        },
+        {
+          "file": "/_next/static/chunks/3813-193c3c4420d5dc93.js",
+          "raw": 25785,
+          "gz": 10240
+        },
+        {
+          "file": "/_next/static/chunks/951-786ee4e1973b32f4.js",
+          "raw": 22703,
+          "gz": 8021
+        },
+        {
+          "file": "/_next/static/chunks/4338-1e045356777be4be.js",
+          "raw": 17616,
+          "gz": 6209
+        },
+        {
+          "file": "/_next/static/chunks/app/contact/page-3c67a671904bd7f3.js",
+          "raw": 13694,
+          "gz": 5158
+        },
+        {
+          "file": "/_next/static/chunks/3650-98c86c5d4815b2cc.js",
+          "raw": 11929,
+          "gz": 4327
+        },
+        {
+          "file": "/_next/static/chunks/8896-f52463f96c4876da.js",
+          "raw": 11504,
+          "gz": 4287
+        },
+        {
+          "file": "/_next/static/chunks/989-ac5c6c3a341b8f0c.js",
+          "raw": 8981,
+          "gz": 3378
+        },
+        {
+          "file": "/_next/static/chunks/8500-01a63dafd809e317.js",
+          "raw": 8665,
+          "gz": 3561
+        },
+        {
+          "file": "/_next/static/chunks/9854-56193332c77a4c00.js",
+          "raw": 7400,
+          "gz": 2707
+        },
+        {
+          "file": "/_next/static/chunks/webpack-f8550791bdab7d93.js",
+          "raw": 3603,
+          "gz": 1856
+        },
+        {
+          "file": "/_next/static/chunks/main-app-3cff91ba544d33a2.js",
+          "raw": 529,
+          "gz": 232
+        }
+      ]
+    }
+  },
+  "biggestChunkProbe": {
+    "file": "/_next/static/chunks/3794-6a58054fbfb41769.js",
+    "raw": 241388,
+    "gz": 65550,
+    "hasCreateLucideIcon": false,
+    "uniqueLucideIconNames": 0,
+    "sampleIcons": []
+  }
+}

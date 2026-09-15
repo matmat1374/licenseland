@@ -30,7 +30,7 @@ import { SearchDialog } from "./search-dialog";
 import { useCart } from "@/store/cart";
 import { NAV_LINKS, SITE, CATEGORIES } from "@/lib/constants";
 import { usePathname, useRouter } from "next/navigation";
-import * as LucideIcons from "lucide-react";
+import { categoryIcon } from "@/lib/category-icons";
 import { useMounted } from "@/hooks/use-mounted";
 import { cn } from "@/lib/utils";
 import { UserNavMenu } from "./user-nav-menu";
@@ -128,7 +128,7 @@ export function SiteHeader() {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="center" className="w-[560px] p-3 grid grid-cols-2 gap-2 rounded-2xl shadow-xl border border-border/80 bg-popover/98 backdrop-blur-xl">
               {CATEGORIES.map((cat) => {
-                const Icon = (LucideIcons as any)[cat.icon || "Folder"] || LucideIcons.Folder;
+                const Icon = categoryIcon(cat.icon);
                 return (
                   <DropdownMenuItem key={cat.slug} asChild className="cursor-pointer rounded-lg hover:bg-accent focus:bg-accent transition-colors p-2 outline-none">
                     <Link href={`/shop?cat=${cat.slug}`} className="flex items-center gap-3 w-full">

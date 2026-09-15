@@ -3,10 +3,16 @@ import { db } from "@/lib/db";
 import { SITE } from "@/lib/constants";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const [products, articles, categories] = await Promise.all([
+  // توجه: آدرس‌های /shop?cat=… عمداً در سایت‌مپ نیستند.
+  // اندازه‌گیری واقعی روی بیلد تولیدی (docs/loop/backlog-3.md):
+  //  • هر ۳۰ آدرس خودشان را canonical = /shop معرفی می‌کنند ⇒ سایت‌مپ نباید URL غیر‌canonical تبلیغ کند
+  //  • هر ۳۰ آدرس یک <title> یکسان دارند (بدون متادیتای اختصاصی)
+  //  • ۲۰ از ۳۰ هیچ محصولی ندارند (صفحهٔ خالی)
+  //  • دو جفت آلیاس دقیقاً تکراری‌اند: api-credits ≡ dev-tools و software ≡ productivity
+  // خودِ آدرس‌ها دست‌نخورده و ۲۰۰ هستند (از فوتر/هدر/بردکرامب لینک می‌شوند) — فقط سیگنال ایندکس حذف شد.
+  const [products, articles] = await Promise.all([
     db.product.findMany({ where: { isActive: true }, select: { slug: true, updatedAt: true } }),
     db.article.findMany({ where: { published: true }, select: { slug: true, updatedAt: true } }),
-    db.category.findMany({ select: { slug: true, createdAt: true } }),
   ]);
 
   const now = new Date();
@@ -22,13 +28,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${SITE.url}/privacy`, lastModified: now, priority: 0.3, changeFrequency: "yearly" },
   ];
 
-  const categoryPages: MetadataRoute.Sitemap = categories.map((c) => ({
-    url: `${SITE.url}/shop?cat=${c.slug}`,
-    lastModified: c.createdAt,
-    priority: 0.85,
-    changeFrequency: "daily",
-  }));
-
   const productPages: MetadataRoute.Sitemap = products.map((p) => ({
     url: `${SITE.url}/product/${p.slug}`,
     lastModified: p.updatedAt,
@@ -43,5 +42,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     changeFrequency: "monthly",
   }));
 
-  return [...staticPages, ...categoryPages, ...productPages, ...articlePages];
+  return [...staticPages, ...productPages, ...articlePages];
 }

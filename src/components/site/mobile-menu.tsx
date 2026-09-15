@@ -2,13 +2,13 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, ShoppingBag, ShoppingCart, User, ShieldCheck, Menu, Folder } from "lucide-react";
+import { Home, ShoppingBag, ShoppingCart, User, ShieldCheck, Menu } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useCart } from "@/store/cart";
 import { useSession } from "next-auth/react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { CATEGORIES } from "@/lib/constants";
-import * as Icons from "lucide-react";
+import { categoryIcon } from "@/lib/category-icons";
 import { useState } from "react";
 import { ThemeToggle } from "./theme-toggle";
 
@@ -97,7 +97,7 @@ export function MobileMenu() {
           </SheetHeader>
           <div className="p-4 grid gap-2">
             {CATEGORIES.map((cat) => {
-              const Icon = (Icons as any)[cat.icon || "Folder"] || Icons.Folder;
+              const Icon = categoryIcon(cat.icon);
               return (
                 <Link
                   key={cat.slug}

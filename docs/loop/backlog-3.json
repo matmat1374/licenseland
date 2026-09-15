@@ -1,0 +1,243 @@
+{
+  "iteration": 3,
+  "run_id": "2026-09-15T21:05:00Z",
+  "head_commit_at_start": "1649db7c114da0ca80cf29b14ec88548503a7db6",
+  "head_commit_at_end": "see STATE.md (local commit, NOT pushed)",
+  "runtime": { "node": "v22.22.0", "next": "16.1.1", "prisma": "6.11.1", "lucide_react": "0.525.0", "platform": "win32" },
+  "scope": "iteration-3 carried-over candidates only: (1) /shop?cat= canonical-vs-sitemap contradiction, (2) 3 never-read serialized fields, (3) lucide-react barrel. Nothing from iterations 1-2 was redone.",
+  "evidence_tags_legend": {
+    "observed": "directly present in source or runtime output of a command run in this iteration",
+    "derived": "arithmetic over observed inputs (formula stated)",
+    "candidate": "plausible, not reproduced",
+    "reproduced": "a real input produced the symptom",
+    "confirmed": "reproduced AND a counterfactual (removing the cause removes the symptom) was run",
+    "simulated": "measured by transforming a served response, NOT by shipping a change"
+  },
+
+  "baseline_environment": {
+    "build": "npm run build (exit 0, 'Compiled successfully in 32.5s')",
+    "serve": "npx next start -p 3011",
+    "serve_deviation": "the given command `PORT=3011 npm start` does NOT work: package.json start = 'next start -p 3000' so -p wins over PORT. Used `npx next start -p 3011` instead.",
+    "raw_measurements": ["docs/loop/measure-3-baseline.json", "docs/loop/measure-3-after.json", "docs/loop/measure-3-script.mjs"],
+    "measurement_note": "measure-3-script.mjs counts a route's JS as the unique _next/static/chunks/*.js files referenced by <script src> in the SERVED HTML (not a manifest), and gzips each file at level 9."
+  },
+
+  "item1_shop_cat_canonical_vs_sitemap": {
+    "decision": "THE SITEMAP WAS WRONG. The 30 /shop?cat= URLs were removed from src/app/sitemap.ts. The canonical (-> /shop) decided in iteration 2 was kept.",
+    "evidence_for_the_decision": {
+      "all_30_self_canonical_to_shop": { "value": "distinct canonical values across the 30 URLs = 1 (all = https://liceno.ir/shop)", "tag": "observed" },
+      "all_30_share_one_title": { "value": "distinct <title> across the 30 URLs = 1 ('فروشگاه لایسنس — همه محصولات | لایسنو')", "tag": "observed" },
+      "twenty_of_thirty_are_empty": { "value": "20 URLs render 0 products and the 'محصولی یافت نشد' empty state", "tag": "observed" },
+      "two_alias_pairs_are_exact_duplicates": [
+        { "pair": "/shop?cat=api-credits == /shop?cat=dev-tools", "products": 56, "slug_sets_identical": true, "tag": "reproduced" },
+        { "pair": "/shop?cat=software == /shop?cat=productivity", "products": 100, "slug_sets_identical": true, "tag": "reproduced" }
+      ],
+      "distinct_h1_per_page": { "value": 30, "tag": "observed" },
+      "all_30_still_return_200": { "value": "status histogram {200: 30}", "tag": "observed" },
+      "pre_fix_production_sitemap_was_not_well_formed_xml": {
+        "value": "of the 30 ?cat= <loc> values live today, 3 contain a RAW '&' (e.g. <loc>https://liceno.ir/shop?cat=apis & dev tools</loc>) and 11 contain raw spaces",
+        "tag": "observed",
+        "verified_by": "found by the independent verifier, then re-verified by the loop with its own request against https://liceno.ir/sitemap.xml",
+        "meaning": "an XML parser rejects/mangles those entries, so the removed block was not merely redundant - it was malformed output"
+      },
+      "sitemap_rule": "a sitemap must only advertise canonical URLs; advertising 30 URLs that each declare themselves a copy of /shop is a contradictory signal"
+    },
+    "counter_consideration_considered_and_rejected": "the alternative (self-canonical per category + unique metadata) was rejected for iteration 3 because 20/30 pages have no products and all 30 have identical titles, i.e. they are not distinct landing pages as served today. Recorded as a candidate for iteration 4 (see next_candidates_ranked #2).",
+    "sitemap_counts": {
+      "local_after": { "loc_total": 770, "cat_entries": 0, "tag": "observed" },
+      "local_before": { "loc_total": 800, "tag": "derived", "formula": "770 + 30 categories (the deleted block was a 1:1 map over db.category, and db.category.count()=30)" },
+      "db_row_counts_supporting_the_arithmetic": { "active_products": 736, "published_articles": 26, "categories": 30, "tag": "observed" },
+      "arithmetic_check": "8 static + 736 products + 26 articles = 770 = observed local sitemap, exactly",
+      "live_production_unchanged": { "loc_total": 725, "cat_entries": 30, "tag": "observed", "note": "production is NOT deployed; iteration 2 measured 724, today 725 (one more product)" }
+    },
+    "non_regression": {
+      "category_pages_summary_before_vs_after": { "before": { "total": 30, "nonEmpty": 10, "empty": 20, "distinctTitles": 1, "distinctCanonicals": 1, "distinctH1": 30 }, "after": "IDENTICAL", "tag": "observed" },
+      "url_shape_changed": false,
+      "redirect_needed": false,
+      "why_no_redirect": "no public URL changed shape or stopped resolving: all 30 URLs still return 200 with the same canonical. Only the index signal (sitemap entry) was removed.",
+      "other_surfaces_still_link_shop_cat": "footer.tsx, header.tsx, mobile-menu.tsx, product/[slug] breadcrumb (also its JSON-LD), tabbed-product-catalog.tsx, brand-marquee.tsx, llms.txt + llms-full.txt routes: 30 ?cat= mentions each, RAW (unencoded) - left untouched on purpose, they are navigation aids / LLM hints, not search-engine index signals",
+      "residual_not_a_defect": {
+        "value": "both production (440 of 661) and local (515 of 736) product <loc> values contain raw non-ASCII Persian slugs",
+        "tag": "observed",
+        "verdict": "legal in a UTF-8 XML document, identical on both sides, so it is neither changed nor introduced here - only noted so nobody chases it as a regression"
+      }
+    }
+  },
+
+  "item3_lucide_barrel": {
+    "status": "FIXED",
+    "cause_measured": {
+      "pattern": "`import * as Icons from \"lucide-react\"` + dynamic lookup `(Icons as any)[name] || Icons.Folder` in 5 files (header.tsx, footer.tsx, mobile-menu.tsx, shop/page.tsx, and the unreferenced category-product-row.tsx)",
+      "barrel_chunks_before": [
+        { "file": "/_next/static/chunks/3497-3958fae1fa8afa24.js", "raw": 579045, "gzip_level9": 149391, "content": "the full lucide icon-definition module map (~1500 icons)" },
+        { "file": "/_next/static/chunks/b1644e8c-fb963a8546a44744.js", "raw": 147557, "gzip_level9": 35360, "content": "the barrel re-export index" }
+      ],
+      "barrel_total": { "raw": 726602, "gzip_level9": 184751, "tag": "observed", "note": "726602 raw matches backlog-2's own figure exactly, which confirms the two chunks it summed were these two" },
+      "proof_these_chunks_are_the_barrel": "chunk 3497 contained export entries for icons this app never imports at any call site (Banana, Ambulance, Airplay, Accessibility, Wand) while `createLucideIcon` appears in NO chunk (the name is minified) — the marker set is the reliable test",
+      "was_on_every_route": { "value": "/, /shop, /shop?cat=ai, /contact all referenced chunk 3497 as their largest script", "tag": "observed" }
+    },
+    "fix": {
+      "new_file": "src/lib/category-icons.ts — static named-import registry of the 15 icon names actually referenced by data + Folder fallback, exposing categoryIcon(name)",
+      "edited": ["src/components/site/header.tsx", "src/components/site/footer.tsx", "src/components/site/mobile-menu.tsx", "src/app/shop/page.tsx"],
+      "registry_coverage": {
+        "distinct_db_category_icon_values": ["Sparkles", "Smartphone", "Code2", "PenTool", "Play", "Code", "Gamepad2", "LayoutGrid", "Share2", "Gift", "Package"],
+        "distinct_constants_categories_icon_values": ["Sparkles", "Smartphone", "Code2", "PenTool", "Play", "Gamepad2", "LayoutGrid", "Share2", "Zap", "ShieldCheck", "Headphones", "BadgePercent"],
+        "union_covered_by_registry": "15 of 15",
+        "tag": "observed"
+      }
+    },
+    "measured_delta_per_route": {
+      "method": "sum of unique JS files referenced by the served HTML, before vs after, same machine/level",
+      "/": { "files": "23 -> 22", "raw": "1754524 -> 1055558", "raw_delta": -698966, "gzip": "506046 -> 330164", "gzip_delta": -175882, "gzip_delta_kb": -171.8 },
+      "/shop": { "files": "21 -> 20", "raw": "1708145 -> 1009390", "raw_delta": -698755, "gzip": "492228 -> 316355", "gzip_delta": -175873, "gzip_delta_kb": -171.8 },
+      "/shop?cat=ai": { "files": "21 -> 20", "raw_delta": -698755, "gzip": "492228 -> 316355", "gzip_delta_kb": -171.8 },
+      "/contact": { "files": "22 -> 21", "raw": "1721833 -> 1023084", "raw_delta": -698749, "gzip": "497386 -> 321513", "gzip_delta": -175873, "gzip_delta_kb": -171.8 },
+      "tag": "observed",
+      "biggest_chunk_after": { "file": "/_next/static/chunks/3794-6a58054fbfb41769.js", "raw": 241388, "gzip": 65550, "is_lucide": false },
+      "decomposition": {
+        "method": "diff the two per-file chunk lists in measure-3-baseline.json vs measure-3-after.json for /shop",
+        "files_only_before": { "count": 8, "raw_total": 1010191 },
+        "files_only_after": { "count": 7, "raw_total": 311436 },
+        "common_files": { "count": 13, "with_changed_size": 0 },
+        "net": "1010191 - 311436 = 698755 = exactly the reported delta",
+        "honest_caveat": "the removal is NOT a single-cause clean decomposition: 2 of the 8 removed files are the barrel (726602 raw) while the other 6 and all 7 additions are the same modules re-hashed after the import graph changed. So the net saving is exactly measured, but 'registry cost = 27847 raw' is an APPROXIMATION of the non-barrel reshuffle, not the registry's own size. The independent verifier raised this and it is accepted.",
+        "tag": "observed"
+      },
+      "registry_cost_added_back_approx": { "value": 27847, "unit": "raw bytes", "tag": "derived", "note": "approximation of the non-barrel chunk reshuffle; see decomposition.honest_caveat" }
+    },
+    "counterfactual_and_equivalence": {
+      "barrel_markers_gone": "after the fix, the served route chunk sets contain no chunk with the Banana/Ambulance/Airplay/Accessibility markers",
+      "icon_class_set_identical": {
+        "/": { "classes": 35, "result": "IDENTICAL" },
+        "/shop": { "classes": 37, "result": "IDENTICAL" },
+        "/shop?cat=ai": { "classes": 31, "result": "IDENTICAL" },
+        "/contact": { "classes": 30, "result": "IDENTICAL" },
+        "tag": "observed",
+        "method": "set of /lucide-([a-z0-9-]+)/ matches in the served HTML, before vs after"
+      },
+      "fallback_path_never_triggered": {
+        "method": "for each of the 30 /shop?cat=<slug> pages, compute the page icon classes minus the /shop base icon set; a failed lookup would show 'folder'",
+        "result": "0 of 30 pages fell back to Folder; 'folder' is not in the /shop base set so the test is meaningful",
+        "tag": "observed"
+      }
+    },
+    "accepted_limitations": [
+      { "limitation": "a FUTURE category whose icon name is not in the registry renders Folder instead of that new icon (the old code would have resolved any real lucide name)", "severity": "cosmetic, degrades gracefully, one-line fix to extend", "tag": "observed" },
+      { "limitation": "equivalence was proven for 4 routes + the 30 category pages, not for every route in the app (admin pages use named imports and were never barreled)", "tag": "observed" },
+      { "limitation": "src/components/site/category-product-row.tsx still contains `import * as Icons from \"lucide-react\"`; it is referenced by nothing in src/ and NO built chunk contains its symbol 'CategoryProductRow', so it is not in any bundle", "tag": "observed" }
+    ]
+  },
+
+  "item2_serialized_payload_NOT_FIXED": {
+    "status": "NOT FIXED (measured only). Ranked #1 for iteration 4.",
+    "fields": ["description", "features", "specifications"],
+    "correction_of_backlog_2": "backlog-2 framed this as '91,079 bytes on /shop'. Measured per-field JSON VALUE bytes in the RSC flight payload are 66,083 B on /shop, and the honest wire cost is far smaller: ~3.9 KB gzip on /shop only (see simulated_saving). Raw bytes overstate gzip impact for this repetitive Persian text.",
+    "where": "src/lib/queries.ts getProducts() -> db.product.findMany without a select (2 queries) and getBannerProducts(); decorate() spreads every column into the client payload",
+    "measured_bytes": {
+      "https://liceno.ir/shop (local build)": { "description": { "occurrences": 101, "value_bytes": 27195 }, "features": { "occurrences": 101, "value_bytes": 11975 }, "specifications": { "occurrences": 100, "value_bytes": 26913 }, "sum_value_bytes": 66083 },
+      "/": { "description": { "occurrences": 56, "value_bytes": 15270 }, "features": { "occurrences": 56, "value_bytes": 6608 }, "specifications": { "occurrences": 56, "value_bytes": 14921 }, "sum_value_bytes": 36799 },
+      "tag": "observed",
+      "caveat": "the occurrence counts include non-product objects: hero slides legitimately carry description+features and category rows carry description. Only the product-query share is removable."
+    },
+    "fields_really_unread": {
+      "result": "no client or server component reads product.description / product.features / product.specifications from a LIST query",
+      "checked": "ProductCard, BestsellersSlider, ProductShowcase, PromoBentoBanners (MiniProductCard), TabbedProductCatalog, SearchDialog, product-showcase, /api/products",
+      "only_hits": "the same field names on OTHER object types (category.description, heroSlide.description/features, pointEvent.description) and in admin product forms which receive a single product from the detail query",
+      "product_detail_path_unaffected": "getProductBySlug (src/lib/queries.ts) uses its own include and serves /product/[slug]",
+      "tag": "observed"
+    },
+    "simulated_saving": {
+      "method": "fetched the served /shop HTML, deleted the 3 fields' values from the escaped flight payload, re-gzipped at level 9",
+      "shop_html_gzip_now": 44142,
+      "shop_html_gzip_with_fields_stripped": 40276,
+      "saving": 3866,
+      "unit": "bytes gzip on /shop only",
+      "removed_characters": "~73k-103k of raw HTML",
+      "tag": "simulated",
+      "conclusion": "implement only if it is done with `omit` (zero-risk) — the win is ~3.9 KB gz on one route, so it is NOT the big lever backlog-2 implied"
+    }
+  },
+
+  "gates": {
+    "npm run typecheck:app": { "cmd": "tsc --noEmit -p tsconfig.json", "exit": 0, "tag": "observed" },
+    "npm run typecheck": { "cmd": "tsc --noEmit -p tsconfig.domain.json", "exit": 0, "tag": "observed" },
+    "npm run test": { "exit": 0, "tests": 125, "pass": 125, "fail": 0, "skipped": 0, "tag": "observed", "note": "no test disabled or skipped; no file under kernel/test/ was modified" },
+    "npm run build": { "exit": 0, "tag": "observed" },
+    "npm run lint": { "exit": 1, "problems": 261, "errors": 250, "warnings": 11, "baseline_iteration_2": "261 problems (250 errors, 11 warnings)", "verdict": "identical to baseline, no regression", "tag": "observed", "note": "an OPTIONAL touch of the dead category-product-row.tsx raised this to 262 (react-hooks/static-components); that file was reverted to HEAD and lint returned to 261, which is why it is not part of the change" }
+  },
+
+  "non_regression_vs_live": {
+    "method": "curl both https://liceno.ir<P> and http://localhost:3011<P>, compare title / canonical / robots / og:title / og:description / twitter:title / count of JSON-LD blocks",
+    "/": "all identical",
+    "/contact": "all identical",
+    "/shop": "all identical",
+    "/product/2162-1500-300-uc": "identical EXCEPT og:description, whose only difference is the price: live 8,584,000 vs local 8,547,000 تومان — pre-existing local-vs-production DATA drift, not touched by these changes",
+    "tag": "observed"
+  },
+
+  "files_changed": {
+    "modified": ["src/app/sitemap.ts", "src/app/shop/page.tsx", "src/components/site/header.tsx", "src/components/site/footer.tsx", "src/components/site/mobile-menu.tsx"],
+    "added": ["src/lib/category-icons.ts"],
+    "reverted_to_HEAD": ["src/components/site/category-product-row.tsx (optional change, caused +1 lint error)"],
+    "touched_by_build_not_by_hand": ["next-env.d.ts (build artifact, flips every build; reverted like iteration 2)"],
+    "pre_existing_dirty_untouched": ["deploy_bundle.tar.gz"],
+    "not_touched": [".env*", "prisma/**", "auth", "payments", "kernel/test/**", "the ~150 untracked q-*.mjs / *.log / deploy* scratch files"]
+  },
+
+  "independent_verification": {
+    "artifact": "docs/loop/verify-3.md",
+    "role": "a separate agent was told to REFUTE both fixes, not confirm them",
+    "verdicts": { "fix_a_sitemap": "APPROVE (ESCALATE_HUMAN on the business half: canonical=/shop de-indexes the 10 non-empty category product lists - owner strategy call)", "fix_b_lucide_barrel": "APPROVE" },
+    "strongest_new_evidence_it_added": "the pre-fix production sitemap was NOT well-formed XML: 3 of the 30 ?cat= <loc> values contain a raw '&' and 11 contain raw spaces (re-verified by the loop)",
+    "corrections_it_forced": [
+      "the JS delta is a NET of 8 removed / 7 re-hashed chunks with 13 byte-identical common chunks, not a clean single-cause decomposition (recorded above)",
+      "an '188,099 gz' figure quoted from backlog-2 inside src/lib/category-icons.ts matched neither the local (184,751) nor the production (184,782) measurement - replaced with the measured value",
+      "the loop's own brief text to the verifier mistyped the gzip delta as -171,882; the artifacts always carried the correct -175,882"
+    ],
+    "it_could_not_verify": [
+      "the pre-fix LOCAL sitemap response (the server no longer exists) - the 800 endpoint stays 'derived'",
+      "that the two vanished chunks were EXCLUSIVELY lucide modules",
+      "rendering equivalence on admin/dashboard routes (they 307 to login locally)",
+      "whether Google actually ignores ?cat= URLs (not provable from the repo)",
+      "anything about deployment"
+    ]
+  },
+
+  "post_verification_edits": {
+    "what": "two cosmetic edits after the verifier finished: removed the now-unused `Folder` import from mobile-menu.tsx, and corrected the gz figure inside the category-icons.ts comment",
+    "proven_bundle_neutral": "all 41 emitted chunks are BIT-IDENTICAL before vs after the edits (0 disappeared, 0 added, 0 with changed size/hash, total 1,896,301 bytes both times)",
+    "consequence": "the verifier's checks and every before/after number remain valid for the final tree",
+    "tag": "observed"
+  },
+
+  "concurrent_sibling_iterations": {
+    "what_happened": "two sibling loop instances ran in this SAME working tree during this run and committed product/CI changes on top of 1649db7 while iteration 3 was being measured",
+    "commits": [
+      { "hash": "552dced", "at_local": "2026-09-16 00:10:15", "subject": "perf(shop): strip never-read description/features/specifications from catalog list queries (prisma omit); loop iteration 4", "effect_on_this_iteration": "this IS iteration-3's item 2, implemented by iteration 4 while iteration 3 was mid-run. Iteration 3 did NOT implement it (2-fix budget) and its item-2 measurements were taken at 00:01, BEFORE this commit, so the 66,083 / ~3,866 byte figures describe the pre-omit payload." },
+      { "hash": "bc025aa", "at_local": "2026-09-16 00:15:51", "subject": "ci: add minimal GitHub Actions workflow (typecheck:app + typecheck + test); loop iteration 5", "effect_on_this_iteration": "this is the CI item iteration 3 had ranked #5 for iteration 4; no effect on the bundle or on any measurement here" }
+    ],
+    "measurement_provenance": "iteration-3 baseline build 23:55 and after build 00:01 were both made from 1649db7 + iteration-3's own edits ONLY (proved because the after build still serialized the 3 fields, i.e. the prisma omit of 552dced was not present). The final rebuild at ~00:12 (used only for the cosmetic-edit bit-identity check, the final gates and the sitemap/icon re-checks) may already include 552dced; it does not affect either FIX A or FIX B.",
+    "branch_note": "HEAD was fix/loop-5 (bc025aa) when iteration 3 committed. No per-iteration branch was created for iteration 3 in order to avoid moving HEAD under the concurrent sibling loop; the commit message states this.",
+    "tag": "observed"
+  },
+
+  "next_candidates_ranked": [
+    { "rank": 1, "axis": "seo", "item": "make the 10 NON-empty category facets first-class: unique title/description + self-canonical, keep the 20 empty ones out of the sitemap and canonical to /shop", "measured_value": "10 URLs with distinct H1 + distinct product sets already exist; today they all share one title and canonicalize away", "effort": "medium", "risk": "medium — reverses an iteration-2 decision for those 10 URLs; ask the owner", "note": "follow-up to the decision recorded in item1" },
+    { "rank": 2, "axis": "seo", "item": "sitemap hygiene for redirects: 18 sitemap URLs return 301 and 16 of their destinations are NOT in the sitemap", "measured_value": "iteration 2: 18 URLs / 16 missing destinations", "effort": "low", "risk": "low" },
+    { "rank": 3, "axis": "performance", "item": "the /shop limit:100 grid (~346 KB raw HTML, no pagination UI) — revenue-visible, needs an owner decision", "effort": "medium", "risk": "HIGH — products would disappear from the page" },
+    { "rank": 4, "axis": "data/ops", "item": "the local /order/* 500 (prisma/db/custom.db lacks Order.fulfillmentStage added by e1d3185) - migration gap, needs owner approval", "effort": "low", "risk": "medium (schema/persisted data)" },
+    { "rank": 5, "axis": "perf (corrected value)", "item": "iteration-3 item 2 (prisma omit) is already DONE by iteration 4 (commit 552dced) — recorded here only so it is not re-done; iteration 4 should re-measure it against this iteration's simulated baseline (~3,866 B gz on /shop) instead of a raw-byte figure", "effort": "none", "risk": "none" }
+  ],
+
+  "already_done_by_concurrent_siblings": {
+    "iteration_3_item_2_prisma_omit": "552dced (iteration 4)",
+    "iteration_3_rank5_ci": "bc025aa (iteration 5)"
+  },
+
+  "not_done": [
+    "nothing deployed — production still serves the old sitemap (30 cat= URLs) and the barrel; local build only",
+    "item 2 was measured but deliberately not fixed (value is small; iteration budget was 2 fixes)",
+    "no `.env`, schema, auth, permission or persisted-data change was made",
+    "the 18 redirect-URL sitemap entries and the local /order/* 500 (missing Order.fulfillmentStage column in prisma/db/custom.db) are untouched — both need an owner decision"
+  ]
+}

@@ -3,7 +3,7 @@ import { getHeroSlides } from "@/lib/content";
 import { HeroCampaignSlider } from "@/components/site/hero-campaign-slider";
 import { ProductCard } from "@/components/site/product-card";
 import { ProductFilters } from "@/components/site/product-filters";
-import * as Icons from "lucide-react";
+import { categoryIcon } from "@/lib/category-icons";
 import { PackageX } from "lucide-react";
 import type { Metadata } from "next";
 
@@ -91,7 +91,7 @@ export default async function ShopPage({
                   className={`flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br ${currentCat.color} text-white shadow-lg`}
                 >
                   {(() => {
-                    const Icon = (Icons as any)[currentCat.icon || "Folder"] || Icons.Folder;
+                    const Icon = categoryIcon(currentCat.icon);
                     return <Icon className="h-6 w-6" />;
                   })()}
                 </div>

@@ -13,9 +13,10 @@ import {
   Headphones,
   BadgePercent,
   CreditCard,
+  KeyRound,
 } from "lucide-react";
 import { SITE, CATEGORIES, NAV_LINKS } from "@/lib/constants";
-import * as Icons from "lucide-react";
+import { categoryIcon } from "@/lib/category-icons";
 
 const trustItems = [
   { icon: Zap, title: "تحویل آنی", desc: "خودکار و فوری" },
@@ -57,7 +58,7 @@ export function SiteFooter() {
               <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-white/40 to-transparent opacity-50 mix-blend-overlay blur-[2px]" />
               <div className="relative flex h-full w-full items-center justify-center rounded-[15px] bg-background/90 backdrop-blur-xl">
                 <div className="absolute inset-0 rounded-[15px] bg-gradient-to-tr from-emerald-500/10 to-amber-500/10" />
-                <Icons.KeyRound className="h-6 w-6 rotate-45 text-emerald-500 drop-shadow-[0_0_8px_rgba(16,185,129,0.5)] transition-all group-hover:rotate-0" />
+                <KeyRound className="h-6 w-6 rotate-45 text-emerald-500 drop-shadow-[0_0_8px_rgba(16,185,129,0.5)] transition-all group-hover:rotate-0" />
               </div>
             </div>
             <div>
@@ -108,7 +109,7 @@ export function SiteFooter() {
           <h4 className="mb-4 text-sm font-bold">دسته‌بندی‌ها</h4>
           <ul className="space-y-2.5 text-sm">
             {CATEGORIES.map((c) => {
-              const Icon = (Icons as any)[c.icon] || Icons.Folder;
+              const Icon = categoryIcon(c.icon);
               return (
                 <li key={c.slug}>
                   <Link
