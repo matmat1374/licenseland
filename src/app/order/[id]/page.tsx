@@ -24,6 +24,8 @@ import { formatJalaliDate, toFa } from "@/lib/date";
 import { toToman } from "@/lib/format";
 import { SITE } from "@/lib/constants";
 import { ClearCartOnSuccess } from "@/components/site/clear-cart-on-success";
+import { OrderTimeline } from "@/components/site/order-timeline";
+import { OrderOpsPanel } from "@/components/admin/order-ops-panel";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -51,7 +53,7 @@ export default async function OrderPage({
   //   owner session | admin session | guest with valid signed token
   const order = await db.order.findFirst({
     where: { OR: [{ id }, { code: id }] },
-    include: { items: { include: { licenses: true } } },
+    include: { items: { include: { licenses: true } }, shipment: true, statusEvents: { orderBy: { createdAt: "asc" } } },
   });
   if (!order) notFound();
 
@@ -78,6 +80,8 @@ export default async function OrderPage({
     <div className="container mx-auto px-4 py-8">
       <ClearCartOnSuccess enabled={shouldClearCart} />
       <div className="mx-auto max-w-3xl">
+        <OrderTimeline code={finalOrder.code} status={finalOrder.status} stage={(finalOrder as any).fulfillmentStage || "NONE"} shipment={(finalOrder as any).shipment} events={((finalOrder as any).statusEvents || []) as any} />
+        {(user as any)?.role === "ADMIN" && <OrderOpsPanel orderId={finalOrder.id} stage={(finalOrder as any).fulfillmentStage || "NONE"} />}
         {/* status banner */}
         {paid ? (
           isAwaitingApproval ? (

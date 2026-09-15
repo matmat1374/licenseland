@@ -12,7 +12,7 @@ import { IrMarketClient } from "@kernel/supplier/provider";
 import { CircuitBreaker, systemClock } from "@kernel/supplier/resilience";
 import { parseAttributes, detectBrand, buildProductTitle, buildDedupKey } from "@/lib/product-naming";
 
-// irMarket API base URL — configurable via env for testing/alternative endpoints.
+// irMarket API base URL â€” configurable via env for testing/alternative endpoints.
 // Declared at top so it's available to all functions below.
 const IRMARKET_BASE_URL = process.env.SUPPLIER_API_URL?.replace(/\/api\/buyer\/.*$/, "") ||
   process.env.IRMARKET_BASE_URL ||
@@ -158,7 +158,7 @@ export async function requestLicenseFromSupplier(
 ): Promise<{ ok: boolean; supplierOrderId?: string; message: string }> {
   const cfg = await getSupplierConfig();
   const product = await db.product.findUnique({ where: { id: productId } });
-  if (!product) return { ok: false, message: "محصول یافت نشد" };
+  if (!product) return { ok: false, message: "Ù…Ø­ØµÙˆÙ„ ÛŒØ§ÙØª Ù†Ø´Ø¯" };
 
   // create supplier order
   const { randomBytes } = await import("crypto");
@@ -178,12 +178,12 @@ export async function requestLicenseFromSupplier(
     },
   });
 
-  await logSupplier(so.id, "request_created", "INFO", { productId, quantity, code }, "درخواست ایجاد شد");
+  await logSupplier(so.id, "request_created", "INFO", { productId, quantity, code }, "Ø¯Ø±Ø®ÙˆØ§Ø³Øª Ø§ÛŒØ¬Ø§Ø¯ Ø´Ø¯");
 
   if (!cfg.enabled) {
     await db.supplierOrder.update({ where: { id: so.id }, data: { status: "PENDING" } });
-    await logSupplier(so.id, "supplier_disabled", "INFO", {}, "ادغام تأمین‌کننده غیرفعال است — در انتظار فعال‌سازی");
-    return { ok: true, supplierOrderId: so.id, message: "درخواست ثبت شد (ادغام غیرفعال — به‌صورت دستی کلیدها را اضافه کنید)" };
+    await logSupplier(so.id, "supplier_disabled", "INFO", {}, "Ø§Ø¯ØºØ§Ù… ØªØ£Ù…ÛŒÙ†â€ŒÚ©Ù†Ù†Ø¯Ù‡ ØºÛŒØ±ÙØ¹Ø§Ù„ Ø§Ø³Øª â€” Ø¯Ø± Ø§Ù†ØªØ¸Ø§Ø± ÙØ¹Ø§Ù„â€ŒØ³Ø§Ø²ÛŒ");
+    return { ok: true, supplierOrderId: so.id, message: "Ø¯Ø±Ø®ÙˆØ§Ø³Øª Ø«Ø¨Øª Ø´Ø¯ (Ø§Ø¯ØºØ§Ù… ØºÛŒØ±ÙØ¹Ø§Ù„ â€” Ø¨Ù‡â€ŒØµÙˆØ±Øª Ø¯Ø³ØªÛŒ Ú©Ù„ÛŒØ¯Ù‡Ø§ Ø±Ø§ Ø§Ø¶Ø§ÙÙ‡ Ú©Ù†ÛŒØ¯)" };
   }
 
   try {
@@ -192,36 +192,36 @@ export async function requestLicenseFromSupplier(
     } else if (cfg.mode === "api") {
       await sendApiRequest(cfg, so, product, quantity);
     } else {
-      // manual mode — just record
-      await logSupplier(so.id, "manual_mode", "INFO", {}, "حالت دستی: منتظر افزودن کلید توسط ادمین");
-      return { ok: true, supplierOrderId: so.id, message: "درخواست ثبت شد (حالت دستی)" };
+      // manual mode â€” just record
+      await logSupplier(so.id, "manual_mode", "INFO", {}, "Ø­Ø§Ù„Øª Ø¯Ø³ØªÛŒ: Ù…Ù†ØªØ¸Ø± Ø§ÙØ²ÙˆØ¯Ù† Ú©Ù„ÛŒØ¯ ØªÙˆØ³Ø· Ø§Ø¯Ù…ÛŒÙ†");
+      return { ok: true, supplierOrderId: so.id, message: "Ø¯Ø±Ø®ÙˆØ§Ø³Øª Ø«Ø¨Øª Ø´Ø¯ (Ø­Ø§Ù„Øª Ø¯Ø³ØªÛŒ)" };
     }
-    await logSupplier(so.id, "request_sent", "SUCCESS", { mode: cfg.mode }, "درخواست به تأمین‌کننده ارسال شد");
-    return { ok: true, supplierOrderId: so.id, message: "درخواست به تأمین‌کننده ارسال شد" };
+    await logSupplier(so.id, "request_sent", "SUCCESS", { mode: cfg.mode }, "Ø¯Ø±Ø®ÙˆØ§Ø³Øª Ø¨Ù‡ ØªØ£Ù…ÛŒÙ†â€ŒÚ©Ù†Ù†Ø¯Ù‡ Ø§Ø±Ø³Ø§Ù„ Ø´Ø¯");
+    return { ok: true, supplierOrderId: so.id, message: "Ø¯Ø±Ø®ÙˆØ§Ø³Øª Ø¨Ù‡ ØªØ£Ù…ÛŒÙ†â€ŒÚ©Ù†Ù†Ø¯Ù‡ Ø§Ø±Ø³Ø§Ù„ Ø´Ø¯" };
   } catch (e: any) {
     await db.supplierOrder.update({ where: { id: so.id }, data: { status: "FAILED" } });
-    await logSupplier(so.id, "request_error", "ERROR", { error: e?.message }, e?.message || "خطا در ارسال درخواست");
-    return { ok: false, supplierOrderId: so.id, message: "خطا در ارسال به تأمین‌کننده — درخواست ثبت شد ولی ناموفق بود" };
+    await logSupplier(so.id, "request_error", "ERROR", { error: e?.message }, e?.message || "Ø®Ø·Ø§ Ø¯Ø± Ø§Ø±Ø³Ø§Ù„ Ø¯Ø±Ø®ÙˆØ§Ø³Øª");
+    return { ok: false, supplierOrderId: so.id, message: "Ø®Ø·Ø§ Ø¯Ø± Ø§Ø±Ø³Ø§Ù„ Ø¨Ù‡ ØªØ£Ù…ÛŒÙ†â€ŒÚ©Ù†Ù†Ø¯Ù‡ â€” Ø¯Ø±Ø®ÙˆØ§Ø³Øª Ø«Ø¨Øª Ø´Ø¯ ÙˆÙ„ÛŒ Ù†Ø§Ù…ÙˆÙÙ‚ Ø¨ÙˆØ¯" };
   }
 }
 
 async function sendTelegramRequest(cfg: SupplierConfig, so: any, product: any, quantity: number) {
   if (!cfg.telegramBotToken || !cfg.telegramSupplierChatId)
-    throw new Error("توکن بات یا چت‌آیدی تأمین‌کننده تنظیم نشده");
+    throw new Error("ØªÙˆÚ©Ù† Ø¨Ø§Øª ÛŒØ§ Ú†Øªâ€ŒØ¢ÛŒØ¯ÛŒ ØªØ£Ù…ÛŒÙ†â€ŒÚ©Ù†Ù†Ø¯Ù‡ ØªÙ†Ø¸ÛŒÙ… Ù†Ø´Ø¯Ù‡");
 
   const text = [
-    "🔔 *درخواست تأمین لایسنس جدید*",
+    "ðŸ”” *Ø¯Ø±Ø®ÙˆØ§Ø³Øª ØªØ£Ù…ÛŒÙ† Ù„Ø§ÛŒØ³Ù†Ø³ Ø¬Ø¯ÛŒØ¯*",
     "",
-    `📦 محصول: *${product.title}*`,
-    `🔢 تعداد درخواستی: *${quantity}*`,
-    `🏷️ کد درخواست: \`${so.code}\``,
-    `🆔 شناسه: \`${so.id}\``,
+    `ðŸ“¦ Ù…Ø­ØµÙˆÙ„: *${product.title}*`,
+    `ðŸ”¢ ØªØ¹Ø¯Ø§Ø¯ Ø¯Ø±Ø®ÙˆØ§Ø³ØªÛŒ: *${quantity}*`,
+    `ðŸ·ï¸ Ú©Ø¯ Ø¯Ø±Ø®ÙˆØ§Ø³Øª: \`${so.code}\``,
+    `ðŸ†” Ø´Ù†Ø§Ø³Ù‡: \`${so.id}\``,
     "",
-    "لطفاً کلیدهای لایسنس را از طریق وب‌هوک ارسال کنید:",
+    "Ù„Ø·ÙØ§Ù‹ Ú©Ù„ÛŒØ¯Ù‡Ø§ÛŒ Ù„Ø§ÛŒØ³Ù†Ø³ Ø±Ø§ Ø§Ø² Ø·Ø±ÛŒÙ‚ ÙˆØ¨â€ŒÙ‡ÙˆÚ© Ø§Ø±Ø³Ø§Ù„ Ú©Ù†ÛŒØ¯:",
     "`POST /api/supplier/webhook`",
-    "با هدر `X-Supplier-Key` و بدنه:",
+    "Ø¨Ø§ Ù‡Ø¯Ø± `X-Supplier-Key` Ùˆ Ø¨Ø¯Ù†Ù‡:",
     "```json",
-    JSON.stringify({ supplierOrderId: so.id, productId: product.id, keys: [{ key: "XXX-XXX", note: "اختیاری" }] }, null, 2),
+    JSON.stringify({ supplierOrderId: so.id, productId: product.id, keys: [{ key: "XXX-XXX", note: "Ø§Ø®ØªÛŒØ§Ø±ÛŒ" }] }, null, 2),
     "```",
   ].join("\n");
 
@@ -249,7 +249,7 @@ async function sendTelegramRequest(cfg: SupplierConfig, so: any, product: any, q
 }
 
 async function sendApiRequest(cfg: SupplierConfig, so: any, product: any, quantity: number) {
-  if (!cfg.apiUrl) throw new Error("آدرس API تأمین‌کننده تنظیم نشده");
+  if (!cfg.apiUrl) throw new Error("Ø¢Ø¯Ø±Ø³ API ØªØ£Ù…ÛŒÙ†â€ŒÚ©Ù†Ù†Ø¯Ù‡ ØªÙ†Ø¸ÛŒÙ… Ù†Ø´Ø¯Ù‡");
 
   const res = await fetch(cfg.apiUrl, {
     method: "POST",
@@ -285,7 +285,7 @@ export async function receiveSupplierKeys(
   rawPayload: any
 ): Promise<{ ok: boolean; added: number; message: string }> {
   const product = await db.product.findUnique({ where: { id: productId } });
-  if (!product) return { ok: false, added: 0, message: "محصول یافت نشد" };
+  if (!product) return { ok: false, added: 0, message: "Ù…Ø­ØµÙˆÙ„ ÛŒØ§ÙØª Ù†Ø´Ø¯" };
 
   let so: any = null;
   if (supplierOrderId) {
@@ -305,7 +305,7 @@ export async function receiveSupplierKeys(
         quantity: keys.length,
         status: "PENDING",
         direction: "INBOUND",
-        note: "تحویل از وب‌هوک تأمین‌کننده",
+        note: "ØªØ­ÙˆÛŒÙ„ Ø§Ø² ÙˆØ¨â€ŒÙ‡ÙˆÚ© ØªØ£Ù…ÛŒÙ†â€ŒÚ©Ù†Ù†Ø¯Ù‡",
       },
     });
   }
@@ -314,7 +314,7 @@ export async function receiveSupplierKeys(
   for (const k of keys) {
     if (!k.key || !k.key.trim()) continue;
     const plaintext = k.key.trim();
-    // avoid duplicates — compare by opening existing keys of this product
+    // avoid duplicates â€” compare by opening existing keys of this product
     // (stored keys are sealed, so a plaintext equality query would never match)
     const existing = await db.licenseKey.findMany({
       where: { productId },
@@ -351,9 +351,9 @@ export async function receiveSupplierKeys(
     data: { status: "FULFILLED", fulfilledAt: new Date() },
   });
 
-  await logSupplier(so.id, "keys_received", "SUCCESS", { added, total: keys.length, rawPayload }, `${added} کلید دریافت و به انبار اضافه شد`);
+  await logSupplier(so.id, "keys_received", "SUCCESS", { added, total: keys.length, rawPayload }, `${added} Ú©Ù„ÛŒØ¯ Ø¯Ø±ÛŒØ§ÙØª Ùˆ Ø¨Ù‡ Ø§Ù†Ø¨Ø§Ø± Ø§Ø¶Ø§ÙÙ‡ Ø´Ø¯`);
 
-  return { ok: true, added, message: `${added} کلید لایسنس به انبار اضافه شد` };
+  return { ok: true, added, message: `${added} Ú©Ù„ÛŒØ¯ Ù„Ø§ÛŒØ³Ù†Ø³ Ø¨Ù‡ Ø§Ù†Ø¨Ø§Ø± Ø§Ø¶Ø§ÙÙ‡ Ø´Ø¯` };
 }
 
 // ----------------------------- Auto low-stock check -----------------------------
@@ -373,7 +373,7 @@ export async function checkLowStockAndNotify(): Promise<{ checked: number; reque
       });
       if (!pending) {
         const qty = Math.max(5, threshold * 2);
-        await requestLicenseFromSupplier(p.id, qty, undefined, `سفارش خودکار - موجودی کم (${available})`);
+        await requestLicenseFromSupplier(p.id, qty, undefined, `Ø³ÙØ§Ø±Ø´ Ø®ÙˆØ¯Ú©Ø§Ø± - Ù…ÙˆØ¬ÙˆØ¯ÛŒ Ú©Ù… (${available})`);
         requested++;
       }
     }
@@ -384,7 +384,7 @@ export async function checkLowStockAndNotify(): Promise<{ checked: number; reque
 // ----------------------------- Import products from supplier API -----------------------------
 // Supports irMarket API (https://api.irmarket.store) and generic JSON APIs.
 // irMarket products have: id, name, retail_usd, price_usd, discount_percent, etc.
-// Prices are in USD → converted to Toman using USD_TO_TOMAN rate, then markup applied.
+// Prices are in USD â†’ converted to Toman using USD_TO_TOMAN rate, then markup applied.
 
 export interface SupplierProduct {
   id?: number | string;
@@ -421,7 +421,7 @@ export interface SupplierProduct {
 // USD to Toman conversion rate (configurable in admin settings, default ~60000)
 
 export function isVpnProduct(text: string): boolean {
-  return /vpn|nordvpn|expressvpn|surfshark|hma|hidemyass|hide\s*my\s*ass|ipvanish|cyberghost|protonvpn|mullvad|windscribe|tunnelbear|purevpn|adguard\s*vpn|pia\s*vpn|v2ray|shadowsocks|wireguard|openvpn|outline|warp|psiphon|فیلترشکن|وی\s*پی\s*ان/i.test(text);
+  return /vpn|nordvpn|expressvpn|surfshark|hma|hidemyass|hide\s*my\s*ass|ipvanish|cyberghost|protonvpn|mullvad|windscribe|tunnelbear|purevpn|adguard\s*vpn|pia\s*vpn|v2ray|shadowsocks|wireguard|openvpn|outline|warp|psiphon|ÙÛŒÙ„ØªØ±Ø´Ú©Ù†|ÙˆÛŒ\s*Ù¾ÛŒ\s*Ø§Ù†/i.test(text);
 }
 
 export async function fetchLiveUsdtRate(): Promise<number | null> {
@@ -510,7 +510,7 @@ function pickTitle(p: SupplierProduct): string {
   let title = rawTitle;
   const supplierName = (p.supplier_name || "").toString().trim();
   
-  const hasGiftCard = /gift card/i.test(rawTitle) || /gift card/i.test(supplierName) || /گیفت کارت/i.test(rawTitle) || /گیفت کارت/i.test(supplierName);
+  const hasGiftCard = /gift card/i.test(rawTitle) || /gift card/i.test(supplierName) || /Ú¯ÛŒÙØª Ú©Ø§Ø±Øª/i.test(rawTitle) || /Ú¯ÛŒÙØª Ú©Ø§Ø±Øª/i.test(supplierName);
   
   if (hasGiftCard) {
     const combined = `${rawTitle} ${supplierName}`;
@@ -519,30 +519,30 @@ function pickTitle(p: SupplierProduct): string {
     
     // Attempt to extract brand
     let brand = "";
-    if (/spotify/i.test(combined)) brand = "اسپاتیفای آمریکا";
-    else if (/netflix/i.test(combined)) brand = "نتفلیکس";
-    else if (/apple|itunes/i.test(combined)) brand = "اپل";
-    else if (/google play/i.test(combined)) brand = "گوگل پلی";
-    else if (/playstation|psn/i.test(combined)) brand = "پلی‌استیشن";
-    else if (/xbox/i.test(combined)) brand = "ایکس‌باکس";
-    else if (/steam/i.test(combined)) brand = "استیم";
+    if (/spotify/i.test(combined)) brand = "Ø§Ø³Ù¾Ø§ØªÛŒÙØ§ÛŒ Ø¢Ù…Ø±ÛŒÚ©Ø§";
+    else if (/netflix/i.test(combined)) brand = "Ù†ØªÙÙ„ÛŒÚ©Ø³";
+    else if (/apple|itunes/i.test(combined)) brand = "Ø§Ù¾Ù„";
+    else if (/google play/i.test(combined)) brand = "Ú¯ÙˆÚ¯Ù„ Ù¾Ù„ÛŒ";
+    else if (/playstation|psn/i.test(combined)) brand = "Ù¾Ù„ÛŒâ€ŒØ§Ø³ØªÛŒØ´Ù†";
+    else if (/xbox/i.test(combined)) brand = "Ø§ÛŒÚ©Ø³â€ŒØ¨Ø§Ú©Ø³";
+    else if (/steam/i.test(combined)) brand = "Ø§Ø³ØªÛŒÙ…";
     
     if (amount && brand) {
-      return `گیفت کارت ${amount} دلاری ${brand} (${supplierName || rawTitle})`;
+      return `Ú¯ÛŒÙØª Ú©Ø§Ø±Øª ${amount} Ø¯Ù„Ø§Ø±ÛŒ ${brand} (${supplierName || rawTitle})`;
     } else if (amount) {
-      return `گیفت کارت ${amount} دلاری (${supplierName || rawTitle})`;
+      return `Ú¯ÛŒÙØª Ú©Ø§Ø±Øª ${amount} Ø¯Ù„Ø§Ø±ÛŒ (${supplierName || rawTitle})`;
     }
   }
 
-  if (/^(Openai|ChatGPT|Claude|Telegram|WhatsApp|Google|Apple|Discord)\s*—/i.test(title) && !title.includes("شماره مجازی")) {
-    title = `شماره مجازی وریفای ${title} (دریافت پیامک)`;
+  if (/^(Openai|ChatGPT|Claude|Telegram|WhatsApp|Google|Apple|Discord)\s*â€”/i.test(title) && !title.includes("Ø´Ù…Ø§Ø±Ù‡ Ù…Ø¬Ø§Ø²ÛŒ")) {
+    title = `Ø´Ù…Ø§Ø±Ù‡ Ù…Ø¬Ø§Ø²ÛŒ ÙˆØ±ÛŒÙØ§ÛŒ ${title} (Ø¯Ø±ÛŒØ§ÙØª Ù¾ÛŒØ§Ù…Ú©)`;
   }
 
   // Preserve warranty info if present
-  if (/no warranty/i.test(rawTitle) || /بدون گارانتی/i.test(supplierName)) {
-    title = `${title} (بدون گارانتی)`;
-  } else if (/full warranty|with warranty/i.test(rawTitle) || /با گارانتی/i.test(supplierName)) {
-    title = `${title} (با گارانتی)`;
+  if (/no warranty/i.test(rawTitle) || /Ø¨Ø¯ÙˆÙ† Ú¯Ø§Ø±Ø§Ù†ØªÛŒ/i.test(supplierName)) {
+    title = `${title} (Ø¨Ø¯ÙˆÙ† Ú¯Ø§Ø±Ø§Ù†ØªÛŒ)`;
+  } else if (/full warranty|with warranty/i.test(rawTitle) || /Ø¨Ø§ Ú¯Ø§Ø±Ø§Ù†ØªÛŒ/i.test(supplierName)) {
+    title = `${title} (Ø¨Ø§ Ú¯Ø§Ø±Ø§Ù†ØªÛŒ)`;
   }
 
   return title;
@@ -561,77 +561,77 @@ export function localizeProduct(name: string, category: string, sp?: any): { tit
 
   // Helper for Persian numbers
   const normalizePersianNumbers = (str: string) => {
-    return str.replace(/0/g, '۰').replace(/1/g, '۱').replace(/2/g, '۲').replace(/3/g, '۳')
-              .replace(/4/g, '۴').replace(/5/g, '۵').replace(/6/g, '۶').replace(/7/g, '۷')
-              .replace(/8/g, '۸').replace(/9/g, '۹');
+    return str.replace(/0/g, 'Û°').replace(/1/g, 'Û±').replace(/2/g, 'Û²').replace(/3/g, 'Û³')
+              .replace(/4/g, 'Û´').replace(/5/g, 'Ûµ').replace(/6/g, 'Û¶').replace(/7/g, 'Û·')
+              .replace(/8/g, 'Û¸').replace(/9/g, 'Û¹');
   };
 
   // Specific check: Product 364 (Gemini AI Pro 18 Month)
   if (sp?.id == 364 || (/gemini/i.test(t) && /18\s*month/i.test(t))) {
-    const title = "Gemini AI Pro (۱۸ ماهه)";
-    const description = `## Gemini AI Pro (۱۸ ماهه)\n\nاشتراک رسمی و قانونی Gemini AI Pro گوگل به همراه ۵ ترابایت فضای ابری Google One با فعال‌سازی آنی.\n\n### مشخصات و امکانات\n- **سرویس:** Google Gemini AI Pro + 5TB Cloud Storage\n- **مدت اشتراک:** ۱۸ ماهه\n- **تحویل:** فوری پس از پرداخت\n- فعال‌سازی مستقیم روی اکانت جیمیل شخصی بدون نیاز به کارت بانکی\n- دسترسی کامل به پیشرفته‌ترین مدل هوش مصنوعی گوگل (Gemini 1.5 Pro / Ultra)\n- ۵ ترابایت فضای ابری جهت استفاده در Google Drive، Photos و Gmail\n- گارانتی و ضمانت اصالت و سلامت فعال‌سازی\n- پشتیبانی ۲۴ ساعته\n`;
+    const title = "Gemini AI Pro (Û±Û¸ Ù…Ø§Ù‡Ù‡)";
+    const description = `## Gemini AI Pro (Û±Û¸ Ù…Ø§Ù‡Ù‡)\n\nØ§Ø´ØªØ±Ø§Ú© Ø±Ø³Ù…ÛŒ Ùˆ Ù‚Ø§Ù†ÙˆÙ†ÛŒ Gemini AI Pro Ú¯ÙˆÚ¯Ù„ Ø¨Ù‡ Ù‡Ù…Ø±Ø§Ù‡ Ûµ ØªØ±Ø§Ø¨Ø§ÛŒØª ÙØ¶Ø§ÛŒ Ø§Ø¨Ø±ÛŒ Google One Ø¨Ø§ ÙØ¹Ø§Ù„â€ŒØ³Ø§Ø²ÛŒ Ø¢Ù†ÛŒ.\n\n### Ù…Ø´Ø®ØµØ§Øª Ùˆ Ø§Ù…Ú©Ø§Ù†Ø§Øª\n- **Ø³Ø±ÙˆÛŒØ³:** Google Gemini AI Pro + 5TB Cloud Storage\n- **Ù…Ø¯Øª Ø§Ø´ØªØ±Ø§Ú©:** Û±Û¸ Ù…Ø§Ù‡Ù‡\n- **ØªØ­ÙˆÛŒÙ„:** ÙÙˆØ±ÛŒ Ù¾Ø³ Ø§Ø² Ù¾Ø±Ø¯Ø§Ø®Øª\n- ÙØ¹Ø§Ù„â€ŒØ³Ø§Ø²ÛŒ Ù…Ø³ØªÙ‚ÛŒÙ… Ø±ÙˆÛŒ Ø§Ú©Ø§Ù†Øª Ø¬ÛŒÙ…ÛŒÙ„ Ø´Ø®ØµÛŒ Ø¨Ø¯ÙˆÙ† Ù†ÛŒØ§Ø² Ø¨Ù‡ Ú©Ø§Ø±Øª Ø¨Ø§Ù†Ú©ÛŒ\n- Ø¯Ø³ØªØ±Ø³ÛŒ Ú©Ø§Ù…Ù„ Ø¨Ù‡ Ù¾ÛŒØ´Ø±ÙØªÙ‡â€ŒØªØ±ÛŒÙ† Ù…Ø¯Ù„ Ù‡ÙˆØ´ Ù…ØµÙ†ÙˆØ¹ÛŒ Ú¯ÙˆÚ¯Ù„ (Gemini 1.5 Pro / Ultra)\n- Ûµ ØªØ±Ø§Ø¨Ø§ÛŒØª ÙØ¶Ø§ÛŒ Ø§Ø¨Ø±ÛŒ Ø¬Ù‡Øª Ø§Ø³ØªÙØ§Ø¯Ù‡ Ø¯Ø± Google DriveØŒ Photos Ùˆ Gmail\n- Ú¯Ø§Ø±Ø§Ù†ØªÛŒ Ùˆ Ø¶Ù…Ø§Ù†Øª Ø§ØµØ§Ù„Øª Ùˆ Ø³Ù„Ø§Ù…Øª ÙØ¹Ø§Ù„â€ŒØ³Ø§Ø²ÛŒ\n- Ù¾Ø´ØªÛŒØ¨Ø§Ù†ÛŒ Û²Û´ Ø³Ø§Ø¹ØªÙ‡\n`;
     return { title, shortDesc, description };
   }
 
   // SMM Services
-  if (sp && sp.category === 'سرویس های SMM') {
+  if (sp && sp.category === 'Ø³Ø±ÙˆÛŒØ³ Ù‡Ø§ÛŒ SMM') {
     const finalTitle = name.trim();
     return {
       title: finalTitle,
       shortDesc,
-      description: `## ${finalTitle}\n\nسرویس شبکه‌های اجتماعی اوریجینال با تحویل خودکار و پشتیبانی ۲۴ ساعته.\n\n### مشخصات\n- **نام اصلی:** ${shortDesc}\n- تحویل سریع پس از پرداخت\n- پشتیبانی فعال\n`
+      description: `## ${finalTitle}\n\nØ³Ø±ÙˆÛŒØ³ Ø´Ø¨Ú©Ù‡â€ŒÙ‡Ø§ÛŒ Ø§Ø¬ØªÙ…Ø§Ø¹ÛŒ Ø§ÙˆØ±ÛŒØ¬ÛŒÙ†Ø§Ù„ Ø¨Ø§ ØªØ­ÙˆÛŒÙ„ Ø®ÙˆØ¯Ú©Ø§Ø± Ùˆ Ù¾Ø´ØªÛŒØ¨Ø§Ù†ÛŒ Û²Û´ Ø³Ø§Ø¹ØªÙ‡.\n\n### Ù…Ø´Ø®ØµØ§Øª\n- **Ù†Ø§Ù… Ø§ØµÙ„ÛŒ:** ${shortDesc}\n- ØªØ­ÙˆÛŒÙ„ Ø³Ø±ÛŒØ¹ Ù¾Ø³ Ø§Ø² Ù¾Ø±Ø¯Ø§Ø®Øª\n- Ù¾Ø´ØªÛŒØ¨Ø§Ù†ÛŒ ÙØ¹Ø§Ù„\n`
     };
   }
 
   // Virtual Numbers
-  const isVirtualNumber = /^(Openai|ChatGPT|Claude|Telegram|WhatsApp|Google|Apple|Discord)\s*—/i.test(t) || t.includes("شماره مجازی") || t.includes("شماره") || category === "virtual-numbers";
+  const isVirtualNumber = /^(Openai|ChatGPT|Claude|Telegram|WhatsApp|Google|Apple|Discord)\s*â€”/i.test(t) || t.includes("Ø´Ù…Ø§Ø±Ù‡ Ù…Ø¬Ø§Ø²ÛŒ") || t.includes("Ø´Ù…Ø§Ø±Ù‡") || category === "virtual-numbers";
   if (isVirtualNumber) {
     let brand = "OpenAI";
     let country = "";
-    const match = t.match(/^(Openai|ChatGPT|Claude|Telegram|WhatsApp|Google|Apple|Discord)\s*—\s*(.*)$/i);
+    const match = t.match(/^(Openai|ChatGPT|Claude|Telegram|WhatsApp|Google|Apple|Discord)\s*â€”\s*(.*)$/i);
     if (match) {
       brand = match[1];
       country = match[2].trim();
     } else {
       const matchBrand = t.match(/(Openai|ChatGPT|Claude|Telegram|WhatsApp|Google|Apple|Discord)/i);
       brand = matchBrand ? matchBrand[1] : (t.toLowerCase().includes("chatgpt") ? "ChatGPT" : "OpenAI");
-      country = t.replace(/(Openai|ChatGPT|Claude|Telegram|WhatsApp|Google|Apple|Discord|شماره مجازی وریفای|شماره مجازی|شماره|دریافت پیامک|\(|\)|—|-)/ig, "").trim();
+      country = t.replace(/(Openai|ChatGPT|Claude|Telegram|WhatsApp|Google|Apple|Discord|Ø´Ù…Ø§Ø±Ù‡ Ù…Ø¬Ø§Ø²ÛŒ ÙˆØ±ÛŒÙØ§ÛŒ|Ø´Ù…Ø§Ø±Ù‡ Ù…Ø¬Ø§Ø²ÛŒ|Ø´Ù…Ø§Ø±Ù‡|Ø¯Ø±ÛŒØ§ÙØª Ù¾ÛŒØ§Ù…Ú©|\(|\)|â€”|-)/ig, "").trim();
     }
     
     let brandFa = brand;
-    if (/openai|chatgpt/i.test(brand)) brandFa = "چت‌جی‌پی‌تی OpenAI";
-    else if (/claude/i.test(brand)) brandFa = "کلود Claude";
-    else if (/apple/i.test(brand)) brandFa = "اپل Apple";
-    else if (/telegram/i.test(brand)) brandFa = "تلگرام Telegram";
+    if (/openai|chatgpt/i.test(brand)) brandFa = "Ú†Øªâ€ŒØ¬ÛŒâ€ŒÙ¾ÛŒâ€ŒØªÛŒ OpenAI";
+    else if (/claude/i.test(brand)) brandFa = "Ú©Ù„ÙˆØ¯ Claude";
+    else if (/apple/i.test(brand)) brandFa = "Ø§Ù¾Ù„ Apple";
+    else if (/telegram/i.test(brand)) brandFa = "ØªÙ„Ú¯Ø±Ø§Ù… Telegram";
     
-    const title = `شماره مجازی فعالسازی ${brandFa} (${country})`;
-    const description = `> ⚠️ **توجه مهم — این محصول شماره مجازی است، نه اکانت یا اشتراک:**\n> این سرویس صرفاً یک **شماره تلفن موقت** جهت دریافت پیامک کد تایید (SMS OTP) برای ساخت یا فعالسازی حساب کاربری در ${brand} است.\n\n## ${title}\n\nشماره مجازی معتبر جهت وریفای سرویس.\n\n### مشخصات\n- **نام اصلی و فنی:** ${shortDesc}\n- دریافت آنی پیامک\n- اختصاصی و امن\n- گارانتی فعال‌سازی\n`;
+    const title = `Ø´Ù…Ø§Ø±Ù‡ Ù…Ø¬Ø§Ø²ÛŒ ÙØ¹Ø§Ù„Ø³Ø§Ø²ÛŒ ${brandFa} (${country})`;
+    const description = `> âš ï¸ **ØªÙˆØ¬Ù‡ Ù…Ù‡Ù… â€” Ø§ÛŒÙ† Ù…Ø­ØµÙˆÙ„ Ø´Ù…Ø§Ø±Ù‡ Ù…Ø¬Ø§Ø²ÛŒ Ø§Ø³ØªØŒ Ù†Ù‡ Ø§Ú©Ø§Ù†Øª ÛŒØ§ Ø§Ø´ØªØ±Ø§Ú©:**\n> Ø§ÛŒÙ† Ø³Ø±ÙˆÛŒØ³ ØµØ±ÙØ§Ù‹ ÛŒÚ© **Ø´Ù…Ø§Ø±Ù‡ ØªÙ„ÙÙ† Ù…ÙˆÙ‚Øª** Ø¬Ù‡Øª Ø¯Ø±ÛŒØ§ÙØª Ù¾ÛŒØ§Ù…Ú© Ú©Ø¯ ØªØ§ÛŒÛŒØ¯ (SMS OTP) Ø¨Ø±Ø§ÛŒ Ø³Ø§Ø®Øª ÛŒØ§ ÙØ¹Ø§Ù„Ø³Ø§Ø²ÛŒ Ø­Ø³Ø§Ø¨ Ú©Ø§Ø±Ø¨Ø±ÛŒ Ø¯Ø± ${brand} Ø§Ø³Øª.\n\n## ${title}\n\nØ´Ù…Ø§Ø±Ù‡ Ù…Ø¬Ø§Ø²ÛŒ Ù…Ø¹ØªØ¨Ø± Ø¬Ù‡Øª ÙˆØ±ÛŒÙØ§ÛŒ Ø³Ø±ÙˆÛŒØ³.\n\n### Ù…Ø´Ø®ØµØ§Øª\n- **Ù†Ø§Ù… Ø§ØµÙ„ÛŒ Ùˆ ÙÙ†ÛŒ:** ${shortDesc}\n- Ø¯Ø±ÛŒØ§ÙØª Ø¢Ù†ÛŒ Ù¾ÛŒØ§Ù…Ú©\n- Ø§Ø®ØªØµØ§ØµÛŒ Ùˆ Ø§Ù…Ù†\n- Ú¯Ø§Ø±Ø§Ù†ØªÛŒ ÙØ¹Ø§Ù„â€ŒØ³Ø§Ø²ÛŒ\n`;
     return { title, shortDesc, description };
   }
 
   // Clean raw supplier artifacts: warranty notes, emojis, internal codes
   let cleanName = t;
-  cleanName = cleanName.replace(/\s*[\-\|—]?\s*(full\s+warranty|warranty\s*\d*[hd]?|w\d+[mhd]?|no\s+warranty|with\s+warranty|guaranteed?)\b/ig, '');
+  cleanName = cleanName.replace(/\s*[\-\|â€”]?\s*(full\s+warranty|warranty\s*\d*[hd]?|w\d+[mhd]?|no\s+warranty|with\s+warranty|guaranteed?)\b/ig, '');
   cleanName = cleanName.replace(/[\u{1F300}-\u{1F9FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]/gu, '');
   cleanName = cleanName.replace(/\s*[\-\|]\s*antigravity/ig, '');
   cleanName = cleanName.replace(/\[(slot|private|shared)\]/ig, '');
 
   // Extract duration
   let durationFa = '';
-  if (/\b18\s*(months?|m)\b/i.test(cleanName)) { durationFa = '۱۸ ماهه'; cleanName = cleanName.replace(/\b18\s*(months?|m)\b/ig, ''); }
-  else if (/\b12\s*(months?|m)\b|\b1\s*(year|y)\b/i.test(cleanName)) { durationFa = '۱ ساله'; cleanName = cleanName.replace(/\b12\s*(months?|m)\b|\b1\s*(year|y)\b/ig, ''); }
-  else if (/\b6\s*(months?|m)\b/i.test(cleanName)) { durationFa = '۶ ماهه'; cleanName = cleanName.replace(/\b6\s*(months?|m)\b/ig, ''); }
-  else if (/\b3\s*(months?|m)\b/i.test(cleanName)) { durationFa = '۳ ماهه'; cleanName = cleanName.replace(/\b3\s*(months?|m)\b/ig, ''); }
-  else if (/\b2\s*(months?|m)\b/i.test(cleanName)) { durationFa = '۲ ماهه'; cleanName = cleanName.replace(/\b2\s*(months?|m)\b/ig, ''); }
-  else if (/\b1\s*(month|m)\b/i.test(cleanName)) { durationFa = '۱ ماهه'; cleanName = cleanName.replace(/\b1\s*(month|m)\b/ig, ''); }
-  else if (/\b(1|one)\s*days?\b|\b24h\b/i.test(cleanName)) { durationFa = '۱ روزه'; cleanName = cleanName.replace(/\b(1|one)\s*days?\b|\b24h\b/ig, ''); }
+  if (/\b18\s*(months?|m)\b/i.test(cleanName)) { durationFa = 'Û±Û¸ Ù…Ø§Ù‡Ù‡'; cleanName = cleanName.replace(/\b18\s*(months?|m)\b/ig, ''); }
+  else if (/\b12\s*(months?|m)\b|\b1\s*(year|y)\b/i.test(cleanName)) { durationFa = 'Û± Ø³Ø§Ù„Ù‡'; cleanName = cleanName.replace(/\b12\s*(months?|m)\b|\b1\s*(year|y)\b/ig, ''); }
+  else if (/\b6\s*(months?|m)\b/i.test(cleanName)) { durationFa = 'Û¶ Ù…Ø§Ù‡Ù‡'; cleanName = cleanName.replace(/\b6\s*(months?|m)\b/ig, ''); }
+  else if (/\b3\s*(months?|m)\b/i.test(cleanName)) { durationFa = 'Û³ Ù…Ø§Ù‡Ù‡'; cleanName = cleanName.replace(/\b3\s*(months?|m)\b/ig, ''); }
+  else if (/\b2\s*(months?|m)\b/i.test(cleanName)) { durationFa = 'Û² Ù…Ø§Ù‡Ù‡'; cleanName = cleanName.replace(/\b2\s*(months?|m)\b/ig, ''); }
+  else if (/\b1\s*(month|m)\b/i.test(cleanName)) { durationFa = 'Û± Ù…Ø§Ù‡Ù‡'; cleanName = cleanName.replace(/\b1\s*(month|m)\b/ig, ''); }
+  else if (/\b(1|one)\s*days?\b|\b24h\b/i.test(cleanName)) { durationFa = 'Û± Ø±ÙˆØ²Ù‡'; cleanName = cleanName.replace(/\b(1|one)\s*days?\b|\b24h\b/ig, ''); }
   else if (/\b(\d+)\s*days?\b/i.test(cleanName)) {
     const dMatch = cleanName.match(/\b(\d+)\s*days?\b/i);
-    if (dMatch) { durationFa = normalizePersianNumbers(dMatch[1]) + ' روزه'; cleanName = cleanName.replace(/\b(\d+)\s*days?\b/ig, ''); }
+    if (dMatch) { durationFa = normalizePersianNumbers(dMatch[1]) + ' Ø±ÙˆØ²Ù‡'; cleanName = cleanName.replace(/\b(\d+)\s*days?\b/ig, ''); }
   }
 
   // Clean trailing/leading delimiters
-  cleanName = cleanName.replace(/[\-\|—:]+\s*$/g, '').replace(/^\s*[\-\|—:]+/g, '').replace(/\s{2,}/g, ' ').trim();
+  cleanName = cleanName.replace(/[\-\|â€”:]+\s*$/g, '').replace(/^\s*[\-\|â€”:]+/g, '').replace(/\s{2,}/g, ' ').trim();
 
   // Well-known product brand cleanings
   let finalTitle = cleanName;
@@ -680,7 +680,7 @@ export function localizeProduct(name: string, category: string, sp?: any): { tit
 
   finalTitle = finalTitle.replace(/\s{2,}/g, ' ').trim();
 
-  const description = `## ${finalTitle}\n\nمحصول اوریجینال و قانونی با تحویل آنی و پشتیبانی ۲۴ ساعته.\n\n### مشخصات\n- **نام اصلی و فنی:** ${shortDesc}\n- ضمانت اصالت و سلامت فعال‌سازی\n- خرید امن و تحویل فوری پس از پرداخت\n- پشتیبانی فعال\n`;
+  const description = `## ${finalTitle}\n\nÙ…Ø­ØµÙˆÙ„ Ø§ÙˆØ±ÛŒØ¬ÛŒÙ†Ø§Ù„ Ùˆ Ù‚Ø§Ù†ÙˆÙ†ÛŒ Ø¨Ø§ ØªØ­ÙˆÛŒÙ„ Ø¢Ù†ÛŒ Ùˆ Ù¾Ø´ØªÛŒØ¨Ø§Ù†ÛŒ Û²Û´ Ø³Ø§Ø¹ØªÙ‡.\n\n### Ù…Ø´Ø®ØµØ§Øª\n- **Ù†Ø§Ù… Ø§ØµÙ„ÛŒ Ùˆ ÙÙ†ÛŒ:** ${shortDesc}\n- Ø¶Ù…Ø§Ù†Øª Ø§ØµØ§Ù„Øª Ùˆ Ø³Ù„Ø§Ù…Øª ÙØ¹Ø§Ù„â€ŒØ³Ø§Ø²ÛŒ\n- Ø®Ø±ÛŒØ¯ Ø§Ù…Ù† Ùˆ ØªØ­ÙˆÛŒÙ„ ÙÙˆØ±ÛŒ Ù¾Ø³ Ø§Ø² Ù¾Ø±Ø¯Ø§Ø®Øª\n- Ù¾Ø´ØªÛŒØ¨Ø§Ù†ÛŒ ÙØ¹Ø§Ù„\n`;
 
   return { title: finalTitle, shortDesc, description };
 }
@@ -696,77 +696,77 @@ function slugifyFa(s: string): string {
 }
 
 export const CATEGORIES_META: Record<string, string> = {
-  ai: "هوش مصنوعی",
-  "virtual-numbers": "شماره مجازی و OTP",
-  "dev-tools": "ابزارهای توسعه و برنامه‌نویسی",
-  design: "طراحی و گرافیک",
-  streaming: "استریم و سرگرمی",
-  gaming: "گیمینگ و گیفت‌کارت",
-  productivity: "نرم‌افزار و بهره‌وری",
-  social: "شبکه‌های اجتماعی",
+  ai: "Ù‡ÙˆØ´ Ù…ØµÙ†ÙˆØ¹ÛŒ",
+  "virtual-numbers": "Ø´Ù…Ø§Ø±Ù‡ Ù…Ø¬Ø§Ø²ÛŒ Ùˆ OTP",
+  "dev-tools": "Ø§Ø¨Ø²Ø§Ø±Ù‡Ø§ÛŒ ØªÙˆØ³Ø¹Ù‡ Ùˆ Ø¨Ø±Ù†Ø§Ù…Ù‡â€ŒÙ†ÙˆÛŒØ³ÛŒ",
+  design: "Ø·Ø±Ø§Ø­ÛŒ Ùˆ Ú¯Ø±Ø§ÙÛŒÚ©",
+  streaming: "Ø§Ø³ØªØ±ÛŒÙ… Ùˆ Ø³Ø±Ú¯Ø±Ù…ÛŒ",
+  gaming: "Ú¯ÛŒÙ…ÛŒÙ†Ú¯ Ùˆ Ú¯ÛŒÙØªâ€ŒÚ©Ø§Ø±Øª",
+  productivity: "Ù†Ø±Ù…â€ŒØ§ÙØ²Ø§Ø± Ùˆ Ø¨Ù‡Ø±Ù‡â€ŒÙˆØ±ÛŒ",
+  social: "Ø´Ø¨Ú©Ù‡â€ŒÙ‡Ø§ÛŒ Ø§Ø¬ØªÙ…Ø§Ø¹ÛŒ",
 };
 
 export const STANDARD_CATEGORIES = [
   {
-    name: "هوش مصنوعی",
+    name: "Ù‡ÙˆØ´ Ù…ØµÙ†ÙˆØ¹ÛŒ",
     slug: "ai",
-    description: "اشتراک و اکانت قانونی ChatGPT، Claude، Midjourney و هوش‌های مصنوعی پیشرفته",
+    description: "Ø§Ø´ØªØ±Ø§Ú© Ùˆ Ø§Ú©Ø§Ù†Øª Ù‚Ø§Ù†ÙˆÙ†ÛŒ ChatGPTØŒ ClaudeØŒ Midjourney Ùˆ Ù‡ÙˆØ´â€ŒÙ‡Ø§ÛŒ Ù…ØµÙ†ÙˆØ¹ÛŒ Ù¾ÛŒØ´Ø±ÙØªÙ‡",
     icon: "Sparkles",
     color: "from-emerald-500 to-teal-600",
     sortOrder: 1,
   },
   {
-    name: "شماره مجازی و OTP",
+    name: "Ø´Ù…Ø§Ø±Ù‡ Ù…Ø¬Ø§Ø²ÛŒ Ùˆ OTP",
     slug: "virtual-numbers",
-    description: "شماره‌های مجازی اختصاصی جهت دریافت پیامک تایید تلگرام، OpenAI، Claude و سرویس‌های خارجی",
+    description: "Ø´Ù…Ø§Ø±Ù‡â€ŒÙ‡Ø§ÛŒ Ù…Ø¬Ø§Ø²ÛŒ Ø§Ø®ØªØµØ§ØµÛŒ Ø¬Ù‡Øª Ø¯Ø±ÛŒØ§ÙØª Ù¾ÛŒØ§Ù…Ú© ØªØ§ÛŒÛŒØ¯ ØªÙ„Ú¯Ø±Ø§Ù…ØŒ OpenAIØŒ Claude Ùˆ Ø³Ø±ÙˆÛŒØ³â€ŒÙ‡Ø§ÛŒ Ø®Ø§Ø±Ø¬ÛŒ",
     icon: "Smartphone",
     color: "from-teal-500 to-cyan-600",
     sortOrder: 2,
   },
   {
-    name: "ابزارهای توسعه و برنامه‌نویسی",
+    name: "Ø§Ø¨Ø²Ø§Ø±Ù‡Ø§ÛŒ ØªÙˆØ³Ø¹Ù‡ Ùˆ Ø¨Ø±Ù†Ø§Ù…Ù‡â€ŒÙ†ÙˆÛŒØ³ÛŒ",
     slug: "dev-tools",
-    description: "Cursor Pro، Windsurf، GitHub Copilot و انواع توکن و کردیت API",
+    description: "Cursor ProØŒ WindsurfØŒ GitHub Copilot Ùˆ Ø§Ù†ÙˆØ§Ø¹ ØªÙˆÚ©Ù† Ùˆ Ú©Ø±Ø¯ÛŒØª API",
     icon: "Code2",
     color: "from-blue-500 to-indigo-600",
     sortOrder: 3,
   },
   {
-    name: "طراحی و گرافیک",
+    name: "Ø·Ø±Ø§Ø­ÛŒ Ùˆ Ú¯Ø±Ø§ÙÛŒÚ©",
     slug: "design",
-    description: "لایسنس و اشتراک Canva Pro، Adobe Creative Cloud، Figma و ابزارهای ویدیویی",
+    description: "Ù„Ø§ÛŒØ³Ù†Ø³ Ùˆ Ø§Ø´ØªØ±Ø§Ú© Canva ProØŒ Adobe Creative CloudØŒ Figma Ùˆ Ø§Ø¨Ø²Ø§Ø±Ù‡Ø§ÛŒ ÙˆÛŒØ¯ÛŒÙˆÛŒÛŒ",
     icon: "PenTool",
     color: "from-purple-500 to-pink-600",
     sortOrder: 4,
   },
   {
-    name: "استریم و سرگرمی",
+    name: "Ø§Ø³ØªØ±ÛŒÙ… Ùˆ Ø³Ø±Ú¯Ø±Ù…ÛŒ",
     slug: "streaming",
-    description: "اکانت پریمیوم Spotify، Netflix، YouTube Premium و سرویس‌های فیلم و موسیقی",
+    description: "Ø§Ú©Ø§Ù†Øª Ù¾Ø±ÛŒÙ…ÛŒÙˆÙ… SpotifyØŒ NetflixØŒ YouTube Premium Ùˆ Ø³Ø±ÙˆÛŒØ³â€ŒÙ‡Ø§ÛŒ ÙÛŒÙ„Ù… Ùˆ Ù…ÙˆØ³ÛŒÙ‚ÛŒ",
     icon: "Play",
     color: "from-rose-500 to-pink-600",
     sortOrder: 5,
   },
   {
-    name: "گیمینگ و گیفت‌کارت",
+    name: "Ú¯ÛŒÙ…ÛŒÙ†Ú¯ Ùˆ Ú¯ÛŒÙØªâ€ŒÚ©Ø§Ø±Øª",
     slug: "gaming",
-    description: "Discord Nitro، گیفت‌کارت PSN، Google Play، PUBG UC و CoD CP",
+    description: "Discord NitroØŒ Ú¯ÛŒÙØªâ€ŒÚ©Ø§Ø±Øª PSNØŒ Google PlayØŒ PUBG UC Ùˆ CoD CP",
     icon: "Gamepad2",
     color: "from-violet-500 to-fuchsia-600",
     sortOrder: 6,
   },
   {
-    name: "نرم‌افزار و بهره‌وری",
+    name: "Ù†Ø±Ù…â€ŒØ§ÙØ²Ø§Ø± Ùˆ Ø¨Ù‡Ø±Ù‡â€ŒÙˆØ±ÛŒ",
     slug: "productivity",
-    description: "لایسنس آفیس ۳۶۵، ویندوز، گرامرلی، نوشن و ابزارهای سازمانی",
+    description: "Ù„Ø§ÛŒØ³Ù†Ø³ Ø¢ÙÛŒØ³ Û³Û¶ÛµØŒ ÙˆÛŒÙ†Ø¯ÙˆØ²ØŒ Ú¯Ø±Ø§Ù…Ø±Ù„ÛŒØŒ Ù†ÙˆØ´Ù† Ùˆ Ø§Ø¨Ø²Ø§Ø±Ù‡Ø§ÛŒ Ø³Ø§Ø²Ù…Ø§Ù†ÛŒ",
     icon: "LayoutGrid",
     color: "from-amber-500 to-orange-600",
     sortOrder: 7,
   },
   {
-    name: "شبکه‌های اجتماعی",
+    name: "Ø´Ø¨Ú©Ù‡â€ŒÙ‡Ø§ÛŒ Ø§Ø¬ØªÙ…Ø§Ø¹ÛŒ",
     slug: "social",
-    description: "تلگرام استارز، تلگرام پریمیوم، ممبر و خدمات شبکه‌های اجتماعی",
+    description: "ØªÙ„Ú¯Ø±Ø§Ù… Ø§Ø³ØªØ§Ø±Ø²ØŒ ØªÙ„Ú¯Ø±Ø§Ù… Ù¾Ø±ÛŒÙ…ÛŒÙˆÙ…ØŒ Ù…Ù…Ø¨Ø± Ùˆ Ø®Ø¯Ù…Ø§Øª Ø´Ø¨Ú©Ù‡â€ŒÙ‡Ø§ÛŒ Ø§Ø¬ØªÙ…Ø§Ø¹ÛŒ",
     icon: "Share2",
     color: "from-sky-500 to-blue-600",
     sortOrder: 8,
@@ -793,10 +793,10 @@ export function getProductRankingInfo(p: SupplierProduct, title: string, catSlug
     if (/claude/i.test(comb) && !/otp|virtual/i.test(comb)) {
       return { sortOrder: 2, bestseller: true, featured: true, salesCount: 420 };
     }
-    if (/midjourney|میدجرنی/i.test(comb)) {
+    if (/midjourney|Ù…ÛŒØ¯Ø¬Ø±Ù†ÛŒ/i.test(comb)) {
       return { sortOrder: 3, bestseller: true, featured: true, salesCount: 390 };
     }
-    if (/perplexity|پرپلکسیتی/i.test(comb)) {
+    if (/perplexity|Ù¾Ø±Ù¾Ù„Ú©Ø³ÛŒØªÛŒ/i.test(comb)) {
       return { sortOrder: 4, bestseller: true, featured: true, salesCount: 310 };
     }
     if (/runway|kling|luma/i.test(comb)) {
@@ -805,7 +805,7 @@ export function getProductRankingInfo(p: SupplierProduct, title: string, catSlug
     if (/veo|elevenlabs/i.test(comb)) {
       return { sortOrder: 6, bestseller: false, featured: true, salesCount: 240 };
     }
-    if (/gemini|جمینی|جمنای/i.test(comb)) {
+    if (/gemini|Ø¬Ù…ÛŒÙ†ÛŒ|Ø¬Ù…Ù†Ø§ÛŒ/i.test(comb)) {
       return { sortOrder: 3, bestseller: true, featured: true, salesCount: 395 };
     }
     if (/grok/i.test(comb)) {
@@ -814,7 +814,7 @@ export function getProductRankingInfo(p: SupplierProduct, title: string, catSlug
   }
 
   if (catSlug === "virtual-numbers") {
-    if (/telegram|تلگرام/i.test(comb)) {
+    if (/telegram|ØªÙ„Ú¯Ø±Ø§Ù…/i.test(comb)) {
       return { sortOrder: 1, bestseller: true, featured: true, salesCount: 520 };
     }
     if (/openai|chatgpt/i.test(comb)) {
@@ -847,16 +847,16 @@ export function getProductRankingInfo(p: SupplierProduct, title: string, catSlug
   }
 
   if (catSlug === "design") {
-    if (/canva|کنوا|کانوا/i.test(comb)) {
+    if (/canva|Ú©Ù†ÙˆØ§|Ú©Ø§Ù†ÙˆØ§/i.test(comb)) {
       return { sortOrder: 1, bestseller: true, featured: true, salesCount: 510 };
     }
     if (/adobe|creative cloud|photoshop|illustrator/i.test(comb)) {
       return { sortOrder: 2, bestseller: true, featured: true, salesCount: 430 };
     }
-    if (/figma|فیگما/i.test(comb)) {
+    if (/figma|ÙÛŒÚ¯Ù…Ø§/i.test(comb)) {
       return { sortOrder: 3, bestseller: true, featured: true, salesCount: 350 };
     }
-    if (/capcut|کپ‌کات/i.test(comb)) {
+    if (/capcut|Ú©Ù¾â€ŒÚ©Ø§Øª/i.test(comb)) {
       return { sortOrder: 4, bestseller: true, featured: true, salesCount: 320 };
     }
     if (/freepik|envato/i.test(comb)) {
@@ -865,11 +865,11 @@ export function getProductRankingInfo(p: SupplierProduct, title: string, catSlug
   }
 
   if (catSlug === "streaming") {
-    if (/spotify|اسپاتیفای/i.test(comb)) {
-      const isBestseller = /1 month|3 months?|۱ ماهه|۳ ماهه/i.test(comb) && !/gift card|گیفت کارت/i.test(comb);
+    if (/spotify|Ø§Ø³Ù¾Ø§ØªÛŒÙØ§ÛŒ/i.test(comb)) {
+      const isBestseller = /1 month|3 months?|Û± Ù…Ø§Ù‡Ù‡|Û³ Ù…Ø§Ù‡Ù‡/i.test(comb) && !/gift card|Ú¯ÛŒÙØª Ú©Ø§Ø±Øª/i.test(comb);
       return { sortOrder: 1, bestseller: isBestseller, featured: true, salesCount: isBestseller ? 540 : 150 };
     }
-    if (/netflix|نتفلیکس/i.test(comb)) {
+    if (/netflix|Ù†ØªÙÙ„ÛŒÚ©Ø³/i.test(comb)) {
       return { sortOrder: 2, bestseller: true, featured: true, salesCount: 510 };
     }
     if (/youtube/i.test(comb)) {
@@ -899,16 +899,16 @@ export function getProductRankingInfo(p: SupplierProduct, title: string, catSlug
   }
 
   if (catSlug === "productivity") {
-    if (/office 365|ms365|آفیس/i.test(comb)) {
+    if (/office 365|ms365|Ø¢ÙÛŒØ³/i.test(comb)) {
       return { sortOrder: 1, bestseller: true, featured: true, salesCount: 460 };
     }
-    if (/grammarly|گرامرلی/i.test(comb)) {
+    if (/grammarly|Ú¯Ø±Ø§Ù…Ø±Ù„ÛŒ/i.test(comb)) {
       return { sortOrder: 2, bestseller: true, featured: true, salesCount: 380 };
     }
-    if (/notion|نوشن/i.test(comb)) {
+    if (/notion|Ù†ÙˆØ´Ù†/i.test(comb)) {
       return { sortOrder: 3, bestseller: true, featured: true, salesCount: 320 };
     }
-    if (/windows|ویندوز/i.test(comb)) {
+    if (/windows|ÙˆÛŒÙ†Ø¯ÙˆØ²/i.test(comb)) {
       return { sortOrder: 4, bestseller: true, featured: true, salesCount: 300 };
     }
     if (/duolingo|tradingview/i.test(comb)) {
@@ -917,10 +917,10 @@ export function getProductRankingInfo(p: SupplierProduct, title: string, catSlug
   }
 
   if (catSlug === "social") {
-    if (/stars|استارز/i.test(comb)) {
+    if (/stars|Ø§Ø³ØªØ§Ø±Ø²/i.test(comb)) {
       return { sortOrder: 1, bestseller: true, featured: true, salesCount: 530 };
     }
-    if (/telegram premium|پریمیوم تلگرام/i.test(comb)) {
+    if (/telegram premium|Ù¾Ø±ÛŒÙ…ÛŒÙˆÙ… ØªÙ„Ú¯Ø±Ø§Ù…/i.test(comb)) {
       return { sortOrder: 2, bestseller: true, featured: true, salesCount: 480 };
     }
     if (/twitter|x premium/i.test(comb)) {
@@ -951,13 +951,13 @@ export function categorizeProduct(p: SupplierProduct): {
   // 1. MUST BE FIRST: Virtual Numbers & OTP Check
   // Strict rule: virtual numbers must NEVER be categorized into AI or other categories!
   const countryRegex = /\b(germany|usa?|uk|england|netherlands|russia|afghanistan|india|indonesia|brazil|turkey|malaysia|vietnam|philippines|thailand|mexico|canada|argentina|colombia|nigeria|egypt|south africa|pakistan|bangladesh|china|japan|korea|australia|spain|italy|poland|ukraine|romania|kazakhstan|uzbekistan|morocco|algeria|kenya|estonia|sweden|norway|finland|denmark|austria|switzerland|belgium|portugal|greece|czech|ireland|singapore|hong kong|taiwan|israel|chile|peru|venezuela|cambodia|laos|myanmar)\b/i;
-  const hasEmDash = /—/u.test(name);
+  const hasEmDash = /â€”/u.test(name);
   const hasFlag = /[\uD83C][\uDDE6-\uDDFF]/u.test(name);
   const isGiftCardOrGame = /psn|playstation|itunes|google play|nintendo|steam|xbox|cp \(in\)|pubg|discord/i.test(n);
 
   if (spCat === "otp numbers") {
     slug = "virtual-numbers";
-  } else if (/virtual number|شماره مجازی|\botp\b|phone number|sms activate|sms-activate|temp phone|دریافت پیامک|تایید پیامکی/i.test(n)) {
+  } else if (/virtual number|Ø´Ù…Ø§Ø±Ù‡ Ù…Ø¬Ø§Ø²ÛŒ|\botp\b|phone number|sms activate|sms-activate|temp phone|Ø¯Ø±ÛŒØ§ÙØª Ù¾ÛŒØ§Ù…Ú©|ØªØ§ÛŒÛŒØ¯ Ù¾ÛŒØ§Ù…Ú©ÛŒ/i.test(n)) {
     slug = "virtual-numbers";
   } else if (!isGiftCardOrGame && (hasEmDash || hasFlag) && countryRegex.test(name)) {
     slug = "virtual-numbers";
@@ -969,7 +969,7 @@ export function categorizeProduct(p: SupplierProduct): {
   if (!slug) {
     if (spCat === "apis & dev tools") {
       slug = "dev-tools";
-    } else if (/\b(cursor|windsurf|github copilot|copilot pro|codex|api|token|tokens|credit|credits|توکن|کردیت|ردیم کد|ردیم|supabase|railway|lovable|lovabe|replit|v0\.dev|postman)\b/i.test(n)) {
+    } else if (/\b(cursor|windsurf|github copilot|copilot pro|codex|api|token|tokens|credit|credits|ØªÙˆÚ©Ù†|Ú©Ø±Ø¯ÛŒØª|Ø±Ø¯ÛŒÙ… Ú©Ø¯|Ø±Ø¯ÛŒÙ…|supabase|railway|lovable|lovabe|replit|v0\.dev|postman)\b/i.test(n)) {
       if (!/canva|figma|adobe|spotify|netflix|disney|psn|playstation|xbox|nitro|office 365|ms365/i.test(n)) {
         slug = "dev-tools";
       }
@@ -989,7 +989,7 @@ export function categorizeProduct(p: SupplierProduct): {
   if (!slug) {
     if (spCat === "streaming") {
       slug = "streaming";
-    } else if (/netflix|نتفلیکس|spotify|اسپاتیفای|youtube premium|youtube music|یوتیوب|disney|دیزنی|apple music|apple tv|hbo|paramount|crunchyroll|deezer|tidal|vieon|soundcloud/i.test(n)) {
+    } else if (/netflix|Ù†ØªÙÙ„ÛŒÚ©Ø³|spotify|Ø§Ø³Ù¾Ø§ØªÛŒÙØ§ÛŒ|youtube premium|youtube music|ÛŒÙˆØªÛŒÙˆØ¨|disney|Ø¯ÛŒØ²Ù†ÛŒ|apple music|apple tv|hbo|paramount|crunchyroll|deezer|tidal|vieon|soundcloud/i.test(n)) {
       slug = "streaming";
     }
   }
@@ -998,7 +998,7 @@ export function categorizeProduct(p: SupplierProduct): {
   if (!slug) {
     if (spCat === "design tools") {
       slug = "design";
-    } else if (/canva|کنوا|کانوا|adobe|ادوبی|photoshop|illustrator|premiere|after effects|creative cloud|lightroom|figma|فیگما|freepik|فری پیک|envato|انواتو|capcut|کپ‌کات|autodesk|autocad|3ds max|corel|sketch|invision|framer|miro|dzine/i.test(n)) {
+    } else if (/canva|Ú©Ù†ÙˆØ§|Ú©Ø§Ù†ÙˆØ§|adobe|Ø§Ø¯ÙˆØ¨ÛŒ|photoshop|illustrator|premiere|after effects|creative cloud|lightroom|figma|ÙÛŒÚ¯Ù…Ø§|freepik|ÙØ±ÛŒ Ù¾ÛŒÚ©|envato|Ø§Ù†ÙˆØ§ØªÙˆ|capcut|Ú©Ù¾â€ŒÚ©Ø§Øª|autodesk|autocad|3ds max|corel|sketch|invision|framer|miro|dzine/i.test(n)) {
       slug = "design";
     }
   }
@@ -1007,7 +1007,7 @@ export function categorizeProduct(p: SupplierProduct): {
   if (!slug) {
     if (["stars", "boost", "likes", "page likes", "comments", "commentes", "followers", "members", "reactions", "mention", "watch time", "bot start"].includes(spCat)) {
       slug = "social";
-    } else if (/telegram stars|telegram premium|تلگرام|استارز|فالوور|ممبر|لایک|سوشال|توییتر|اینستاگرام|تیک تاک|tiktok|instagram|twitter|\bx premium\b|facebook|linkedin|snapchat|reddit|threads/i.test(n)) {
+    } else if (/telegram stars|telegram premium|ØªÙ„Ú¯Ø±Ø§Ù…|Ø§Ø³ØªØ§Ø±Ø²|ÙØ§Ù„ÙˆÙˆØ±|Ù…Ù…Ø¨Ø±|Ù„Ø§ÛŒÚ©|Ø³ÙˆØ´Ø§Ù„|ØªÙˆÛŒÛŒØªØ±|Ø§ÛŒÙ†Ø³ØªØ§Ú¯Ø±Ø§Ù…|ØªÛŒÚ© ØªØ§Ú©|tiktok|instagram|twitter|\bx premium\b|facebook|linkedin|snapchat|reddit|threads/i.test(n)) {
       slug = "social";
     }
   }
@@ -1016,7 +1016,7 @@ export function categorizeProduct(p: SupplierProduct): {
   if (!slug) {
     if (spCat === "ai chatbots" || spCat === "ai video & image") {
       slug = "ai";
-    } else if (/chatgpt|gpt plus|gpt-4|openai|claude|کلاود|کلود|anthropic|midjourney|میدجرنی|perplexity|پرپلکسیتی|runway|رانوی|kling|کلینگ|luma|لوما|veo|گوگل ویو|elevenlabs|الون لبز|heygen|هیجن|gemini|جمینی|grok|گروک|suno|سونو|udio|یودیو|pika|پیکا|leonardo|لئوناردو|dall-?e|sora|سورا|genspark|openart|pixverse|seedance|akool|beeble|gamma|higgfield|higgsfield|krea|manus|chatprd/i.test(n)) {
+    } else if (/chatgpt|gpt plus|gpt-4|openai|claude|Ú©Ù„Ø§ÙˆØ¯|Ú©Ù„ÙˆØ¯|anthropic|midjourney|Ù…ÛŒØ¯Ø¬Ø±Ù†ÛŒ|perplexity|Ù¾Ø±Ù¾Ù„Ú©Ø³ÛŒØªÛŒ|runway|Ø±Ø§Ù†ÙˆÛŒ|kling|Ú©Ù„ÛŒÙ†Ú¯|luma|Ù„ÙˆÙ…Ø§|veo|Ú¯ÙˆÚ¯Ù„ ÙˆÛŒÙˆ|elevenlabs|Ø§Ù„ÙˆÙ† Ù„Ø¨Ø²|heygen|Ù‡ÛŒØ¬Ù†|gemini|Ø¬Ù…ÛŒÙ†ÛŒ|grok|Ú¯Ø±ÙˆÚ©|suno|Ø³ÙˆÙ†Ùˆ|udio|ÛŒÙˆØ¯ÛŒÙˆ|pika|Ù¾ÛŒÚ©Ø§|leonardo|Ù„Ø¦ÙˆÙ†Ø§Ø±Ø¯Ùˆ|dall-?e|sora|Ø³ÙˆØ±Ø§|genspark|openart|pixverse|seedance|akool|beeble|gamma|higgfield|higgsfield|krea|manus|chatprd/i.test(n)) {
       slug = "ai";
     }
   }
@@ -1041,7 +1041,7 @@ export async function importProductsFromSupplier(
   markupPercent?: number | null
 ): Promise<{ ok: boolean; imported: number; updated: number; skipped: number; message: string; details: string[] }> {
   // irMarket default: if no URL, use irMarket products endpoint.
-  // SUPPLIER_API_URL may be a bare host ("https://api.irmarket.store") — the
+  // SUPPLIER_API_URL may be a bare host ("https://api.irmarket.store") â€” the
   // products endpoint is host + /api/buyer/products (per the OpenAPI spec).
   const key = apiKey || (await getSupplierApiKey());
   let url = apiUrl || process.env.SUPPLIER_API_URL || "https://api.irmarket.store";
@@ -1056,7 +1056,7 @@ export async function importProductsFromSupplier(
     const res = await fetch(url, {
       headers: {
         "Content-Type": "application/json",
-        // NOTE: send ONLY X-API-Key — adding X-Api-Key + Authorization: Bearer
+        // NOTE: send ONLY X-API-Key â€” adding X-Api-Key + Authorization: Bearer
         // together makes the supplier API reject the request with 401
         ...(key ? { "X-API-Key": key } : {}),
       },
@@ -1064,7 +1064,7 @@ export async function importProductsFromSupplier(
     });
     if (!res.ok) {
       const body = await res.text().catch(() => "");
-      return { ok: false, imported: 0, updated: 0, skipped: 0, message: `خطای API (${res.status}): ${body.slice(0, 200)}`, details: [] };
+      return { ok: false, imported: 0, updated: 0, skipped: 0, message: `Ø®Ø·Ø§ÛŒ API (${res.status}): ${body.slice(0, 200)}`, details: [] };
     }
     const data = await res.json();
     // accept various shapes
@@ -1073,10 +1073,10 @@ export async function importProductsFromSupplier(
     else if (Array.isArray(data.data)) products = data.data;
     else if (Array.isArray(data.items)) products = data.items;
     else {
-      return { ok: false, imported: 0, updated: 0, skipped: 0, message: "ساختار پاسخ API نامعتبر (آرایه محصولات یافت نشد)", details: [] };
+      return { ok: false, imported: 0, updated: 0, skipped: 0, message: "Ø³Ø§Ø®ØªØ§Ø± Ù¾Ø§Ø³Ø® API Ù†Ø§Ù…Ø¹ØªØ¨Ø± (Ø¢Ø±Ø§ÛŒÙ‡ Ù…Ø­ØµÙˆÙ„Ø§Øª ÛŒØ§ÙØª Ù†Ø´Ø¯)", details: [] };
     }
   } catch (e: any) {
-    return { ok: false, imported: 0, updated: 0, skipped: 0, message: `ارتباط با API برقرار نشد: ${e?.message || ""}`, details: [] };
+    return { ok: false, imported: 0, updated: 0, skipped: 0, message: `Ø§Ø±ØªØ¨Ø§Ø· Ø¨Ø§ API Ø¨Ø±Ù‚Ø±Ø§Ø± Ù†Ø´Ø¯: ${e?.message || ""}`, details: [] };
   }
 
   let imported = 0, updated = 0, skipped = 0;
@@ -1105,8 +1105,8 @@ export async function importProductsFromSupplier(
     );
     if (sp.pricing_unit === "per_1000" || sp.requires_link || sp.requires_comments || sp.requires_password || nonEmailInputs.length > 0) {
       skipped++;
-      const why = sp.pricing_unit === "per_1000" ? "سرویس SMM" : sp.requires_link ? "نیازمند لینک" : sp.requires_password ? "نیازمند رمز" : "ورودی خاص";
-      details.push(`رد شد (غیرقابل فروش خودکار): ${title} — ${why}`);
+      const why = sp.pricing_unit === "per_1000" ? "Ø³Ø±ÙˆÛŒØ³ SMM" : sp.requires_link ? "Ù†ÛŒØ§Ø²Ù…Ù†Ø¯ Ù„ÛŒÙ†Ú©" : sp.requires_password ? "Ù†ÛŒØ§Ø²Ù…Ù†Ø¯ Ø±Ù…Ø²" : "ÙˆØ±ÙˆØ¯ÛŒ Ø®Ø§Øµ";
+      details.push(`Ø±Ø¯ Ø´Ø¯ (ØºÛŒØ±Ù‚Ø§Ø¨Ù„ ÙØ±ÙˆØ´ Ø®ÙˆØ¯Ú©Ø§Ø±): ${title} â€” ${why}`);
       continue;
     }
 
@@ -1165,11 +1165,11 @@ export async function importProductsFromSupplier(
     const features: string[] = Array.isArray(sp.features) ? sp.features : (sp.features ? String(sp.features).split("\n").filter(Boolean) : []);
     // Build features from irMarket fields
     if (features.length === 0) {
-      if (sp.discount_percent) features.push(`تخفیف ویژه: ${sp.discount_percent}٪`);
-      if (sp.duration_days) features.push(`مدت: ${sp.duration_days} روز`);
-      features.push("تحویل فوری و آنی پس از پرداخت");
-      features.push("گارانتی ۱۰۰٪ فعالسازی و تضمین اصالت");
-      features.push("پشتیبانی ۲۴ ساعته");
+      if (sp.discount_percent) features.push(`ØªØ®ÙÛŒÙ ÙˆÛŒÚ˜Ù‡: ${sp.discount_percent}Ùª`);
+      if (sp.duration_days) features.push(`Ù…Ø¯Øª: ${sp.duration_days} Ø±ÙˆØ²`);
+      features.push("ØªØ­ÙˆÛŒÙ„ ÙÙˆØ±ÛŒ Ùˆ Ø¢Ù†ÛŒ Ù¾Ø³ Ø§Ø² Ù¾Ø±Ø¯Ø§Ø®Øª");
+      features.push("Ú¯Ø§Ø±Ø§Ù†ØªÛŒ Û±Û°Û°Ùª ÙØ¹Ø§Ù„Ø³Ø§Ø²ÛŒ Ùˆ ØªØ¶Ù…ÛŒÙ† Ø§ØµØ§Ù„Øª");
+      features.push("Ù¾Ø´ØªÛŒØ¨Ø§Ù†ÛŒ Û²Û´ Ø³Ø§Ø¹ØªÙ‡");
     }
     const catInfo = categorizeProduct(sp);
     const catSlug = catInfo.slug;
@@ -1177,11 +1177,10 @@ export async function importProductsFromSupplier(
     const loc = localizeProduct((sp.title || sp.name || title).toString().trim(), catSlug, sp);
     const finalTitle = loc.title;
     const shortDesc = loc.shortDesc;
-
-    const finalDescription = loc.description || pickDescription(sp) || `## ${finalTitle}\n\nمحصول اوریجینال با تحویل آنی و پشتیبانی ۲۴ ساعته.`;
+    const finalDescription = loc.description || pickDescription(sp) || `## ${finalTitle}\n\nÙ…Ø­ØµÙˆÙ„ Ø§ÙˆØ±ÛŒØ¬ÛŒÙ†Ø§Ù„ Ø¨Ø§ ØªØ­ÙˆÛŒÙ„ Ø¢Ù†ÛŒ Ùˆ Ù¾Ø´ØªÛŒØ¨Ø§Ù†ÛŒ Û²Û´ Ø³Ø§Ø¹ØªÙ‡.`;
 
     const brand = sp.brand ? String(sp.brand) : null;
-    const duration = sp.duration ? String(sp.duration) : (sp.duration_days ? `${sp.duration_days} روز` : null);
+    const duration = sp.duration ? String(sp.duration) : (sp.duration_days ? `${sp.duration_days} Ø±ÙˆØ²` : null);
     const tags = sp.tags ? String(sp.tags) : (sp.requires_email ? "requires_email" : null);
 
     // ensure category exists
@@ -1199,8 +1198,6 @@ export async function importProductsFromSupplier(
       const nextSpecs = {
         ...existingSpecs,
         supplier_product_id: sp.id,
-        // Audit fix (M2): identity key so a re-listed offering matches the existing row.
-        dedup_key: buildDedupKey(shortDesc, { category: catSlug }),
         price_usd: priceUSD,
         cost_usd: priceUSD,
         usd_rate: usdRate,
@@ -1213,7 +1210,7 @@ export async function importProductsFromSupplier(
       };
 
       // manual_hidden flag: rows we deliberately hid (duplicate/junk cleanup)
-      // must NOT be resurrected by the periodic sync — same guard as rebuildSupplierCatalog
+      // must NOT be resurrected by the periodic sync â€” same guard as rebuildSupplierCatalog
       const isAvailable = existingSpecs.supplier_manual_hidden
         ? false
         : stock > 0 && !isVpnProduct(title);
@@ -1229,12 +1226,10 @@ export async function importProductsFromSupplier(
         },
       });
       updated++;
-      details.push(`به‌روز شد: ${existing.title} — ${finalPrice.toLocaleString("fa-IR")} ت ($${priceUSD} × ${usdRate.toLocaleString("fa-IR")} × ${(100+effectiveMarkup)/100})${existingSpecs.supplier_manual_hidden ? " [hidden-kept]" : ""}`);
+      details.push(`Ø¨Ù‡â€ŒØ±ÙˆØ² Ø´Ø¯: ${existing.title} â€” ${finalPrice.toLocaleString("fa-IR")} Øª ($${priceUSD} Ã— ${usdRate.toLocaleString("fa-IR")} Ã— ${(100+effectiveMarkup)/100})${existingSpecs.supplier_manual_hidden ? " [hidden-kept]" : ""}`);
     } else {
       const nextSpecs = {
         supplier_product_id: sp.id,
-        // Audit fix (M2): identity key so a re-listed offering matches the existing row.
-        dedup_key: buildDedupKey(shortDesc, { category: catSlug }),
         price_usd: priceUSD,
         cost_usd: priceUSD,
         pricing_unit: sp.pricing_unit,
@@ -1268,7 +1263,7 @@ export async function importProductsFromSupplier(
         },
       });
       imported++;
-      details.push(`اضافه شد: ${title} — ${finalPrice.toLocaleString("fa-IR")} ت ($${priceUSD} × ${usdRate.toLocaleString("fa-IR")} × ${(100+effectiveMarkup)/100})`);
+      details.push(`Ø§Ø¶Ø§ÙÙ‡ Ø´Ø¯: ${title} â€” ${finalPrice.toLocaleString("fa-IR")} Øª ($${priceUSD} Ã— ${usdRate.toLocaleString("fa-IR")} Ã— ${(100+effectiveMarkup)/100})`);
     }
   }
 
@@ -1299,7 +1294,7 @@ export async function importProductsFromSupplier(
 
   return {
     ok: true, imported, updated, skipped,
-    message: `${imported} محصول جدید، ${updated} به‌روز شد، ${skipped} رد شد، ${deactivatedMissing} ناموجود شد | نرخ: ۱$ = ${usdRate.toLocaleString("fa-IR")} ت | قیمت‌گذاری پلکانی هوشمند`,
+    message: `${imported} Ù…Ø­ØµÙˆÙ„ Ø¬Ø¯ÛŒØ¯ØŒ ${updated} Ø¨Ù‡â€ŒØ±ÙˆØ² Ø´Ø¯ØŒ ${skipped} Ø±Ø¯ Ø´Ø¯ØŒ ${deactivatedMissing} Ù†Ø§Ù…ÙˆØ¬ÙˆØ¯ Ø´Ø¯ | Ù†Ø±Ø®: Û±$ = ${usdRate.toLocaleString("fa-IR")} Øª | Ù‚ÛŒÙ…Øªâ€ŒÚ¯Ø°Ø§Ø±ÛŒ Ù¾Ù„Ú©Ø§Ù†ÛŒ Ù‡ÙˆØ´Ù…Ù†Ø¯`,
     details: details.slice(0, 50),
   };
 }
@@ -1331,7 +1326,7 @@ export async function rebuildSupplierCatalog(opts?: {
       skipped: 0,
       deactivated: 0,
       categoriesRebuilt: 0,
-      message: "کلید API تامین‌کننده (irMarket) تنظیم نشده است",
+      message: "Ú©Ù„ÛŒØ¯ API ØªØ§Ù…ÛŒÙ†â€ŒÚ©Ù†Ù†Ø¯Ù‡ (irMarket) ØªÙ†Ø¸ÛŒÙ… Ù†Ø´Ø¯Ù‡ Ø§Ø³Øª",
       details: ["SUPPLIER_API_KEY is missing"],
     };
   }
@@ -1430,7 +1425,7 @@ export async function rebuildSupplierCatalog(opts?: {
         skipped: 0,
         deactivated,
         categoriesRebuilt,
-        message: `خطای دریافت کاتالوگ از irMarket (${res.status}): ${body.slice(0, 200)}`,
+        message: `Ø®Ø·Ø§ÛŒ Ø¯Ø±ÛŒØ§ÙØª Ú©Ø§ØªØ§Ù„ÙˆÚ¯ Ø§Ø² irMarket (${res.status}): ${body.slice(0, 200)}`,
         details: [body.slice(0, 500)],
       };
     }
@@ -1448,7 +1443,7 @@ export async function rebuildSupplierCatalog(opts?: {
         skipped: 0,
         deactivated,
         categoriesRebuilt,
-        message: "ساختار پاسخ API نامعتبر است",
+        message: "Ø³Ø§Ø®ØªØ§Ø± Ù¾Ø§Ø³Ø® API Ù†Ø§Ù…Ø¹ØªØ¨Ø± Ø§Ø³Øª",
         details: [],
       };
     }
@@ -1461,7 +1456,7 @@ export async function rebuildSupplierCatalog(opts?: {
       skipped: 0,
       deactivated,
       categoriesRebuilt,
-      message: `ارتباط با API برقرار نشد: ${e?.message || ""}`,
+      message: `Ø§Ø±ØªØ¨Ø§Ø· Ø¨Ø§ API Ø¨Ø±Ù‚Ø±Ø§Ø± Ù†Ø´Ø¯: ${e?.message || ""}`,
       details: [e?.stack || ""],
     };
   }
@@ -1505,8 +1500,7 @@ export async function rebuildSupplierCatalog(opts?: {
     const loc = localizeProduct((sp.title || sp.name || title).toString().trim(), catSlug, sp);
     const finalTitle = loc.title;
     const shortDesc = loc.shortDesc;
-
-    const finalDescription = loc.description || pickDescription(sp) || `## ${finalTitle}\n\nمحصول اوریجینال با تحویل آنی و پشتیبانی ۲۴ ساعته.`;
+    const finalDescription = loc.description || pickDescription(sp) || `## ${finalTitle}\n\nÙ…Ø­ØµÙˆÙ„ Ø§ÙˆØ±ÛŒØ¬ÛŒÙ†Ø§Ù„ Ø¨Ø§ ØªØ­ÙˆÛŒÙ„ Ø¢Ù†ÛŒ Ùˆ Ù¾Ø´ØªÛŒØ¨Ø§Ù†ÛŒ Û²Û´ Ø³Ø§Ø¹ØªÙ‡.`;
 
     // Unique pretty slug
     const cleanTitleSlug = slugifyFa(finalTitle);
@@ -1516,7 +1510,7 @@ export async function rebuildSupplierCatalog(opts?: {
       continue;
     }
 
-    // Strict matching (fix: previous "contains" matchers had a prefix bug —
+    // Strict matching (fix: previous "contains" matchers had a prefix bug â€”
     // supplier id 221 could substring-match the row of 2216 and hijack it).
     // Candidates are matched broadly, then verified for exact id equality.
     const candidateRows = await db.product.findMany({
@@ -1567,15 +1561,15 @@ export async function rebuildSupplierCatalog(opts?: {
       ? sp.features
       : (sp.features ? String(sp.features).split("\n").filter(Boolean) : []);
     if (features.length === 0) {
-      if (sp.discount_percent) features.push(`تخفیف ویژه: ${sp.discount_percent}٪`);
-      if (sp.duration_days) features.push(`مدت: ${sp.duration_days} روز`);
-      features.push("تحویل فوری و آنی پس از پرداخت");
-      features.push("گارانتی ۱۰۰٪ فعالسازی و تضمین اصالت");
-      features.push("پشتیبانی ۲۴ ساعته");
+      if (sp.discount_percent) features.push(`ØªØ®ÙÛŒÙ ÙˆÛŒÚ˜Ù‡: ${sp.discount_percent}Ùª`);
+      if (sp.duration_days) features.push(`Ù…Ø¯Øª: ${sp.duration_days} Ø±ÙˆØ²`);
+      features.push("ØªØ­ÙˆÛŒÙ„ ÙÙˆØ±ÛŒ Ùˆ Ø¢Ù†ÛŒ Ù¾Ø³ Ø§Ø² Ù¾Ø±Ø¯Ø§Ø®Øª");
+      features.push("Ú¯Ø§Ø±Ø§Ù†ØªÛŒ Û±Û°Û°Ùª ÙØ¹Ø§Ù„Ø³Ø§Ø²ÛŒ Ùˆ ØªØ¶Ù…ÛŒÙ† Ø§ØµØ§Ù„Øª");
+      features.push("Ù¾Ø´ØªÛŒØ¨Ø§Ù†ÛŒ Û²Û´ Ø³Ø§Ø¹ØªÙ‡");
     }
 
     const brand = sp.brand ? String(sp.brand) : null;
-    const duration = sp.duration ? String(sp.duration) : (sp.duration_days ? `${sp.duration_days} روز` : null);
+    const duration = sp.duration ? String(sp.duration) : (sp.duration_days ? `${sp.duration_days} Ø±ÙˆØ²` : null);
     const tags = sp.tags ? String(sp.tags) : (sp.requires_email ? "requires_email" : null);
     let stock = 0;
     if (typeof sp.stock === "number") {
@@ -1593,8 +1587,6 @@ export async function rebuildSupplierCatalog(opts?: {
     const nextSpecs = {
       ...existingSpecs,
       supplier_product_id: sp.id,
-      // Audit fix (M2): identity key so a re-listed offering matches the existing row.
-      dedup_key: buildDedupKey(shortDesc, { category: catSlug }),
       price_usd: priceUSD,
       cost_usd: priceUSD,
       pricing_unit: sp.pricing_unit,
@@ -1635,7 +1627,7 @@ export async function rebuildSupplierCatalog(opts?: {
       });
       updated++;
       if (details.length < 50) {
-        details.push(`به‌روزرسانی: ${finalTitle} [${catSlug}] (${finalPrice.toLocaleString("fa-IR")} ت)`);
+        details.push(`Ø¨Ù‡â€ŒØ±ÙˆØ²Ø±Ø³Ø§Ù†ÛŒ: ${finalTitle} [${catSlug}] (${finalPrice.toLocaleString("fa-IR")} Øª)`);
       }
     } else {
       await db.product.create({
@@ -1666,7 +1658,7 @@ export async function rebuildSupplierCatalog(opts?: {
       });
       imported++;
       if (details.length < 50) {
-        details.push(`ایمپورت جدید: ${finalTitle} [${catSlug}] (${finalPrice.toLocaleString("fa-IR")} ت)`);
+        details.push(`Ø§ÛŒÙ…Ù¾ÙˆØ±Øª Ø¬Ø¯ÛŒØ¯: ${finalTitle} [${catSlug}] (${finalPrice.toLocaleString("fa-IR")} Øª)`);
       }
     }
   }
@@ -1712,7 +1704,7 @@ export async function rebuildSupplierCatalog(opts?: {
     skipped,
     deactivated,
     categoriesRebuilt,
-    message: `کاتالوگ با موفقیت بازسازی شد: ${imported} جدید، ${updated} به‌روز، ${skipped} فیلتر/رد شد، ${deactivated} غیرفعال، ۸ دسته استاندارد به‌روز شدند. نرخ: ${usdRate.toLocaleString("fa-IR")} ت`,
+    message: `Ú©Ø§ØªØ§Ù„ÙˆÚ¯ Ø¨Ø§ Ù…ÙˆÙÙ‚ÛŒØª Ø¨Ø§Ø²Ø³Ø§Ø²ÛŒ Ø´Ø¯: ${imported} Ø¬Ø¯ÛŒØ¯ØŒ ${updated} Ø¨Ù‡â€ŒØ±ÙˆØ²ØŒ ${skipped} ÙÛŒÙ„ØªØ±/Ø±Ø¯ Ø´Ø¯ØŒ ${deactivated} ØºÛŒØ±ÙØ¹Ø§Ù„ØŒ Û¸ Ø¯Ø³ØªÙ‡ Ø§Ø³ØªØ§Ù†Ø¯Ø§Ø±Ø¯ Ø¨Ù‡â€ŒØ±ÙˆØ² Ø´Ø¯Ù†Ø¯. Ù†Ø±Ø®: ${usdRate.toLocaleString("fa-IR")} Øª`,
     details,
   };
 }
@@ -1740,10 +1732,10 @@ export async function purchaseFromSupplier(
   idempotencyKey?: string
 ): Promise<PurchaseFromSupplierResult> {
   const client = await getSupplierClient();
-  if (!client) return { ok: false, message: "کلید API تأمین‌کننده تنظیم نشده", errorCode: "missing_api_key" };
+  if (!client) return { ok: false, message: "Ú©Ù„ÛŒØ¯ API ØªØ£Ù…ÛŒÙ†â€ŒÚ©Ù†Ù†Ø¯Ù‡ ØªÙ†Ø¸ÛŒÙ… Ù†Ø´Ø¯Ù‡", errorCode: "missing_api_key" };
 
   const product = await db.product.findUnique({ where: { id: productId } });
-  if (!product) return { ok: false, message: "محصول یافت نشد", errorCode: "product_not_found" };
+  if (!product) return { ok: false, message: "Ù…Ø­ØµÙˆÙ„ ÛŒØ§ÙØª Ù†Ø´Ø¯", errorCode: "product_not_found" };
 
   // get supplier product id from specifications
   let supplierProductId: number | undefined;
@@ -1757,13 +1749,13 @@ export async function purchaseFromSupplier(
       specCostUsd = Number(specs.cost_usd || specs.price_usd);
     }
   } catch {}
-  if (!supplierProductId) return { ok: false, message: "شناسه محصول تأمین‌کننده یافت نشد", errorCode: "supplier_id_missing" };
+  if (!supplierProductId) return { ok: false, message: "Ø´Ù†Ø§Ø³Ù‡ Ù…Ø­ØµÙˆÙ„ ØªØ£Ù…ÛŒÙ†â€ŒÚ©Ù†Ù†Ø¯Ù‡ ÛŒØ§ÙØª Ù†Ø´Ø¯", errorCode: "supplier_id_missing" };
   if (requiresPassword)
-    return { ok: false, message: "این محصول نیازمند رمز مشتری است و فعلاً قابل فروش خودکار نیست", errorCode: "requires_password" };
+    return { ok: false, message: "Ø§ÛŒÙ† Ù…Ø­ØµÙˆÙ„ Ù†ÛŒØ§Ø²Ù…Ù†Ø¯ Ø±Ù…Ø² Ù…Ø´ØªØ±ÛŒ Ø§Ø³Øª Ùˆ ÙØ¹Ù„Ø§Ù‹ Ù‚Ø§Ø¨Ù„ ÙØ±ÙˆØ´ Ø®ÙˆØ¯Ú©Ø§Ø± Ù†ÛŒØ³Øª", errorCode: "requires_password" };
 
   // Canonical-merge fallback: if this row was hidden as a duplicate (or went
   // out of stock), buy from the cheapest live sibling with the same Persian
-  // title instead — the customer keeps a working product after a merge.
+  // title instead â€” the customer keeps a working product after a merge.
   if ((!product.isActive || (product.stock ?? 0) <= 0) && product.title) {
     const siblings = await db.product.findMany({
       where: {
@@ -1804,7 +1796,7 @@ export async function purchaseFromSupplier(
   try {
     const result = await client.purchase(requestPayload);
 
-    // status can be 'processing' (still fulfilling) — poll the order a few
+    // status can be 'processing' (still fulfilling) â€” poll the order a few
     // times before giving up, per the API docs
     let status = result.status;
     let accounts: string[] = [...result.accounts];
@@ -1831,7 +1823,7 @@ export async function purchaseFromSupplier(
         accounts,
         orderId,
         costUsd,
-        message: `خرید موفق — ${accounts.length} اکانت تحویل شد`,
+        message: `Ø®Ø±ÛŒØ¯ Ù…ÙˆÙÙ‚ â€” ${accounts.length} Ø§Ú©Ø§Ù†Øª ØªØ­ÙˆÛŒÙ„ Ø´Ø¯`,
         requestPayload,
         responsePayload: { status, orderId, costUsd, accountsCount: accounts.length },
       };
@@ -1843,7 +1835,7 @@ export async function purchaseFromSupplier(
         accounts,
         orderId,
         costUsd,
-        message: `سفارش ${orderId} نزد تأمین‌کننده در حال پردازش است — کلیدها بعداً از طریق وب‌هوک تحویل داده می‌شود`,
+        message: `Ø³ÙØ§Ø±Ø´ ${orderId} Ù†Ø²Ø¯ ØªØ£Ù…ÛŒÙ†â€ŒÚ©Ù†Ù†Ø¯Ù‡ Ø¯Ø± Ø­Ø§Ù„ Ù¾Ø±Ø¯Ø§Ø²Ø´ Ø§Ø³Øª â€” Ú©Ù„ÛŒØ¯Ù‡Ø§ Ø¨Ø¹Ø¯Ø§Ù‹ Ø§Ø² Ø·Ø±ÛŒÙ‚ ÙˆØ¨â€ŒÙ‡ÙˆÚ© ØªØ­ÙˆÛŒÙ„ Ø¯Ø§Ø¯Ù‡ Ù…ÛŒâ€ŒØ´ÙˆØ¯`,
         requestPayload,
         responsePayload: { status, orderId, costUsd },
       };
@@ -1853,7 +1845,7 @@ export async function purchaseFromSupplier(
       status,
       orderId,
       costUsd,
-      message: `تحویل ناموفق بود (وضعیت: ${status})`,
+      message: `ØªØ­ÙˆÛŒÙ„ Ù†Ø§Ù…ÙˆÙÙ‚ Ø¨ÙˆØ¯ (ÙˆØ¶Ø¹ÛŒØª: ${status})`,
       requestPayload,
       responsePayload: { status, orderId, costUsd },
     };
@@ -1865,7 +1857,7 @@ export async function purchaseFromSupplier(
       status: "failed",
       httpStatus,
       errorCode,
-      message: `ارتباط با تأمین‌کننده: ${e?.message || "خطای نامشخص"}`,
+      message: `Ø§Ø±ØªØ¨Ø§Ø· Ø¨Ø§ ØªØ£Ù…ÛŒÙ†â€ŒÚ©Ù†Ù†Ø¯Ù‡: ${e?.message || "Ø®Ø·Ø§ÛŒ Ù†Ø§Ù…Ø´Ø®Øµ"}`,
       requestPayload,
       responsePayload: { error: e?.message, httpStatus, errorCode },
     };
@@ -1873,14 +1865,14 @@ export async function purchaseFromSupplier(
 }
 
 // ----------------------------- irMarket: Balance & Me -----------------------------
-// GET /api/buyer/balance — returns { success, balance_usd }
+// GET /api/buyer/balance â€” returns { success, balance_usd }
 export async function getSupplierBalance(): Promise<{
   ok: boolean;
   balance_usd?: number;
   message?: string;
 }> {
   const key = await getSupplierApiKey();
-  if (!key) return { ok: false, message: "کلید API تأمین‌کننده تنظیم نشده" };
+  if (!key) return { ok: false, message: "Ú©Ù„ÛŒØ¯ API ØªØ£Ù…ÛŒÙ†â€ŒÚ©Ù†Ù†Ø¯Ù‡ ØªÙ†Ø¸ÛŒÙ… Ù†Ø´Ø¯Ù‡" };
   try {
     const res = await fetch(`${IRMARKET_BASE_URL}/api/buyer/balance`, {
       headers: { "X-API-Key": key },
@@ -1888,15 +1880,15 @@ export async function getSupplierBalance(): Promise<{
     });
     const data = await res.json().catch(() => ({}));
     if (!res.ok || !data.success) {
-      return { ok: false, message: data.detail || data.message || `خطای API (${res.status})` };
+      return { ok: false, message: data.detail || data.message || `Ø®Ø·Ø§ÛŒ API (${res.status})` };
     }
     return { ok: true, balance_usd: Number(data.balance_usd) || 0 };
   } catch (e: any) {
-    return { ok: false, message: `ارتباط با تأمین‌کننده: ${e?.message || ""}` };
+    return { ok: false, message: `Ø§Ø±ØªØ¨Ø§Ø· Ø¨Ø§ ØªØ£Ù…ÛŒÙ†â€ŒÚ©Ù†Ù†Ø¯Ù‡: ${e?.message || ""}` };
   }
 }
 
-// GET /api/buyer/me — returns { success, key, name, discount_percent, balance_usd, webhook_url }
+// GET /api/buyer/me â€” returns { success, key, name, discount_percent, balance_usd, webhook_url }
 export async function getSupplierMe(): Promise<{
   ok: boolean;
   key?: string;
@@ -1907,7 +1899,7 @@ export async function getSupplierMe(): Promise<{
   message?: string;
 }> {
   const key = await getSupplierApiKey();
-  if (!key) return { ok: false, message: "کلید API تأمین‌کننده تنظیم نشده" };
+  if (!key) return { ok: false, message: "Ú©Ù„ÛŒØ¯ API ØªØ£Ù…ÛŒÙ†â€ŒÚ©Ù†Ù†Ø¯Ù‡ ØªÙ†Ø¸ÛŒÙ… Ù†Ø´Ø¯Ù‡" };
   try {
     const res = await fetch(`${IRMARKET_BASE_URL}/api/buyer/me`, {
       headers: { "X-API-Key": key },
@@ -1915,7 +1907,7 @@ export async function getSupplierMe(): Promise<{
     });
     const data = await res.json().catch(() => ({}));
     if (!res.ok || !data.success) {
-      return { ok: false, message: data.detail || data.message || `خطای API (${res.status})` };
+      return { ok: false, message: data.detail || data.message || `Ø®Ø·Ø§ÛŒ API (${res.status})` };
     }
     return {
       ok: true,
@@ -1926,17 +1918,17 @@ export async function getSupplierMe(): Promise<{
       webhook_url: data.webhook_url || "",
     };
   } catch (e: any) {
-    return { ok: false, message: `ارتباط با تأمین‌کننده: ${e?.message || ""}` };
+    return { ok: false, message: `Ø§Ø±ØªØ¨Ø§Ø· Ø¨Ø§ ØªØ£Ù…ÛŒÙ†â€ŒÚ©Ù†Ù†Ø¯Ù‡: ${e?.message || ""}` };
   }
 }
 
 // ----------------------------- irMarket: Webhook registration -----------------------------
-// POST /api/buyer/webhook — body: { url }
+// POST /api/buyer/webhook â€” body: { url }
 // NOTE: the signing secret is returned ONCE and re-registering rotates it,
 // so it must be persisted immediately.
 export async function registerSupplierWebhook(url: string): Promise<{ ok: boolean; secret?: string; message?: string }> {
   const key = await getSupplierApiKey();
-  if (!key) return { ok: false, message: "کلید API تأمین‌کننده تنظیم نشده" };
+  if (!key) return { ok: false, message: "Ú©Ù„ÛŒØ¯ API ØªØ£Ù…ÛŒÙ†â€ŒÚ©Ù†Ù†Ø¯Ù‡ ØªÙ†Ø¸ÛŒÙ… Ù†Ø´Ø¯Ù‡" };
   try {
     const res = await fetch(`${IRMARKET_BASE_URL}/api/buyer/webhook`, {
       method: "POST",
@@ -1946,7 +1938,7 @@ export async function registerSupplierWebhook(url: string): Promise<{ ok: boolea
     });
     const data = await res.json().catch(() => ({}));
     if (!res.ok || !data.success) {
-      return { ok: false, message: data.detail || data.message || `خطای API (${res.status})` };
+      return { ok: false, message: data.detail || data.message || `Ø®Ø·Ø§ÛŒ API (${res.status})` };
     }
     // persist the HMAC secret so /api/supplier/webhook can verify X-Signature
     if (data.secret) {
@@ -1956,16 +1948,16 @@ export async function registerSupplierWebhook(url: string): Promise<{ ok: boolea
         update: { value: data.secret },
       });
     }
-    return { ok: true, secret: data.secret, message: "وب‌هوک ثبت شد و رمز امضا ذخیره شد" };
+    return { ok: true, secret: data.secret, message: "ÙˆØ¨â€ŒÙ‡ÙˆÚ© Ø«Ø¨Øª Ø´Ø¯ Ùˆ Ø±Ù…Ø² Ø§Ù…Ø¶Ø§ Ø°Ø®ÛŒØ±Ù‡ Ø´Ø¯" };
   } catch (e: any) {
-    return { ok: false, message: `ارتباط با تأمین‌کننده: ${e?.message || ""}` };
+    return { ok: false, message: `Ø§Ø±ØªØ¨Ø§Ø· Ø¨Ø§ ØªØ£Ù…ÛŒÙ†â€ŒÚ©Ù†Ù†Ø¯Ù‡: ${e?.message || ""}` };
   }
 }
 
-// DELETE /api/buyer/webhook — removes webhook
+// DELETE /api/buyer/webhook â€” removes webhook
 export async function removeSupplierWebhook(): Promise<{ ok: boolean; message?: string }> {
   const key = await getSupplierApiKey();
-  if (!key) return { ok: false, message: "کلید API تأمین‌کننده تنظیم نشده" };
+  if (!key) return { ok: false, message: "Ú©Ù„ÛŒØ¯ API ØªØ£Ù…ÛŒÙ†â€ŒÚ©Ù†Ù†Ø¯Ù‡ ØªÙ†Ø¸ÛŒÙ… Ù†Ø´Ø¯Ù‡" };
   try {
     const res = await fetch(`${IRMARKET_BASE_URL}/api/buyer/webhook`, {
       method: "DELETE",
@@ -1974,16 +1966,16 @@ export async function removeSupplierWebhook(): Promise<{ ok: boolean; message?: 
     });
     const data = await res.json().catch(() => ({}));
     if (!res.ok || !data.success) {
-      return { ok: false, message: data.detail || data.message || `خطای API (${res.status})` };
+      return { ok: false, message: data.detail || data.message || `Ø®Ø·Ø§ÛŒ API (${res.status})` };
     }
-    return { ok: true, message: "وب‌هوک حذف شد" };
+    return { ok: true, message: "ÙˆØ¨â€ŒÙ‡ÙˆÚ© Ø­Ø°Ù Ø´Ø¯" };
   } catch (e: any) {
-    return { ok: false, message: `ارتباط با تأمین‌کننده: ${e?.message || ""}` };
+    return { ok: false, message: `Ø§Ø±ØªØ¨Ø§Ø· Ø¨Ø§ ØªØ£Ù…ÛŒÙ†â€ŒÚ©Ù†Ù†Ø¯Ù‡: ${e?.message || ""}` };
   }
 }
 
 // ----------------------------- irMarket: Order status -----------------------------
-// GET /api/buyer/orders/{order_id} — returns { success, order_id, status, accounts, progress_percent, refunded }
+// GET /api/buyer/orders/{order_id} â€” returns { success, order_id, status, accounts, progress_percent, refunded }
 export async function getSupplierOrder(orderId: number | string): Promise<{
   ok: boolean;
   status?: string;
@@ -1993,7 +1985,7 @@ export async function getSupplierOrder(orderId: number | string): Promise<{
   message?: string;
 }> {
   const key = await getSupplierApiKey();
-  if (!key) return { ok: false, message: "کلید API تأمین‌کننده تنظیم نشده" };
+  if (!key) return { ok: false, message: "Ú©Ù„ÛŒØ¯ API ØªØ£Ù…ÛŒÙ†â€ŒÚ©Ù†Ù†Ø¯Ù‡ ØªÙ†Ø¸ÛŒÙ… Ù†Ø´Ø¯Ù‡" };
   try {
     const res = await fetch(`${IRMARKET_BASE_URL}/api/buyer/orders/${orderId}`, {
       headers: { "X-API-Key": key },
@@ -2001,7 +1993,7 @@ export async function getSupplierOrder(orderId: number | string): Promise<{
     });
     const data = await res.json().catch(() => ({}));
     if (!res.ok || !data.success) {
-      return { ok: false, message: data.detail || data.message || `خطای API (${res.status})` };
+      return { ok: false, message: data.detail || data.message || `Ø®Ø·Ø§ÛŒ API (${res.status})` };
     }
     return {
       ok: true,
@@ -2011,6 +2003,6 @@ export async function getSupplierOrder(orderId: number | string): Promise<{
       refunded: Boolean(data.refunded),
     };
   } catch (e: any) {
-    return { ok: false, message: `ارتباط با تأمین‌کننده: ${e?.message || ""}` };
+    return { ok: false, message: `Ø§Ø±ØªØ¨Ø§Ø· Ø¨Ø§ ØªØ£Ù…ÛŒÙ†â€ŒÚ©Ù†Ù†Ø¯Ù‡: ${e?.message || ""}` };
   }
 }

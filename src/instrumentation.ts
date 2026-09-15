@@ -49,5 +49,21 @@ export function register() {
       }
     }, 15 * 60 * 1000);
 
-  }
+
+  // Email queue worker — drains queued transactional emails with retry/backoff.
+  let emailWorkerRunning = false;
+  setInterval(async () => {
+    if (emailWorkerRunning) return;
+    emailWorkerRunning = true;
+    try {
+      const { processEmailQueue } = await import('@/lib/email-infra');
+      const r = await processEmailQueue(10);
+      if (r.sent || r.failed || r.skipped) console.log('[email-worker]', JSON.stringify(r));
+    } catch (err) {
+      console.error('[email-worker] failed:', err);
+    } finally {
+      emailWorkerRunning = false;
+    }
+  }, 60 * 1000);
+}
 }

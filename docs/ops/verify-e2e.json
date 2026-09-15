@@ -1,0 +1,225 @@
+{
+ "generatedAt": "2026-09-15T17:51:19.415Z",
+ "order": {
+  "code": "E2E-679166",
+  "status": "PAID",
+  "fulfillmentStage": "DELIVERED",
+  "shipment": {
+   "id": "cmu2yxfj7001ju2186cgo6bka",
+   "orderId": "cmu2yxfgf0011u218ymhtepca",
+   "carrier": "تیپاکس",
+   "trackingCode": "TRK-E2E-7788",
+   "status": "DELIVERED",
+   "note": "تحویل به پست",
+   "shippedAt": "2026-09-15T17:51:19.266Z",
+   "deliveredAt": "2026-09-15T17:51:19.303Z",
+   "createdAt": "2026-09-15T17:51:19.268Z",
+   "updatedAt": "2026-09-15T17:51:19.304Z"
+  },
+  "statusEvents": [
+   {
+    "field": "status",
+    "from": "PENDING",
+    "to": "PAID",
+    "actor": "admin",
+    "note": "پرداخت آزمایشی",
+    "at": "2026-09-15T17:51:19.195Z"
+   },
+   {
+    "field": "fulfillmentStage",
+    "from": "NONE",
+    "to": "PURCHASING",
+    "actor": "admin",
+    "note": "شروع خرید",
+    "at": "2026-09-15T17:51:19.219Z"
+   },
+   {
+    "field": "fulfillmentStage",
+    "from": "PURCHASING",
+    "to": "PURCHASED",
+    "actor": "admin",
+    "note": "تأمین‌کننده تحویل داد (شبیه‌سازی)",
+    "at": "2026-09-15T17:51:19.234Z"
+   },
+   {
+    "field": "fulfillmentStage",
+    "from": "PURCHASED",
+    "to": "READY_TO_SHIP",
+    "actor": "admin",
+    "note": "آماده بسته‌بندی",
+    "at": "2026-09-15T17:51:19.260Z"
+   },
+   {
+    "field": "shipment",
+    "from": null,
+    "to": "SHIPPED",
+    "actor": "admin",
+    "note": "حامل: تیپاکس | کد رهگیری: TRK-E2E-7788",
+    "at": "2026-09-15T17:51:19.276Z"
+   },
+   {
+    "field": "fulfillmentStage",
+    "from": "READY_TO_SHIP",
+    "to": "SHIPPED",
+    "actor": "admin",
+    "note": "تحویل به پست",
+    "at": "2026-09-15T17:51:19.289Z"
+   },
+   {
+    "field": "shipment",
+    "from": null,
+    "to": "DELIVERED",
+    "actor": "admin",
+    "note": "تحویل به مشتری",
+    "at": "2026-09-15T17:51:19.310Z"
+   },
+   {
+    "field": "fulfillmentStage",
+    "from": "SHIPPED",
+    "to": "DELIVERED",
+    "actor": "admin",
+    "note": "تحویل به مشتری",
+    "at": "2026-09-15T17:51:19.323Z"
+   }
+  ],
+  "emails": [
+   {
+    "event": "order_created",
+    "to": "rehearsal@example.com",
+    "status": "SKIPPED",
+    "attempts": 1,
+    "provider": "none",
+    "error": "no email provider configured (set EMAIL_PROVIDER + credentials)",
+    "at": "2026-09-15T17:51:19.177Z"
+   },
+   {
+    "event": "payment_confirmed",
+    "to": "rehearsal@example.com",
+    "status": "SKIPPED",
+    "attempts": 1,
+    "provider": "none",
+    "error": "no email provider configured (set EMAIL_PROVIDER + credentials)",
+    "at": "2026-09-15T17:51:19.202Z"
+   },
+   {
+    "event": "supplier_purchased",
+    "to": "rehearsal@example.com",
+    "status": "SKIPPED",
+    "attempts": 1,
+    "provider": "none",
+    "error": "no email provider configured (set EMAIL_PROVIDER + credentials)",
+    "at": "2026-09-15T17:51:19.244Z"
+   },
+   {
+    "event": "shipped",
+    "to": "rehearsal@example.com",
+    "status": "SKIPPED",
+    "attempts": 1,
+    "provider": "none",
+    "error": "no email provider configured (set EMAIL_PROVIDER + credentials)",
+    "at": "2026-09-15T17:51:19.298Z"
+   },
+   {
+    "event": "delivered",
+    "to": "rehearsal@example.com",
+    "status": "SKIPPED",
+    "attempts": 1,
+    "provider": "none",
+    "error": "no email provider configured (set EMAIL_PROVIDER + credentials)",
+    "at": "2026-09-15T17:51:19.345Z"
+   },
+   {
+    "event": "followup",
+    "to": "rehearsal@example.com",
+    "status": "SKIPPED",
+    "attempts": 1,
+    "provider": "none",
+    "error": "no email provider configured (set EMAIL_PROVIDER + credentials)",
+    "at": "2026-09-15T17:51:19.360Z"
+   }
+  ],
+  "itemFulfillment": [
+   {
+    "title": "1,500 + 300 UC",
+    "fulfillmentStatus": "PENDING"
+   }
+  ]
+ },
+ "guard": {
+  "attemptedBackwardTransition": "PURCHASING",
+  "result": {
+   "ok": false,
+   "message": "انتقال از «تحویل‌شده» به «در حال خرید از تأمین‌کننده» مجاز نیست"
+  }
+ },
+ "steps": [
+  {
+   "step": "۱. ثبت سفارش",
+   "at": "2026-09-15T17:51:19.174Z",
+   "code": "E2E-679166",
+   "id": "cmu2yxfgf0011u218ymhtepca",
+   "status": "PENDING",
+   "stage": "NONE",
+   "total": 8558000
+  },
+  {
+   "step": "ایمیل ثبت سفارش",
+   "at": "2026-09-15T17:51:19.184Z",
+   "queued": true,
+   "id": "cmu2yxfgp0015u218cx2w9trw"
+  },
+  {
+   "step": "۲. تأیید پرداخت",
+   "at": "2026-09-15T17:51:19.208Z",
+   "ok": true,
+   "message": "وضعیت پرداخت به «پرداخت‌شده» تغییر کرد",
+   "emailId": "cmu2yxfhe0019u218lgkjmt0h"
+  },
+  {
+   "step": "۳. شروع خرید از تأمین‌کننده",
+   "at": "2026-09-15T17:51:19.224Z",
+   "ok": true,
+   "message": "وضعیت به «در حال خرید از تأمین‌کننده» تغییر کرد"
+  },
+  {
+   "step": "۴. خریداری‌شده از تأمین‌کننده",
+   "at": "2026-09-15T17:51:19.249Z",
+   "ok": true,
+   "message": "وضعیت به «خریداری‌شده از تأمین‌کننده» تغییر کرد",
+   "emailId": "cmu2yxfij001fu218p9achn2y"
+  },
+  {
+   "step": "۵. آماده ارسال",
+   "at": "2026-09-15T17:51:19.265Z",
+   "ok": true,
+   "message": "وضعیت به «آماده ارسال» تغییر کرد"
+  },
+  {
+   "step": "۶. ثبت ارسال + کد رهگیری",
+   "at": "2026-09-15T17:51:19.302Z",
+   "ok": true,
+   "message": "ارسال ثبت شد (TRK-E2E-7788)",
+   "emailId": "cmu2yxfk1001pu218ykfrc97u"
+  },
+  {
+   "step": "۷. تحویل‌شده",
+   "at": "2026-09-15T17:51:19.356Z",
+   "ok": true,
+   "message": "وضعیت به «تحویل‌شده» تغییر کرد",
+   "emailId": "cmu2yxfld001xu218v8cda33v"
+  },
+  {
+   "step": "ایمیل پیگیری پس از فروش",
+   "at": "2026-09-15T17:51:19.364Z",
+   "queued": true
+  },
+  {
+   "step": "۸. پردازش صف ایمیل",
+   "at": "2026-09-15T17:51:19.401Z",
+   "provider": "none",
+   "sent": 0,
+   "failed": 0,
+   "skipped": 6
+  }
+ ]
+}

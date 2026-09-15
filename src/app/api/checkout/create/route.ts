@@ -286,6 +286,14 @@ export async function POST(req: NextRequest) {
 
     await db.order.update({ where: { id: order.id }, data: { zarinpalAuthority: zres.data.authority } });
 
+    // SOP event #1 — order_created. Never block checkout on an email problem.
+    try {
+      const { emailOrderEvent } = await import("@/lib/email-infra");
+      await emailOrderEvent(order.id, "order_created");
+    } catch (err) {
+      console.error("[checkout] order_created email failed:", err);
+    }
+
     return NextResponse.json({
       ok: true,
       orderId: order.id,
