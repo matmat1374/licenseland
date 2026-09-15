@@ -41,6 +41,27 @@ const securityHeaders = [
     : []),
 ];
 
+// Static-asset caching (loop iteration 9 / PERF-02). Next.js serves files under
+// public/ with `Cache-Control: public, max-age=0` (verified live on
+// /slider/brain.png), so every page view re-downloads the hero/slider PNGs
+// (~0.3-0.9 MB each). Long-cache the binary asset types only; HTML, API and
+// document routes are deliberately NOT matched, so no page becomes stale.
+// 7 days (not `immutable`/1 year) because these filenames are stable public
+// paths the owner may replace in place; stale-while-revalidate keeps repeat
+// visits instant while a swapped file refreshes in the background.
+// NOTE: this rule repeats the security headers so it is correct whether Next
+// merges every matching rule or applies only the first match. Verified on a
+// local prod build (`next start -p 3011`): /slider/brain.png -> `public,
+// max-age=604800, stale-while-revalidate=86400` + all security headers, while
+// /, /shop and /blog keep their own Cache-Control (no long-cache on HTML).
+const staticAssetHeaders = [
+  ...securityHeaders,
+  {
+    key: "Cache-Control",
+    value: "public, max-age=604800, stale-while-revalidate=86400",
+  },
+];
+
 const nextConfig: NextConfig = {
   typescript: { ignoreBuildErrors: true },
   // @ts-expect-error Next 15 type compatibility
@@ -48,6 +69,10 @@ const nextConfig: NextConfig = {
   reactStrictMode: true,
   async headers() {
     return [
+      {
+        source: "/:path*.(png|jpg|jpeg|gif|svg|ico|webp|avif|woff|woff2)",
+        headers: staticAssetHeaders,
+      },
       { source: "/:path*", headers: securityHeaders },
     ];
   },
