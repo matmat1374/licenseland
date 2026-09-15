@@ -9,7 +9,7 @@ export {
   computeEarnedPoints,
   computeMaxRedeemablePoints,
 } from "@/lib/loyalty-math";
-import { determineTier, computeEarnedPoints } from "@/lib/loyalty-math";
+import { determineTier, computeEarnedPoints, POINTS_VALUE_TOMAN, MAX_POINTS_DISCOUNT_PERCENT } from "@/lib/loyalty-math";
 
 export async function getLoyalty(userId: string) {
   let loyalty = await db.userLoyalty.findUnique({

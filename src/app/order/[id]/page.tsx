@@ -23,6 +23,7 @@ import { PrintButton } from "@/components/site/print-button";
 import { formatJalaliDate, toFa } from "@/lib/date";
 import { toToman } from "@/lib/format";
 import { SITE } from "@/lib/constants";
+import { ClearCartOnSuccess } from "@/components/site/clear-cart-on-success";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -40,6 +41,10 @@ export default async function OrderPage({
   const { id } = await params;
   const sp = await searchParams;
   const user = await getCurrentUser();
+
+  // cc=1 comes from the payment verify redirect: this order was just paid,
+  // so the persisted cart must be cleared once (P1 checkout-path fix).
+  const shouldClearCart = sp.cc === "1" && sp.paid === "1";
 
   // C1 fix — authorization (was: public guest fallback by id/code, with
   // sequential order codes this leaked every sold license key):
@@ -71,6 +76,7 @@ export default async function OrderPage({
 
   return (
     <div className="container mx-auto px-4 py-8">
+      <ClearCartOnSuccess enabled={shouldClearCart} />
       <div className="mx-auto max-w-3xl">
         {/* status banner */}
         {paid ? (
@@ -87,9 +93,7 @@ export default async function OrderPage({
                   </p>
                 </div>
                 <p className="text-sm text-muted-foreground max-w-lg leading-relaxed">
-                  لایسنس اختصاصی شما در صف بررسی و صدور توسط واحد پشتیبانی و مدیریت قرار گرفت. به محض تایید نهایی مدیریت، اطلاعات لایسنس در همین صفحه فعال شده و به ایمیل{" "}
-                  <span className="font-medium text-foreground" dir="ltr">{finalOrder.guestEmail || user?.email}</span>{" "}
-                  ارسال خواهد شد.
+                  لایسنس اختصاصی شما در صف بررسی و صدور توسط واحد پشتیبانی و مدیریت قرار گرفت. به محض تایید نهایی مدیریت، اطلاعات لایسنس در همین صفحه و در پنل کاربری شما فعال خواهد شد.
                 </p>
               </div>
             </Card>
@@ -106,9 +110,7 @@ export default async function OrderPage({
                   </p>
                 </div>
                 <p className="text-sm text-muted-foreground">
-                  لایسنس‌های شما در زیر نمایش داده شده‌اند. یک کپی نیز به ایمیل{" "}
-                  <span className="font-medium text-foreground" dir="ltr">{finalOrder.guestEmail || user?.email}</span>{" "}
-                  ارسال شد.
+                  لایسنس‌های شما در همین صفحه و در پنل کاربری (بخش «لایسنس‌های من») همیشه در دسترس هستند.
                 </p>
               </div>
             </Card>
@@ -259,7 +261,7 @@ export default async function OrderPage({
           <Card className="mb-6 p-6 border border-amber-500/20 bg-amber-500/5 text-center">
             <h3 className="font-bold text-base text-amber-600 dark:text-amber-400 mb-2">⏳ سفارش در مرحله بررسی و صدور امن</h3>
             <p className="text-sm text-muted-foreground max-w-lg mx-auto leading-relaxed">
-              جهت حفظ امنیت و تضمین فعال‌سازی، لایسنس‌های شما پس از تایید نهایی مدیریت فوراً صادر و در این کادر قرار خواهد گرفت. همچنین یک نسخه به ایمیل شما ارسال می‌شود.
+              جهت حفظ امنیت و تضمین فعال‌سازی، لایسنس‌های شما پس از تایید نهایی مدیریت فوراً صادر و در این کادر قرار خواهد گرفت.
             </p>
           </Card>
         )}

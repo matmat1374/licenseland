@@ -35,13 +35,23 @@ export interface ProductListItem {
   _effectivePrice: number;
   _discountPercent: number;
   _stock: number;
+  /** true → _stock عدد دقیق نیست (تامین‌کننده AUTO)، نمایش «موجود» به‌جای عدد جعلی */
+  _stockIsApprox: boolean;
+  stock?: number;
 }
 
 function decorate(p: any): ProductListItem {
   const eff = effectivePrice(p.price, p.discountPrice);
-  const stock = (p.fulfillmentMode === "AUTO" && p.isActive !== false)
-    ? Math.max(p.stock ?? 0, 99)
-    : (p.stock ?? 0);
+  const rawStock = p.stock ?? 0;
+  const isAvailable = Boolean(p.isActive) && rawStock > 0;
+  // If product is out of stock or inactive, _stock MUST be 0
+  // نمایش صادقانه: برای AUTO عدد جعلی «۹۹» نشان نده — سقف ۵۰ کافی است چون
+  // عدد دقیق انبار تامین‌کننده به کاربر معنا ندارد
+  const stock = isAvailable
+    ? (p.fulfillmentMode === "AUTO"
+        ? Math.min(Math.max(rawStock, 99), 50)
+        : rawStock)
+    : 0;
 
   return {
     ...p,
@@ -50,6 +60,7 @@ function decorate(p: any): ProductListItem {
       ? Math.round(((p.price - p.discountPrice) / p.price) * 100)
       : 0,
     _stock: stock,
+    _stockIsApprox: isAvailable && p.fulfillmentMode === "AUTO",
   };
 }
 
@@ -170,12 +181,7 @@ export async function getProducts(opts?: {
       ...where,
       AND: [
         ...baseConditions,
-        {
-          OR: [
-            { stock: { gt: 0 } },
-            { fulfillmentMode: "AUTO" },
-          ],
-        },
+        { stock: { gt: 0 } },
       ],
     },
     orderBy,
@@ -191,7 +197,6 @@ export async function getProducts(opts?: {
         ...baseConditions,
         {
           stock: { lte: 0 },
-          fulfillmentMode: { not: "AUTO" },
         },
       ],
     },
@@ -220,12 +225,32 @@ export async function getProducts(opts?: {
 
   if (sort === "discount") {
     list = list.sort((a, b) => {
-      const stockDiff = (b._stock > 0 ? 1 : 0) - (a._stock > 0 ? 1 : 0);
-      if (stockDiff !== 0) return stockDiff;
+      const isAInStock = Boolean(a.isActive) && (a.stock ?? 0) > 0 && (a._stock ?? 0) > 0;
+      const isBInStock = Boolean(b.isActive) && (b.stock ?? 0) > 0 && (b._stock ?? 0) > 0;
+      if (isAInStock && !isBInStock) return -1;
+      if (!isAInStock && isBInStock) return 1;
       return b._discountPercent - a._discountPercent;
     });
+  } else if (sort === "price-asc" || sort === "price-desc") {
+    // fix P1: مرتب‌سازی روی قیمت مؤثر (بعد از تخفیف) — قبلاً price خام بود و
+    // محصولات تخفیف‌دار جای غلط می‌گرفتند
+    list = list.sort((a, b) => {
+      const isAInStock = Boolean(a.isActive) && (a.stock ?? 0) > 0 && (a._stock ?? 0) > 0;
+      const isBInStock = Boolean(b.isActive) && (b.stock ?? 0) > 0 && (b._stock ?? 0) > 0;
+      if (isAInStock && !isBInStock) return -1;
+      if (!isAInStock && isBInStock) return 1;
+      return sort === "price-asc"
+        ? a._effectivePrice - b._effectivePrice
+        : b._effectivePrice - a._effectivePrice;
+    });
   } else {
-    list.sort((a, b) => ((b._stock > 0 ? 1 : 0) - (a._stock > 0 ? 1 : 0)));
+    list.sort((a, b) => {
+      const isAInStock = Boolean(a.isActive) && (a.stock ?? 0) > 0 && (a._stock ?? 0) > 0;
+      const isBInStock = Boolean(b.isActive) && (b.stock ?? 0) > 0 && (b._stock ?? 0) > 0;
+      if (isAInStock && !isBInStock) return -1;
+      if (!isAInStock && isBInStock) return 1;
+      return 0; // maintain existing order within the same stock group
+    });
   }
 
   return list;
@@ -266,7 +291,10 @@ export async function getProductBySlug(slug: string) {
         OR: orConditions,
       },
       include: {
-        reviews: { orderBy: { createdAt: "desc" } },
+        reviews: {
+          where: { approved: true },
+          orderBy: { createdAt: "desc" },
+        },
         categoryRel: true,
       },
     });
@@ -286,11 +314,17 @@ export async function getRelatedProducts(category: string, excludeSlug: string, 
     orderBy: { salesCount: "desc" },
   });
   const mapped = products.slice(0, limit).map(decorate);
-  mapped.sort((a, b) => ((b._stock > 0 ? 1 : 0) - (a._stock > 0 ? 1 : 0)));
+  mapped.sort((a, b) => {
+    const isAInStock = Boolean(a.isActive) && (a.stock ?? 0) > 0 && (a._stock ?? 0) > 0;
+    const isBInStock = Boolean(b.isActive) && (b.stock ?? 0) > 0 && (b._stock ?? 0) > 0;
+    if (isAInStock && !isBInStock) return -1;
+    if (!isAInStock && isBInStock) return 1;
+    return 0;
+  });
   return mapped;
 }
 
-export async function getBannerProducts(identifiers: string[], fallbackCategory?: string | string[], limit: number = 3): Promise<ProductListItem[]> {
+export async function getBannerProducts(identifiers: string[], fallbackCategory?: string | string[], limit: number = 3, maxPrice?: number): Promise<ProductListItem[]> {
   const idsOrSlugs = identifiers.map(i => i.trim()).filter(Boolean);
   let products: ProductListItem[] = [];
   
@@ -305,12 +339,8 @@ export async function getBannerProducts(identifiers: string[], fallbackCategory?
               { slug: { in: idsOrSlugs } },
             ],
           },
-          {
-            OR: [
-              { stock: { gt: 0 } },
-              { fulfillmentMode: "AUTO" },
-            ],
-          },
+          { stock: { gt: 0 } },
+          ...(maxPrice !== undefined ? [{ price: { lte: maxPrice } }] : []),
         ],
       },
       orderBy: [
@@ -319,6 +349,14 @@ export async function getBannerProducts(identifiers: string[], fallbackCategory?
       ]
     });
     products = fetched.map(decorate);
+    if (idsOrSlugs.length > 0) {
+      products.sort((a, b) => {
+        const idxA = idsOrSlugs.findIndex(id => id === a.id || id === a.slug);
+        const idxB = idsOrSlugs.findIndex(id => id === b.id || id === b.slug);
+        if (idxA !== -1 && idxB !== -1) return idxA - idxB;
+        return 0;
+      });
+    }
   }
 
   if (products.length < limit) {
@@ -338,12 +376,10 @@ export async function getBannerProducts(identifiers: string[], fallbackCategory?
     
     const fallbackWhere: any = { 
       isActive: true,
-      OR: [
-        { stock: { gt: 0 } },
-        { fulfillmentMode: "AUTO" },
-      ],
+      stock: { gt: 0 },
       ...(existingIds.length > 0 ? { id: { notIn: existingIds } } : {}),
-      ...(expandedCats.length > 0 ? { category: { in: expandedCats } } : {})
+      ...(expandedCats.length > 0 ? { category: { in: expandedCats } } : {}),
+      ...(maxPrice !== undefined ? { price: { lte: maxPrice } } : {})
     };
     
     let fallbackProducts = await db.product.findMany({
@@ -363,6 +399,7 @@ export async function getBannerProducts(identifiers: string[], fallbackCategory?
           isActive: true,
           stock: { gt: 0 },
           ...(allExisting.length > 0 ? { id: { notIn: allExisting } } : {}),
+          ...(maxPrice !== undefined ? { price: { lte: maxPrice } } : {})
         },
         orderBy: [
           { salesCount: "desc" },
@@ -377,7 +414,18 @@ export async function getBannerProducts(identifiers: string[], fallbackCategory?
   }
   
   products = products.slice(0, limit);
-  products.sort((a, b) => ((b._stock > 0 ? 1 : 0) - (a._stock > 0 ? 1 : 0)));
+  products.sort((a, b) => {
+    const isAInStock = Boolean(a.isActive) && (a.stock ?? 0) > 0 && (a._stock ?? 0) > 0;
+    const isBInStock = Boolean(b.isActive) && (b.stock ?? 0) > 0 && (b._stock ?? 0) > 0;
+    if (isAInStock && !isBInStock) return -1;
+    if (!isAInStock && isBInStock) return 1;
+    return 0;
+  });
+  
+  if (maxPrice !== undefined) {
+    products = products.filter(p => (p.discountPrice ?? p.price) <= maxPrice);
+  }
+  
   return products;
 }
 

@@ -5,6 +5,7 @@ import { getProductBySlug, getRelatedProducts, getCategories } from "@/lib/queri
 import { ProductCard } from "@/components/site/product-card";
 import { ProductCover } from "@/components/site/product-cover";
 import { ProductPurchase } from "@/components/site/product-purchase";
+import { ProductViewTracker } from "@/components/site/product-view-tracker";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -20,7 +21,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Badge } from "@/components/ui/badge";
-import { Star, Check, ChevronLeft, TrendingUp, AlertTriangle } from "lucide-react";
+import { Star, Check, ChevronLeft, TrendingUp, AlertTriangle, HelpCircle } from "lucide-react";
 import { ProductReviews } from "@/components/site/product-reviews";
 import { toFa } from "@/lib/date";
 import { SITE, FAQS } from "@/lib/constants";
@@ -90,7 +91,7 @@ export default async function ProductPage({
   // ---------- SEO: structured data (JSON-LD) ----------
   const canonical = `${SITE.url}/product/${slug}`;
   const finalPrice = product.discountPrice ?? product.price;
-  const inStock = product._stock > 0;
+  const inStock = Boolean(product.isActive) && (product.stock ?? 0) > 0 && (product._stock ?? 0) > 0;
   const hasRating =
     product.rating !== null &&
     product.rating !== undefined &&
@@ -164,10 +165,29 @@ export default async function ProductPage({
     };
   }
 
+  if (product.reviews && product.reviews.length > 0) {
+    productLd.review = product.reviews.map((r: any) => ({
+      "@type": "Review",
+      author: {
+        "@type": "Person",
+        name: r.authorName,
+      },
+      datePublished: new Date(r.createdAt).toISOString().split("T")[0],
+      reviewBody: r.comment,
+      reviewRating: {
+        "@type": "Rating",
+        ratingValue: r.rating,
+        bestRating: 5,
+        worstRating: 1,
+      },
+    }));
+  }
+
   return (
     <div className="container mx-auto px-4 py-6">
       {/* SEO: canonical link + JSON-LD structured data */}
       <link rel="canonical" href={canonical} />
+      <ProductViewTracker product={{ id: product.id, title: product.title, price: finalPrice, category: product.category }} />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }}
@@ -239,18 +259,29 @@ export default async function ProductPage({
 
           {/* rating */}
           <div className="flex items-center gap-3">
-            <div className="flex items-center gap-1">
-              {Array.from({ length: 5 }).map((_, i) => (
-                <Star
-                  key={i}
-                  className={i < Math.round(product.rating ?? 0) ? "h-4 w-4 fill-amber-400 text-amber-400" : "h-4 w-4 text-muted-foreground"}
-                />
-              ))}
-              <span className="mr-1 font-bold">{toFa((product.rating ?? 0).toFixed(1))}</span>
-            </div>
-            <span className="text-sm text-muted-foreground">
-              ({toFa(product.reviewCount)} نظر)
-            </span>
+            {product.rating && product.rating > 0 && product.reviewCount > 0 ? (
+              <>
+                <div className="flex items-center gap-1">
+                  {Array.from({ length: 5 }).map((_, i) => (
+                    <Star
+                      key={i}
+                      className={i < Math.round(product.rating ?? 0) ? "h-4 w-4 fill-amber-400 text-amber-400" : "h-4 w-4 text-muted-foreground"}
+                    />
+                  ))}
+                  <span className="mr-1 font-bold">{toFa((product.rating ?? 0).toFixed(1))}</span>
+                </div>
+                <span className="text-sm text-muted-foreground">
+                  ({toFa(product.reviewCount)} نظر)
+                </span>
+              </>
+            ) : product.reviewCount > 0 ? (
+              <div className="flex items-center gap-1">
+                <HelpCircle className="h-4 w-4 text-muted-foreground" />
+                <span className="text-sm text-muted-foreground">{toFa(product.reviewCount)} پرسش و پاسخ</span>
+              </div>
+            ) : (
+              <span className="text-sm text-muted-foreground">هنوز امتیازی ثبت نشده است</span>
+            )}
           </div>
 
           {/* features */}
@@ -313,7 +344,13 @@ export default async function ProductPage({
               </div>
               <div className="flex justify-between border-b pb-2">
                 <dt className="text-muted-foreground">موجودی</dt>
-                <dd className="font-medium">{toFa(product._stock)} عدد</dd>
+                {!inStock ? (
+                  <dd className="text-rose-500 font-bold">ناموجود</dd>
+                ) : product._stockIsApprox ? (
+                  <dd className="font-medium text-emerald-600 dark:text-emerald-400">موجود — تحویل آنی</dd>
+                ) : (
+                  <dd className="font-medium">{toFa(product._stock)} عدد</dd>
+                )}
               </div>
               <div className="flex justify-between">
                 <dt className="text-muted-foreground">کد محصول</dt>

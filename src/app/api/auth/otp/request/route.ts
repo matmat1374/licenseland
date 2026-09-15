@@ -37,15 +37,37 @@ export async function POST(req: NextRequest) {
     OTP_CACHE.set(phoneRaw, { code: otp, expires: now + 3 * 60 * 1000 });
     
     const { sendOtpSms } = await import("@/lib/sms");
-    await sendOtpSms(phoneRaw, otp);
+    const smsSent = await sendOtpSms(phoneRaw, otp);
     
     // Log prominently in the console (server-side only — the OTP must NEVER
     // be returned in the HTTP response: anyone could then log in as ANY phone
     // number, including the admin account) (review C1 fix)
     console.log("\n========================================");
-    console.log(`📱 SMS TO ${phoneRaw}:`);
+    console.log(`📱 SMS TO ${phoneRaw} (delivered: ${smsSent}):`);
     console.log(`کد تایید شما: ${otp}`);
     console.log("========================================\n");
+    
+    // UX honesty fix: if the SMS gateway did not accept the message, the user
+    // must NOT be told a code was sent — they would wait forever for an SMS
+    // that never arrives and conclude the site is broken.
+    if (!smsSent) {
+      if (process.env.NODE_ENV === "production") {
+        return NextResponse.json(
+          {
+            ok: false,
+            message:
+              "ارسال پیامک موقتاً ممکن نشد. لطفاً چند لحظه دیگر تلاش کنید یا از پشتیبانی تلگرام کمک بگیرید.",
+          },
+          { status: 503 }
+        );
+      }
+      // Dev fallback: no SMS gateway configured locally — the code is in the
+      // server console, so keep the flow usable for development.
+      return NextResponse.json({
+        ok: true,
+        message: "حالت توسعه: درگاه پیامک تنظیم نشده — کد در کنسول سرور نمایش داده شده است",
+      });
+    }
     
     return NextResponse.json({ 
       ok: true, 

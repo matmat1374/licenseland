@@ -33,6 +33,10 @@ import { toast } from "sonner";
 import { formatJalaliDate, toFa } from "@/lib/date";
 import { toToman } from "@/lib/format";
 import { ProfileEditor } from "@/components/site/profile-editor";
+import { LoyaltyCard } from "@/components/site/loyalty-card";
+import { BadgeGrid } from "@/components/site/badge-grid";
+import { PointHistory } from "@/components/site/point-history";
+import { TIERS } from "@/lib/loyalty";
 
 interface OrderItem {
   id: string;
@@ -83,6 +87,19 @@ const STATUS_MAP: Record<
     icon: CheckCircle2,
     className: "bg-emerald-500 hover:bg-emerald-600 text-white border-transparent",
   },
+  // پرداخت شده ولی هنوز صادر نشده — کاربر نباید «در انتظار پرداخت» ببیند!
+  PROCESSING: {
+    label: "در حال صدور لایسنس",
+    variant: "secondary",
+    icon: Clock,
+    className: "bg-amber-500/15 text-amber-700 dark:text-amber-400 border-amber-500/20",
+  },
+  PENDING_SUPPORT: {
+    label: "در انتظار تایید پشتیبانی",
+    variant: "secondary",
+    icon: Clock,
+    className: "bg-amber-500/15 text-amber-700 dark:text-amber-400 border-amber-500/20",
+  },
   PENDING: {
     label: "در انتظار پرداخت",
     variant: "secondary",
@@ -108,11 +125,17 @@ export function DashboardTabs({
   orders,
   licenses,
   user,
+  loyalty,
+  badges,
+  events,
 }: {
   tab: string;
   orders: Order[];
   licenses: License[];
   user: User | null;
+  loyalty?: any;
+  badges?: any[];
+  events?: any[];
 }) {
   const router = useRouter();
   const pathname = usePathname();
@@ -176,33 +199,68 @@ export function DashboardTabs({
       )}
 
       <Tabs value={tab} onValueChange={setTab}>
-        <TabsList className="mb-6 grid w-full grid-cols-3 h-11">
-        <TabsTrigger value="overview" className="gap-2 text-sm font-medium">
-          <Package className="h-4 w-4" />
-          <span>سفارش‌ها</span>
-          {orders.length > 0 && (
-            <span className="mr-1 rounded-full bg-primary/15 px-2 py-0.5 text-xs text-primary font-bold">
-              {toFa(orders.length)}
-            </span>
-          )}
-        </TabsTrigger>
-        <TabsTrigger value="licenses" className="gap-2 text-sm font-medium">
-          <KeyRound className="h-4 w-4" />
-          <span>لایسنس‌ها</span>
-          {licenses.length > 0 && (
-            <span className="mr-1 rounded-full bg-primary/15 px-2 py-0.5 text-xs text-primary font-bold">
-              {toFa(licenses.length)}
-            </span>
-          )}
-        </TabsTrigger>
-        <TabsTrigger value="profile" className="gap-2 text-sm font-medium">
-          <UserIcon className="h-4 w-4" />
-          <span>پروفایل و امنیت</span>
-        </TabsTrigger>
-      </TabsList>
+        <TabsList className="mb-6 grid w-full grid-cols-2 sm:grid-cols-4 h-auto sm:h-11 gap-1">
+          <TabsTrigger value="overview" className="gap-2 text-sm font-medium">
+            <Package className="h-4 w-4" />
+            <span>سفارش‌ها</span>
+            {orders.length > 0 && (
+              <span className="mr-1 rounded-full bg-primary/15 px-2 py-0.5 text-xs text-primary font-bold">
+                {toFa(orders.length)}
+              </span>
+            )}
+          </TabsTrigger>
+          <TabsTrigger value="licenses" className="gap-2 text-sm font-medium">
+            <KeyRound className="h-4 w-4" />
+            <span>لایسنس‌ها</span>
+            {licenses.length > 0 && (
+              <span className="mr-1 rounded-full bg-primary/15 px-2 py-0.5 text-xs text-primary font-bold">
+                {toFa(licenses.length)}
+              </span>
+            )}
+          </TabsTrigger>
+          <TabsTrigger value="loyalty" className="gap-2 text-sm font-medium">
+            <Sparkles className="h-4 w-4 text-amber-500" />
+            <span>باشگاه وفاداری</span>
+            {loyalty?.totalPoints !== undefined && (
+              <span className="mr-1 rounded-full bg-amber-500/15 px-2 py-0.5 text-xs text-amber-600 dark:text-amber-400 font-bold">
+                {toFa(loyalty.totalPoints)}
+              </span>
+            )}
+          </TabsTrigger>
+          <TabsTrigger value="profile" className="gap-2 text-sm font-medium">
+            <UserIcon className="h-4 w-4" />
+            <span>پروفایل و امنیت</span>
+          </TabsTrigger>
+        </TabsList>
 
-      {/* 1. ORDERS TAB */}
-      <TabsContent value="overview" className="space-y-4">
+        {/* 1. ORDERS TAB */}
+        <TabsContent value="overview" className="space-y-4">
+          {loyalty && (
+            <div
+              onClick={() => setTab("loyalty")}
+              className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 p-4 rounded-xl border border-amber-500/30 bg-gradient-to-r from-amber-500/10 via-amber-500/5 to-transparent cursor-pointer hover:border-amber-500/50 transition-colors"
+            >
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-500/20 text-amber-600 dark:text-amber-400">
+                  <Sparkles className="h-5 w-5" />
+                </div>
+                <div>
+                  <div className="text-sm font-bold flex items-center gap-2">
+                    <span>سطح کاربری: {loyalty.tier}</span>
+                    <span className="text-xs font-normal text-muted-foreground">
+                      ({toFa(loyalty.totalPoints || 0)} امتیاز فعال)
+                    </span>
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    امکان استفاده از امتیازها برای دریافت تخفیف نقدی در مرحله تسویه حساب فراهم است.
+                  </p>
+                </div>
+              </div>
+              <Button size="sm" variant="ghost" className="text-xs font-medium gap-1 text-amber-600 dark:text-amber-400 hover:text-amber-700">
+                مشاهده نشان‌ها و امتیازات <ChevronLeft className="h-3.5 w-3.5" />
+              </Button>
+            </div>
+          )}
         {orders.length === 0 ? (
           <EmptyState
             icon={ShoppingBag}
@@ -285,7 +343,16 @@ export function DashboardTabs({
         )}
       </TabsContent>
 
-      {/* 3. PROFILE TAB */}
+      {/* 3. LOYALTY & GAMIFICATION TAB */}
+      <TabsContent value="loyalty" className="space-y-6">
+        <LoyaltyCard loyalty={loyalty} tiers={TIERS} />
+        <div className="grid gap-6 lg:grid-cols-2">
+          <BadgeGrid badges={badges || []} />
+          <PointHistory events={events || []} />
+        </div>
+      </TabsContent>
+
+      {/* 4. PROFILE TAB */}
       <TabsContent value="profile">
         {user && (
           <div className="mx-auto max-w-3xl space-y-6">

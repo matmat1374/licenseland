@@ -36,7 +36,7 @@ export async function GET(req: NextRequest) {
   // already processed (idempotency fast-path)
   if (order.status === "PAID") {
     const t = signOrderAccessToken(order.id);
-    return NextResponse.redirect(new URL(`/order/${order.id}?paid=1&token=${t}`, base));
+    return NextResponse.redirect(new URL(`/order/${order.id}?paid=1&cc=1&token=${t}`, base));
   }
 
   const verify = await zarinpalVerify(order.total, authority);
@@ -51,6 +51,8 @@ export async function GET(req: NextRequest) {
     return NextResponse.redirect(new URL(`/order/${order.id}?failed=1&token=${signOrderAccessToken(order.id)}`, base));
   }
 
+  const isDemoAuthority = authority.startsWith("DEMO");
+
   await db.payment.updateMany({
     where: { authority },
     data: {
@@ -63,20 +65,20 @@ export async function GET(req: NextRequest) {
 
   // H4 fix: persist a Payment record for every verify outcome so gateway
   // disputes have an audit trail (model existed but was never written).
-  const isDemoAuthority = authority.startsWith("DEMO");
   try {
-    await db.payment.upsert({
-      where: { authority },
-      create: {
-        orderId: order.id,
-        gateway: "zarinpal",
-        authority,
-        amountMinor: order.total,
-        status: "pending",
-        rawResponse: JSON.stringify({ status, verified: false }),
-      },
-      update: {},
-    });
+    const existingPayment = await db.payment.findFirst({ where: { authority } });
+    if (!existingPayment) {
+      await db.payment.create({
+        data: {
+          orderId: order.id,
+          gateway: "zarinpal",
+          authority,
+          amountMinor: order.total,
+          status: "pending",
+          rawResponse: JSON.stringify({ status, verified: false }),
+        }
+      });
+    }
   } catch (e) {
     console.error("[payment] Failed to create Payment record:", e);
   }
@@ -110,7 +112,7 @@ export async function GET(req: NextRequest) {
   } catch (e) {
     // Concurrent request already processed this order
     const t = signOrderAccessToken(order.id);
-    return NextResponse.redirect(new URL(`/order/${order.id}?paid=1&token=${t}`, base));
+    return NextResponse.redirect(new URL(`/order/${order.id}?paid=1&cc=1&token=${t}`, base));
   }
 
   // discount code count increment
@@ -151,7 +153,9 @@ export async function GET(req: NextRequest) {
   }
 
   const token = signOrderAccessToken(order.id);
-  return NextResponse.redirect(new URL(`/order/${order.id}?paid=1&token=${token}`, base));
+  // cc=1: the order page clears the persisted cart client-side — previously the
+  // cart survived a successful purchase and risked a duplicate charge next time.
+  return NextResponse.redirect(new URL(`/order/${order.id}?paid=1&cc=1&token=${token}`, base));
 }
 
 async function releaseReservedKeys(orderId: string) {

@@ -46,7 +46,7 @@ const ADVISOR_PRESETS: AdvisorPreset[] = [
         title: "اشتراک ادیتور هوشمند Cursor AI Pro",
         subtitle: "محیط توسعه هوشمند با پشتیبانی از Claude 3.7 و GPT-4o",
         tag: "پرفروش دولوپرها",
-        href: "/product/3061-api-cursor-pro-400-creditsday-1-month-full-warranty",
+        href: "/shop?search=cursor",
         badge: "Cursor Pro",
       },
       {
@@ -75,21 +75,21 @@ const ADVISOR_PRESETS: AdvisorPreset[] = [
         title: "اشتراک رسمی کنوا پرو Canva Pro",
         subtitle: "دسترسی نامحدود به میلیون‌ها قالب، فونت و ابزارهای هوش مصنوعی",
         tag: "قانونی ۱ ماهه",
-        href: "/product/3071-canva-pro-slot-1-month-full-warranty",
+        href: "/shop?search=canva",
         badge: "Canva Pro",
       },
       {
         title: "پنل ادمین کنوا پرو بیزینس Canva Pro Admin",
         subtitle: "امکان افزودن تا ۱۰۰ عضو با پنل مدیریت اختصاصی",
         tag: "ویژه تیم‌ها",
-        href: "/product/3091-canva-pro-admin-3-months-24h-warranty",
+        href: "/shop?search=canva",
         badge: "Canva Admin",
       },
       {
         title: "اشتراک ادوبی اکسپرس Adobe Express",
         subtitle: "ابزار ساخت محتوای بصری و ویدیو شبکه‌های اجتماعی",
         tag: "اورجینال",
-        href: "/product/2745-adobe-express-12m",
+        href: "/shop?search=adobe",
         badge: "Adobe",
       },
     ],
@@ -111,7 +111,7 @@ const ADVISOR_PRESETS: AdvisorPreset[] = [
         title: "اشتراک صداگذاری و گویندگی ElevenLabs",
         subtitle: "واقع‌گرایانه‌ترین تبدیل متن به صدا با کلونینگ صدا",
         tag: "Creator",
-        href: "/product/2086-elevenlabs-creator-12m",
+        href: "/shop?search=elevenlabs",
         badge: "ElevenLabs",
       },
     ],
@@ -126,7 +126,7 @@ const ADVISOR_PRESETS: AdvisorPreset[] = [
         title: "اکانت نتفلیکس ۴K پریمیوم Ultra HD",
         subtitle: "پروفایل اختصاصی ۴K با گارانتی کامل و زیرنویس فارسی",
         tag: "اسلات اختصاصی",
-        href: "/product/2753-slot-netflix-4k-premium-1-month-full-warranty",
+        href: "/shop?search=netflix",
         badge: "Netflix 4K",
       },
       {
@@ -164,6 +164,7 @@ const ADVISOR_PRESETS: AdvisorPreset[] = [
 
 export function AiAdvisor() {
   const pathname = usePathname();
+  const isProductPage = pathname?.startsWith("/product");
   const [isOpen, setIsOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
@@ -172,10 +173,6 @@ export function AiAdvisor() {
   useEffect(() => {
     setMounted(true);
   }, []);
-
-  if (pathname?.startsWith("/admin")) {
-    return null;
-  }
 
   const searchResults = useMemo(() => {
     if (!searchQuery.trim()) return [];
@@ -189,10 +186,15 @@ export function AiAdvisor() {
     );
   }, [searchQuery]);
 
-  if (!mounted) return null;
+  if (pathname?.startsWith("/admin") || !mounted) return null;
 
   return (
-    <div className="fixed bottom-20 md:bottom-6 left-4 md:left-6 z-40 flex flex-col items-start">
+    <div
+      className={cn(
+        "fixed left-4 md:left-6 z-40 flex flex-col items-start transition-all duration-300",
+        isProductPage ? "bottom-[148px] md:bottom-6" : "bottom-20 md:bottom-6"
+      )}
+    >
       <div
         className={cn(
           "mb-4 overflow-hidden rounded-3xl border border-primary/30 bg-background/95 p-0 shadow-[0_10px_40px_rgba(0,0,0,0.5)] backdrop-blur-2xl transition-all duration-300 ease-out",

@@ -1,6 +1,6 @@
 import { db } from "@/lib/db";
 
-export async function sendOtpSms(phone: string, code: string) {
+export async function sendOtpSms(phone: string, code: string): Promise<boolean> {
   let dbSettings: Record<string, string> = {};
   try {
     const rows = await db.setting.findMany({
@@ -25,18 +25,18 @@ export async function sendOtpSms(phone: string, code: string) {
   const username =
     dbSettings["melipayamak_username"] ||
     process.env.MELIPAYAMAK_USERNAME ||
-    "19121145687";
+    "";
 
   const password =
     dbSettings["melipayamak_api_key"] ||
     process.env.MELIPAYAMAK_PASSWORD ||
     process.env.MELIPAYAMAK_API_KEY ||
-    "d07e983e-4f11-43e1-b0a7-ee367824c2f0";
+    "";
 
   const from =
     dbSettings["melipayamak_from"] ||
     process.env.MELIPAYAMAK_FROM ||
-    "50004001145687";
+    "";
 
   const patternId = (
     dbSettings["melipayamak_pattern_id"] ||
@@ -46,7 +46,7 @@ export async function sendOtpSms(phone: string, code: string) {
 
   if (!username || !password) {
     console.warn("MeliPayamak credentials are not set, skipping SMS.");
-    return;
+    return false;
   }
 
   try {
@@ -87,10 +87,12 @@ export async function sendOtpSms(phone: string, code: string) {
     const data = await res.json().catch(() => null);
     if (!res.ok || (data && data.RetStatus !== 1)) {
       console.error("MeliPayamak API error:", res.status, data);
-    } else {
-      console.log(`SMS OTP sent successfully to ${phone}, Value: ${data?.Value}`);
+      return false;
     }
+    console.log(`SMS OTP sent successfully to ${phone}, Value: ${data?.Value}`);
+    return true;
   } catch (error) {
     console.error("Failed to send OTP via MeliPayamak:", error);
+    return false;
   }
 }

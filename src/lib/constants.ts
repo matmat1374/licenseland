@@ -10,9 +10,9 @@ export const SITE = {
   email: "info@liceno.ir",
   phone: "۰۷۶-۴۴۴۵۸۷۹۱",
   mobile: "۰۹۱۲۱۱۴۵۶۸۷",
-  telegram: "https://t.me/matinmazi",
-  telegramHandle: "@matinmazi",
-  instagram: "https://instagram.com/liceno",
+  telegram: "https://t.me/mattiin",
+  telegramHandle: "@mattiin",
+  instagram: "https://instagram.com/liceno.ir",
   whatsapp: "https://wa.me/989121145687",
   address: "جزیره کیش، بازار شارستان، پلاک ۲۹",
 };
@@ -102,7 +102,7 @@ export const TRUST_BADGES = [
 export const FAQS = [
   {
     q: "لایسنس‌ها چگونه تحویل داده می‌شوند؟",
-    a: "بلافاصله پس از موفقیت‌آمیز بودن پرداخت، لایسنس و راهنمای فعال‌سازی به‌صورت خودکار در پنل کاربری شما نمایش داده می‌شود و از طریق پیامک و ایمیل نیز اطلاع‌رسانی می‌شود.",
+    a: "بلافاصله پس از موفقیت‌آمیز بودن پرداخت، لایسنس و راهنمای فعال‌سازی به‌صورت خودکار در صفحه سفارش و پنل کاربری شما نمایش داده می‌شود و همیشه در بخش «لایسنس‌های من» قابل دسترسی است.",
   },
   {
     q: "آیا لایسنس‌ها اوریجینال و قانونی هستند؟",

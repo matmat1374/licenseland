@@ -9,6 +9,7 @@ import { Separator } from "@/components/ui/separator";
 import { Input } from "@/components/ui/input";
 import { Trash2, Plus, Minus, ShoppingBag, ArrowLeft, ShieldCheck, Tag } from "lucide-react";
 import { toToman } from "@/lib/format";
+import { toFa } from "@/lib/date";
 import { useState } from "react";
 import { toast } from "sonner";
 import { useMounted } from "@/hooks/use-mounted";
@@ -59,7 +60,7 @@ export default function CartPage() {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <h1 className="mb-6 text-2xl font-black">سبد خرید ({toToman(mounted ? items.length : 0)} مورد)</h1>
+      <h1 className="mb-6 text-2xl font-black">سبد خرید ({toFa(items.length)} مورد)</h1>
 
       <div className="grid gap-6 lg:grid-cols-3">
         {/* items */}

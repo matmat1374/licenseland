@@ -43,6 +43,12 @@ export function CheckoutClient({ coupon = "" }: { coupon?: string }) {
   const [form, setForm] = useState({ name: "", email: "", phone: "" });
   const [prevSessionEmail, setPrevSessionEmail] = useState<string | null | undefined>(null);
 
+  // کد تخفیف — هم از URL (?coupon=) و هم ورود دستی کاربر در همین صفحه
+  const [couponCode, setCouponCode] = useState<string>(coupon);
+  const [couponInput, setCouponInput] = useState<string>(coupon);
+  const [couponChecking, setCouponChecking] = useState(false);
+  const [couponError, setCouponError] = useState("");
+
   // Loyalty points state
   const [loyalty, setLoyalty] = useState<{ totalPoints: number; tier: string } | null>(null);
   const [useLoyaltyPoints, setUseLoyaltyPoints] = useState(false);
@@ -76,17 +82,37 @@ export function CheckoutClient({ coupon = "" }: { coupon?: string }) {
     }));
   }
 
-  // validate coupon
+  // validate coupon (from URL prop or manual apply)
+  async function checkCoupon(code: string, currentSub: number) {
+    setCouponChecking(true);
+    try {
+      const res = await fetch(`/api/discount?code=${encodeURIComponent(code)}&total=${currentSub}`);
+      const d = await res.json();
+      if (d.ok) {
+        setDiscount(d.discount);
+        setCouponCode(code);
+        setCouponError("");
+        toast.success(`کد تخفیف اعمال شد: ${d.discount.toLocaleString("fa-IR")} تومان تخفیف`);
+      } else {
+        setDiscount(0);
+        setCouponCode("");
+        setCouponError(d.message || "کد تخفیف نامعتبر است");
+        toast.error(d.message || "کد تخفیف نامعتبر است");
+      }
+    } catch {
+      setDiscount(0);
+      setCouponCode("");
+      setCouponError("خطا در بررسی کد تخفیف");
+    } finally {
+      setCouponChecking(false);
+    }
+  }
+
   useEffect(() => {
     if (!coupon || !mounted) return;
-    fetch(`/api/discount?code=${encodeURIComponent(coupon)}&total=${subtotal()}`)
-      .then((r) => r.json())
-      .then((d) => {
-        if (d.ok) setDiscount(d.discount);
-        else setDiscount(0);
-      })
-      .catch(() => setDiscount(0));
-  }, [coupon, mounted, subtotal]);
+    checkCoupon(coupon, subtotal());
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [coupon, mounted]);
 
   const sub = mounted ? subtotal() : 0;
   // Loyalty calculations: up to 30% of subtotal, 1 pt = 1000 Toman
@@ -126,6 +152,12 @@ export function CheckoutClient({ coupon = "" }: { coupon?: string }) {
 
     setLoading(true);
     try {
+      // Snapshot the cart so the order page can safely clear it after payment
+      // (if the user built a NEW cart in another tab while at the gateway,
+      // that one is preserved instead).
+      try {
+        sessionStorage.setItem("licenseland-pending-cart", JSON.stringify(items));
+      } catch {}
       const res = await fetch("/api/checkout/create", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -139,7 +171,7 @@ export function CheckoutClient({ coupon = "" }: { coupon?: string }) {
             duration: i.duration,
           })),
           customer: form,
-          coupon: coupon || undefined,
+          coupon: couponCode || undefined,
           redeemPoints: activeRedeemPoints > 0 ? activeRedeemPoints : undefined,
           pointsToRedeem: activeRedeemPoints > 0 ? activeRedeemPoints : undefined,
         }),
@@ -327,6 +359,37 @@ export function CheckoutClient({ coupon = "" }: { coupon?: string }) {
                 </div>
               )}
 
+              {/* کد تخفیف — ورود دستی در همین مرحله (P1): قبلاً فقط از صفحه سبد قابل اعمال بود */}
+              <div className="rounded-xl border bg-muted/30 p-4">
+                <label className="mb-1.5 flex items-center gap-1 text-xs font-medium text-muted-foreground">
+                  <Tag className="h-3 w-3" /> کد تخفیف
+                </label>
+                <div className="flex gap-2">
+                  <Input
+                    value={couponInput}
+                    onChange={(e) => setCouponInput(e.target.value.toUpperCase())}
+                    placeholder="مثلاً LICENO"
+                    className="text-sm font-mono"
+                    dir="ltr"
+                  />
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    onClick={() => {
+                      const code = couponInput.trim();
+                      if (!code) return;
+                      checkCoupon(code, sub);
+                    }}
+                    disabled={!couponInput.trim() || couponChecking}
+                  >
+                    {couponChecking ? <Loader2 className="h-4 w-4 animate-spin" /> : "اعمال"}
+                  </Button>
+                </div>
+                {couponError && (
+                  <p className="mt-1.5 text-xs text-rose-500">{couponError}</p>
+                )}
+              </div>
+
               <div className="rounded-xl border bg-muted/30 p-4">
                 <div className="flex items-start gap-2 text-sm">
                   <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-emerald-500" />
@@ -375,10 +438,10 @@ export function CheckoutClient({ coupon = "" }: { coupon?: string }) {
 
             <Separator className="my-4" />
 
-            {coupon && (
+            {couponCode && discount > 0 && (
               <div className="mb-3 flex items-center justify-between rounded-lg bg-emerald-500/10 px-3 py-2 text-xs">
                 <span className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400">
-                  <Tag className="h-3 w-3" /> کد {coupon}
+                  <Tag className="h-3 w-3" /> کد {couponCode}
                 </span>
                 <span className="font-bold text-emerald-600 dark:text-emerald-400">- {toToman(discount)}</span>
               </div>
