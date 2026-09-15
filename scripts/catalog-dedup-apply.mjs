@@ -90,6 +90,19 @@ function parseCsv(text) {
       manual++;
     }
 
+    // Keep the description's leading heading in sync with the new title —
+    // otherwise the page body still shows the old ambiguous name. We replace the
+    // whole first line (never a character slice) so punctuation can't leak through.
+    if (data.title && prod.description) {
+      const lines = String(prod.description).split(/\r?\n/);
+      const h0 = (lines[0] || "").trimStart();
+      const brandish = /claude|chatgpt|openai|gemini|cursor|canva|spotify|netflix|youtube|midjourney|adobe|capcut|figma|telegram|discord/i.test(h0);
+      if (h0.startsWith("## ") && (h0.includes(String(prod.title)) || brandish)) {
+        lines[0] = "## " + data.title;
+        data.description = lines.join("\n");
+      }
+    }
+
     if (APPLY && Object.keys(data).length) {
       await db.product.update({ where: { id: prod.id }, data });
     }

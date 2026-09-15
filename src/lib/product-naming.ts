@@ -65,10 +65,10 @@ export function detectBrand(input: string): { fa: string; code: string } | null 
 }
 
 const DURATIONS: Array<{ re: RegExp; fa: string; code: string }> = [
-  { re: /\b(12|24)\s*months?\b|\b1\s*year\b|\b12\s*m\b/i, fa: "۱ ساله", code: "1Y" },
-  { re: /\b6\s*months?\b|\b180\s*d\b/i, fa: "۶ ماهه", code: "6M" },
-  { re: /\b3\s*months?\b|\b90\s*d\b/i, fa: "۳ ماهه", code: "3M" },
-  { re: /\b2\s*months?\b|\b60\s*d\b/i, fa: "۲ ماهه", code: "2M" },
+  { re: /\b(12|24)\s*months?\b|\b1\s*year\b|\b1[24]\s*m\b/i, fa: "۱ ساله", code: "1Y" },
+  { re: /\b6\s*months?\b|\b180\s*d\b|\b6\s*m\b/i, fa: "۶ ماهه", code: "6M" },
+  { re: /\b3\s*months?\b|\b90\s*d\b|\b3\s*m\b/i, fa: "۳ ماهه", code: "3M" },
+  { re: /\b2\s*months?\b|\b60\s*d\b|\b2\s*m\b/i, fa: "۲ ماهه", code: "2M" },
   { re: /\b1\s*month\b|\b30\s*days?\b|\b30\s*d\b|\b1\s*m\b/i, fa: "۱ ماهه", code: "1M" },
   { re: /\b3\s*days?\b/i, fa: "۳ روزه", code: "3D" },
   { re: /\b7\s*days?\b|\b7\s*d\b/i, fa: "۷ روزه", code: "7D" },
@@ -179,7 +179,7 @@ export function buildProductTitle(brandFa: string, a: ProductAttributes): string
   if (a.tier && !t.toLowerCase().includes(a.tier.toLowerCase())) t += ` (${a.tier})`;
   if (a.durationFa && !t.includes(a.durationFa)) t += ` (${a.durationFa})`;
   if (a.warranty === "none" && !/بدون\s*گارانتی/i.test(t)) t += " — بدون گارانتی";
-  else if (a.warranty === "with" && a.accessType !== "giftcard" && !/با\s*گارانتی/i.test(t)) {
+  else if (a.warranty === "with" && a.accessType !== "giftcard" && a.accessType !== "virtual" && !/با\s*گارانتی/i.test(t)) {
     t += " — با گارانتی";
   }
   return t.replace(/\s+/g, " ").trim();

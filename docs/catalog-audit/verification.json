@@ -1,12 +1,16 @@
 {
   "totalAfter": 1049,
-  "activeAfter": 686,
-  "remainingMisleadingGroupsActive": 1,
-  "remainingMisleadingProductsActive": 2,
+  "activeAfter": 696,
+  "remainingMisleadingGroupsActive": 2,
+  "remainingMisleadingProductsActive": 5,
   "remainingTrueDupGroupsActive": 0,
   "orderItemsIntact": 1,
   "licenseKeysIntact": 0,
   "claudeAfter": [
+    {
+      "slug": "2375-claude-pro-۱-روزه",
+      "title": "Claude Pro API — ۱۰M توکن (۱ روزه) — با گارانتی"
+    },
     {
       "slug": "2379-claude-pro-۱-ماهه",
       "title": "Claude Pro API — ۵۰$ (۱ ماهه) — با گارانتی"
@@ -26,6 +30,26 @@
     {
       "slug": "2421-claude-pro-۳-روزه",
       "title": "Claude Pro API — ۱۰۰M توکن (۳ روزه) — با گارانتی"
+    },
+    {
+      "slug": "3328-claude-pro-۱-روزه",
+      "title": "Claude Pro API — ۱۰۰M توکن (۱ روزه) — با گارانتی"
+    },
+    {
+      "slug": "3329-claude-pro-۱-روزه",
+      "title": "Claude Pro API — ۲۰۰M توکن (۱ روزه) — با گارانتی"
+    },
+    {
+      "slug": "3330-claude-pro-۱-روزه",
+      "title": "Claude Pro API — ۳۰۰M توکن (۱ روزه) — با گارانتی"
+    },
+    {
+      "slug": "3383-claude-pro-۱-روزه",
+      "title": "Claude Pro API — ۱۵M توکن (۱ روزه) — با گارانتی"
+    },
+    {
+      "slug": "3384-claude-pro-۱-روزه",
+      "title": "Claude Pro API — ۴۰M توکن (۱ روزه) — با گارانتی"
     },
     {
       "slug": "3260-claude-pro-۷-روزه",
