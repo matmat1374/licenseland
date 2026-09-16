@@ -1,3 +1,4 @@
+import './deploy-env.cjs';
 import { Client } from "ssh2";
 import path from "path";
 import fs from "fs";
@@ -11,7 +12,7 @@ const SERVER = {
   host: "109.122.254.151",
   port: 22,
   username: "root",
-  password: "Licenseland@2026!",
+  password: process.env.DEPLOY_PASS,
   keepaliveInterval: 15000,
   readyTimeout: 30000,
 };

@@ -1,3 +1,4 @@
+require('./deploy-env.cjs');
 const { Client } = require('ssh2');
 const fs = require('fs');
 const path = require('path');
@@ -6,7 +7,7 @@ const config = {
   host: '109.122.254.151',
   port: 22,
   username: 'root',
-  password: 'Licenseland@2026!',
+  password: process.env.DEPLOY_PASS,
   keepaliveInterval: 10000,
 };
 

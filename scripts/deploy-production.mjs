@@ -1,3 +1,4 @@
+import './deploy-env.cjs';
 import { createRequire } from "module";
 import path from "path";
 import fs from "fs";
@@ -9,7 +10,7 @@ const SERVER = {
   host: "109.122.254.151",
   port: 22,
   username: "root",
-  password: "Licenseland@2026!",
+  password: process.env.DEPLOY_PASS,
 };
 
 const localArchive = path.resolve("deploy_bundle.tar.gz");

@@ -1,6 +1,7 @@
+require('./scripts/deploy-env.cjs');
 ﻿const { Client } = require('ssh2');
 const conn = new Client();
-const config = { host: '109.122.254.151', port: 22, username: 'root', password: 'Licenseland@2026!', keepaliveInterval: 10000 };
+const config = { host: '109.122.254.151', port: 22, username: 'root', password: process.env.DEPLOY_PASS, keepaliveInterval: 10000 };
 
 const commands = [
   "cd /var/www/licenseland && rm -rf .next && npm run build",

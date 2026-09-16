@@ -1,3 +1,4 @@
+require('./scripts/deploy-env.cjs');
 const { Client } = require('ssh2');
 const fs = require('fs');
 
@@ -6,7 +7,7 @@ const config = {
   host: '109.122.254.151',
   port: 22,
   username: 'root',
-  password: 'Licenseland@2026!'
+  password: process.env.DEPLOY_PASS
 };
 
 const localPath = 'next-build.tar.gz';

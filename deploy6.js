@@ -1,6 +1,7 @@
+require('./scripts/deploy-env.cjs');
 ﻿const { Client } = require('ssh2');
 const conn = new Client();
-const config = { host: '109.122.254.151', port: 22, username: 'root', password: 'Licenseland@2026!', keepaliveInterval: 10000 };
+const config = { host: '109.122.254.151', port: 22, username: 'root', password: process.env.DEPLOY_PASS, keepaliveInterval: 10000 };
 
 const commands = [
   "if [ ! -f /swapfile ]; then dd if=/dev/zero of=/swapfile bs=1M count=2048 && chmod 600 /swapfile && mkswap /swapfile && swapon /swapfile; fi",

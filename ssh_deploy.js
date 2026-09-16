@@ -1,3 +1,4 @@
+require('./scripts/deploy-env.cjs');
 const { Client } = require('ssh2');
 
 const conn = new Client();
@@ -28,5 +29,5 @@ curl -s https://liceno.ir/google838a39fcd6d96c2f.html
   host: '109.122.254.151',
   port: 22,
   username: 'root',
-  password: 'Licenseland@2026!'
+  password: process.env.DEPLOY_PASS
 });
