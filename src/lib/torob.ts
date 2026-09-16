@@ -104,6 +104,20 @@ const BRAND_IMAGES: Array<{ re: RegExp; path: string }> = [
   { re: /cursor/i, path: "/products-3d/cursor.jpg" },
   { re: /gemini/i, path: "/products-3d/gemini.jpg" },
   { re: /youtube/i, path: "/products-3d/youtube.jpg" },
+  { re: /telegram|t\.me/i, path: "/products-3d/telegram.jpg" },
+  { re: /tiktok/i, path: "/products-3d/tiktok.jpg" },
+  { re: /capcut/i, path: "/products-3d/capcut.jpg" },
+  { re: /discord|nitro/i, path: "/products-3d/discord.jpg" },
+  { re: /spotify/i, path: "/products-3d/spotify.jpg" },
+  { re: /duolingo/i, path: "/products-3d/duolingo.jpg" },
+  { re: /linkedin/i, path: "/products-3d/linkedin.jpg" },
+  { re: /instagram/i, path: "/products-3d/instagram.jpg" },
+  { re: /notion/i, path: "/products-3d/notion.jpg" },
+  { re: /canva/i, path: "/products-3d/canva.jpg" },
+  { re: /figma/i, path: "/products-3d/figma.jpg" },
+  { re: /adobe|photoshop/i, path: "/products-3d/adobe.jpg" },
+  { re: /microsoft|office|windows|azure/i, path: "/products-3d/microsoft.jpg" },
+  { re: /apple|icloud/i, path: "/products-3d/apple.jpg" },
 ];
 
 /** Product photo → brand card → site default. Never returns null. */
