@@ -7,7 +7,7 @@ import Link from 'next/link';
 const slides = [
   {
     id: '01',
-    image: '/slider/alberto.png',
+    image: '/slider/alberto.webp',
     bgGradient: 'linear-gradient(320deg, #f59e0b 0%, #ea580c 50%, #8b5cf6 100%)',
     fluidColors: ['#f59e0b', '#ea580c', '#8b5cf6'],
     wordLeft: 'CLAUDE',
@@ -18,7 +18,7 @@ const slides = [
   },
   {
     id: '02',
-    image: '/slider/brain.png',
+    image: '/slider/brain.webp',
     bgGradient: 'linear-gradient(125deg, #00ff88 0%, #00d4ff 50%, #7928ca 100%)',
     fluidColors: ['#00ff88', '#00d4ff', '#7928ca'],
     wordLeft: 'CHATGPT',
@@ -29,7 +29,7 @@ const slides = [
   },
   {
     id: '03',
-    image: '/slider/gemini.png',
+    image: '/slider/gemini.webp',
     bgGradient: 'linear-gradient(160deg, #3b82f6 0%, #06b6d4 50%, #6366f1 100%)',
     fluidColors: ['#3b82f6', '#06b6d4', '#6366f1'],
     wordLeft: 'GEMINI',
@@ -40,7 +40,7 @@ const slides = [
   },
   {
     id: '04',
-    image: '/slider/owl.png',
+    image: '/slider/owl.webp',
     bgGradient: 'linear-gradient(125deg, #6366f1 0%, #a855f7 50%, #06b6d4 100%)',
     fluidColors: ['#6366f1', '#a855f7', '#06b6d4'],
     wordLeft: 'CODING',
@@ -51,7 +51,7 @@ const slides = [
   },
   {
     id: '05',
-    image: '/slider/youtube.png',
+    image: '/slider/youtube.webp',
     bgGradient: 'linear-gradient(125deg, #ef4444 0%, #ec4899 50%, #8b5cf6 100%)',
     fluidColors: ['#ef4444', '#ec4899', '#8b5cf6'],
     wordLeft: 'YOUTUBE',
@@ -62,7 +62,7 @@ const slides = [
   },
   {
     id: '06',
-    image: '/slider/lion.png',
+    image: '/slider/lion.webp',
     bgGradient: 'linear-gradient(125deg, #22c55e 0%, #10b981 50%, #06b6d4 100%)',
     fluidColors: ['#22c55e', '#10b981', '#06b6d4'],
     wordLeft: 'SPOTIFY',
@@ -329,7 +329,7 @@ export function GlossyWebGLSlider() {
             style={{ x: bubbleX, y: bubbleY }}
             animate={{ y: [0, -20, 0], rotate: [0, 10, 0] }}
             transition={{ repeat: Infinity, duration: 8, ease: "easeInOut" }}
-            src="/slider/bubble.png" 
+            src="/slider/bubble.webp" 
             alt="Glossy Bubble" 
             className="absolute left-[10%] top-[20%] w-[15vw] min-w-[100px] max-w-[200px] object-contain opacity-80 mix-blend-screen drop-shadow-xl pointer-events-none z-30"
           />

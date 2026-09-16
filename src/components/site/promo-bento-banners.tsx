@@ -112,9 +112,9 @@ export function PromoBentoBanners({
           
           {/* 3D Floating Images - Pure Alpha Transparent */}
           <div className="pointer-events-none absolute inset-0 overflow-hidden">
-            <img src="/slider/brain.png" alt="" className="absolute -left-6 -top-6 h-52 w-52 object-contain opacity-85 drop-shadow-[0_0_25px_rgba(168,85,247,0.6)] transition-all duration-700 group-hover:scale-110 group-hover:rotate-12 group-hover:opacity-100" />
-            <img src="/slider/bubble.png" alt="" className="absolute left-1/3 -bottom-8 h-32 w-32 object-contain opacity-70 drop-shadow-[0_0_20px_rgba(217,70,239,0.6)] mix-blend-screen transition-all duration-700 delay-100 group-hover:scale-110 group-hover:-translate-y-3 group-hover:opacity-100" />
-            <img src="/slider/owl.png" alt="" className="absolute -right-6 bottom-1/4 h-40 w-40 object-contain opacity-75 drop-shadow-[0_0_20px_rgba(99,102,241,0.6)] transition-all duration-700 delay-200 group-hover:scale-110 group-hover:-translate-x-3 group-hover:rotate-6 group-hover:opacity-100" />
+            <img src="/slider/brain.webp" alt="" className="absolute -left-6 -top-6 h-52 w-52 object-contain opacity-85 drop-shadow-[0_0_25px_rgba(168,85,247,0.6)] transition-all duration-700 group-hover:scale-110 group-hover:rotate-12 group-hover:opacity-100" />
+            <img src="/slider/bubble.webp" alt="" className="absolute left-1/3 -bottom-8 h-32 w-32 object-contain opacity-70 drop-shadow-[0_0_20px_rgba(217,70,239,0.6)] mix-blend-screen transition-all duration-700 delay-100 group-hover:scale-110 group-hover:-translate-y-3 group-hover:opacity-100" />
+            <img src="/slider/owl.webp" alt="" className="absolute -right-6 bottom-1/4 h-40 w-40 object-contain opacity-75 drop-shadow-[0_0_20px_rgba(99,102,241,0.6)] transition-all duration-700 delay-200 group-hover:scale-110 group-hover:-translate-x-3 group-hover:rotate-6 group-hover:opacity-100" />
           </div>
           
           <div className="relative z-10 flex h-full flex-col justify-between gap-6">
@@ -166,9 +166,9 @@ export function PromoBentoBanners({
           
           {/* 3D Floating Images - Pure Alpha Transparent */}
           <div className="pointer-events-none absolute inset-0 overflow-hidden">
-            <img src="/slider/alberto.png" alt="" className="absolute -right-6 -top-6 h-52 w-52 object-contain opacity-85 drop-shadow-[0_0_25px_rgba(16,185,129,0.6)] transition-all duration-700 group-hover:scale-110 group-hover:-rotate-12 group-hover:opacity-100" />
-            <img src="/slider/bubble.png" alt="" className="absolute right-1/3 -bottom-8 h-32 w-32 object-contain opacity-70 drop-shadow-[0_0_20px_rgba(20,184,166,0.6)] mix-blend-screen transition-all duration-700 delay-100 group-hover:scale-110 group-hover:-translate-y-3 group-hover:opacity-100" />
-            <img src="/slider/lion.png" alt="" className="absolute -left-6 bottom-1/4 h-40 w-40 object-contain opacity-80 drop-shadow-[0_0_20px_rgba(6,182,212,0.6)] transition-all duration-700 delay-200 group-hover:scale-110 group-hover:translate-x-3 group-hover:-rotate-6 group-hover:opacity-100" />
+            <img src="/slider/alberto.webp" alt="" className="absolute -right-6 -top-6 h-52 w-52 object-contain opacity-85 drop-shadow-[0_0_25px_rgba(16,185,129,0.6)] transition-all duration-700 group-hover:scale-110 group-hover:-rotate-12 group-hover:opacity-100" />
+            <img src="/slider/bubble.webp" alt="" className="absolute right-1/3 -bottom-8 h-32 w-32 object-contain opacity-70 drop-shadow-[0_0_20px_rgba(20,184,166,0.6)] mix-blend-screen transition-all duration-700 delay-100 group-hover:scale-110 group-hover:-translate-y-3 group-hover:opacity-100" />
+            <img src="/slider/lion.webp" alt="" className="absolute -left-6 bottom-1/4 h-40 w-40 object-contain opacity-80 drop-shadow-[0_0_20px_rgba(6,182,212,0.6)] transition-all duration-700 delay-200 group-hover:scale-110 group-hover:translate-x-3 group-hover:-rotate-6 group-hover:opacity-100" />
           </div>
           
           <div className="relative z-10 flex h-full flex-col justify-between gap-6">
