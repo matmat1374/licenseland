@@ -26,6 +26,7 @@ import { ProductReviews } from "@/components/site/product-reviews";
 import { toFa } from "@/lib/date";
 import { SITE, FAQS } from "@/lib/constants";
 import { buildTorobMetaTags, resolveTorobImage } from "@/lib/torob";
+import { buildProductMetaDescription } from "@/lib/product-meta";
 import ReactMarkdown from "react-markdown";
 import type { Metadata } from "next";
 
@@ -43,9 +44,14 @@ export async function generateMetadata({
   const canonical = `${SITE.url}/product/${slug}`;
   const outOfStock = product._stock === 0;
 
+  // SEO-05: never ship a meta description that duplicates the <title>.
+  const metaDescription = buildProductMetaDescription(product, {
+    siteDescription: SITE.description,
+  });
+
   return {
     title: product.title,
-    description: product.shortDesc,
+    description: metaDescription,
     alternates: { canonical },
     robots: outOfStock
       ? { index: false, follow: true }
@@ -64,7 +70,7 @@ export async function generateMetadata({
     twitter: {
       card: "summary_large_image",
       title: product.title,
-      description: product.shortDesc,
+      description: metaDescription,
     },
   };
 }
