@@ -118,6 +118,23 @@ const BRAND_IMAGES: Array<{ re: RegExp; path: string }> = [
   { re: /adobe|photoshop/i, path: "/products-3d/adobe.jpg" },
   { re: /microsoft|office|windows|azure/i, path: "/products-3d/microsoft.jpg" },
   { re: /apple|icloud/i, path: "/products-3d/apple.jpg" },
+  { re: /whatsapp|whats app/i, path: "/products-3d/whatsapp.jpg" },
+  { re: /google|gmail|google one|play store|google play/i, path: "/products-3d/google.jpg" },
+  { re: /garena|free\s*fire/i, path: "/products-3d/garena.jpg" },
+  { re: /mobile\s*legends|mlbb/i, path: "/products-3d/mobilelegends.jpg" },
+  { re: /itunes/i, path: "/products-3d/apple.jpg" },
+  { re: /razer/i, path: "/products-3d/razer.jpg" },
+  { re: /amazon/i, path: "/products-3d/amazon.jpg" },
+  { re: /playstation|\bpsn\b|ps plus|psplus/i, path: "/products-3d/playstation.jpg" },
+  { re: /xbox|game pass|gamepass/i, path: "/products-3d/xbox.jpg" },
+  { re: /netflix/i, path: "/products-3d/netflix.jpg" },
+  { re: /steam/i, path: "/products-3d/steam.jpg" },
+  { re: /roblox|robux/i, path: "/products-3d/roblox.jpg" },
+  { re: /snapchat|snap/i, path: "/products-3d/snapchat.jpg" },
+  { re: /twitch/i, path: "/products-3d/twitch.jpg" },
+  { re: /minimax/i, path: "/products-3d/minimax.jpg" },
+  { re: /elevenlabs|eleven labs/i, path: "/products-3d/elevenlabs.jpg" },
+  { re: /genshin/i, path: "/products-3d/genshin.jpg" },
 ];
 
 /** Product photo → brand card → site default. Never returns null. */
