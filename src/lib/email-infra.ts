@@ -15,6 +15,27 @@
 
 import { db } from "@/lib/db";
 import { SITE } from "@/lib/constants";
+import { signOrderAccessToken } from "@/lib/order-access";
+
+/**
+ * Link target for the "مشاهدهٔ سفارش" button. `/order/[id]` is auth-gated:
+ * owner session, admin session, or a signed token — anyone else gets a 404
+ * (src/app/order/[id]/page.tsx). An email recipient is usually a guest with no
+ * session, so the token is what makes the emailed link work at all; without it
+ * the customer lands on a 404. src/lib/email.ts already signs its order link.
+ *
+ * If the secret is missing we still return the plain URL rather than throwing:
+ * this runs on the payment-confirmation path, and a broken link must not be
+ * able to break a paid order's status transition.
+ */
+function orderUrlFor(orderId: string, orderCode: string): string {
+  const base = `${SITE.url}/order/${orderCode}`;
+  try {
+    return `${base}?token=${signOrderAccessToken(orderId)}`;
+  } catch {
+    return base;
+  }
+}
 
 export type EmailEvent =
   | "order_created"
@@ -304,7 +325,7 @@ export async function emailOrderEvent(orderId: string, event: EmailEvent, extra?
     vars: {
       orderCode: order.code,
       customerName: order.user?.name || order.guestName,
-      orderUrl: `${SITE.url}/order/${order.code}`,
+      orderUrl: orderUrlFor(order.id, order.code),
       total: order.total,
       items: order.items.map((i) => `${i.productTitle} × ${i.quantity}`),
       trackingCode: order.shipment?.trackingCode,
