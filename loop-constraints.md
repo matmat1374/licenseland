@@ -30,3 +30,10 @@
 
 ---
 <!-- Add your own rules below. Use plain English. The loop reads this verbatim. -->
+
+## HARD RULE - LOCAL ONLY (owner decision, 2026-09-16)
+- NEVER run `git push`, `git remote add|set-url|remove`, `gh`, or anything that writes to a remote.
+- NEVER run deploy scripts (`deploy*.js`, `deploy*.mjs`, deploy helpers), never ssh/scp/rsync to the production server, never rebuild or upload a deploy bundle.
+- NEVER run `git config` against the remote or read/modify `.git/config`.
+- Production deployment is the owner's action, always. The loop ends at a local commit + artifacts.
+- If something cannot be verified without deploying, it stays a written proposal - do not find another route to production.
